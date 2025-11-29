@@ -1,6 +1,9 @@
 # Three Owls Bookstore
 
+Three Owls Book Store is an application created as an academic project. It includes user registration and login, product browsing with filtering and sorting, a detailed product view, a functional shopping cart, order placement, multilingual support, and user profile management.
 This project represents the foundation of an online bookstore platform built with a modern tech stack.
+
+<img width="1269" height="676" alt="image" src="https://github.com/user-attachments/assets/494195fa-c618-491e-8ba1-293cbcdabbd0" />
 
 ---
 
