@@ -1,11 +1,16 @@
-# Project Name
+# Three Owls Bookstore
 
-A brief description of what this project does and who it’s for.
+This project represents the foundation of an online bookstore platform built with a modern tech stack.
 
-## 🚀 Features
+---
 
-- Feature 1 — what it does
-- Feature 2 — why it's useful
-- Feature 3 — any cool tech involved
+## 🧰 Technologies Used
 
+### Backend
+- **C# (.NET)** – API, business logic, and server-side functionality
+
+### Frontend
+- **Vue.js** – Responsive, component-based user interface
+
+---
 
