@@ -1,0 +1,21 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/be/WebStore/.vs
+/be/WebStore/WebStore.Entities/obj
+/be/WebStore/WebStore.Repositories/obj
+/be/WebStore/WebStore.RepositoryContracts/obj
+/be/WebStore/WebStore.ServiceContracts/obj
+/be/WebStore/WebStore.Services/obj
+/be/WebStore/WebStore.Web/obj
+/be/WebStore/WebStore.Entities/bin/Debug/net8.0
+/be/WebStore/WebStore.Repositories/bin/Debug/net8.0
+/be/WebStore/WebStore.RepositoryContracts/bin/Debug/net8.0
+/be/WebStore/WebStore.ServiceContracts/bin/Debug/net8.0
+/be/WebStore/WebStore.Services/bin/Debug/net8.0
+/be/WebStore/WebStore.Web/bin/Debug/net9.0
+/be/WebStore/WebStore.API/obj
+/be/WebStore/WebStore.API/bin/Debug/net8.0
+/be/WebStore/WebStore.API/WebStore.API.csproj.user
