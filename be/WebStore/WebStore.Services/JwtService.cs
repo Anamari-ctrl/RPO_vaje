@@ -29,7 +29,8 @@ namespace WebStore.Services
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Iat, now.ToString(),ClaimValueTypes.Integer64), //Issued at (date and time of token generation)
                     new Claim(ClaimTypes.NameIdentifier, user.Email!.ToString()),
-                    new Claim(ClaimTypes.NameIdentifier, user.FullName!.ToString())
+                    new Claim(ClaimTypes.NameIdentifier, user.FullName!.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email!.ToString())
                 ];
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
