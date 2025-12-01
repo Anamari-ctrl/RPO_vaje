@@ -6,7 +6,7 @@
         <h1>THE THREE OWLS BOOKSTORE .</h1>
       </div>
 
-      <nav class="nav">
+      <nav class="nav" v-if="!isAuthPage">
         <router-link class="item" to="/">🏠 Home</router-link>
         <router-link class="item" to="/">📚 Books</router-link>
         <router-link class="item" to="/">🏷️ Discounts</router-link>
@@ -19,8 +19,22 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
 export default {
-  name: 'App'
+  name: 'App',
+  setup() {
+    const route = useRoute();
+    
+    const isAuthPage = computed(() => {
+      return route.name === 'Login' || route.name === 'Register';
+    });
+
+    return {
+      isAuthPage
+    };
+  }
 }
 </script>
 
