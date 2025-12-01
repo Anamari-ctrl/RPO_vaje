@@ -1,4 +1,4 @@
-﻿namespace WebStore.ServiceContracts.DTO.Responses
+﻿namespace WebStore.ServiceContracts.DTO.ProductDTO
 {
     public class ProductResponse
     {

@@ -2,7 +2,7 @@
 
 namespace WebStore.Entities.Identity
 {
-    internal class ApplicationRole : IdentityRole<Guid>
+    public class ApplicationRole : IdentityRole<Guid>
     {
     }
 }

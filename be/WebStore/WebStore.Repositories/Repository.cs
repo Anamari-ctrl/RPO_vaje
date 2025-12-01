@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WebStore.Entities;
+using WebStore.Entities.DatabaseContext;
 using WebStore.RepositoryContracts;
 
 namespace WebStore.Repositories

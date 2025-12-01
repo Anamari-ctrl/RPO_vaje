@@ -1,4 +1,4 @@
-﻿using WebStore.Entities;
+﻿using WebStore.Entities.DatabaseContext;
 using WebStore.Entities.Models;
 using WebStore.RepositoryContracts;
 

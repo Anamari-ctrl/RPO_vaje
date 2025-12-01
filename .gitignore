@@ -19,3 +19,9 @@
 /be/WebStore/WebStore.API/obj
 /be/WebStore/WebStore.API/bin/Debug/net8.0
 /be/WebStore/WebStore.API/WebStore.API.csproj.user
+/be/WebStore/WebStore.API/bin/Release/net8.0
+/be/WebStore/WebStore.Entities/bin/Release/net8.0
+/be/WebStore/WebStore.Repositories/bin/Release/net8.0
+/be/WebStore/WebStore.RepositoryContracts/bin/Release/net8.0
+/be/WebStore/WebStore.ServiceContracts/bin/Release/net8.0
+/be/WebStore/WebStore.Services/bin/Release/net8.0
