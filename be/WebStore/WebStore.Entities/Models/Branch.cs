@@ -1,7 +1,10 @@
-﻿namespace WebStore.Entities.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebStore.Entities.Models
 {
     public class Branch : BaseEntity
     {
+        [Key]
         public Guid BranchId { get; set; }
 
         public string BranchName { get; set; } = string.Empty;
