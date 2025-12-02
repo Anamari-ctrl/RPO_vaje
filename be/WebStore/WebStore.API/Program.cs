@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebStore.API.Endpoints.v1;
 using WebStore.Entities.DatabaseContext;
 using WebStore.Entities.Identity;
 using WebStore.ServiceContracts;
@@ -108,6 +109,9 @@ namespace WebStore.API
 
             app.UseAuthorization();
 
+            app.MapAccountEndpoints();
+
+            app.UseCors();
 
             app.Run();
         }
