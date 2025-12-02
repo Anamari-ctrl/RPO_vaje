@@ -25,3 +25,4 @@
 /be/WebStore/WebStore.RepositoryContracts/bin/Release/net8.0
 /be/WebStore/WebStore.ServiceContracts/bin/Release/net8.0
 /be/WebStore/WebStore.Services/bin/Release/net8.0
+/be/WebStore/WebStore.Entities/Migrations
