@@ -1,6 +1,6 @@
 <template>
-    <div class="login-container">
-        <div class="login-card">
+    <div class="register-container">
+        <div class="register-card">
             <h2>Register</h2>
 
             <form @submit.prevent="handleRegister">
@@ -115,8 +115,7 @@
 </script>
 
 <style scoped>
-    /* Reuses same styles from LoginView */
-    .login-container {
+    .register-container {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -124,7 +123,7 @@
         padding: 20px;
     }
 
-    .login-card {
+    .register-card {
         background: white;
         padding: 40px;
         border-radius: 8px;
