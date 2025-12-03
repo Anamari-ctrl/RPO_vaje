@@ -10,7 +10,7 @@
                            id="fullName"
                            v-model="registerForm.fullName"
                            required
-                           placeholder="Enter your full name"
+                           placeholder="Your full name, e.g: Jane Doe"
                            :disabled="isLoading" />
                 </div>
 
@@ -20,7 +20,7 @@
                            id="email"
                            v-model="registerForm.email"
                            required
-                           placeholder="Enter your email"
+                           placeholder="Your email, e.g: janedoe@mail.com"
                            :disabled="isLoading" />
                 </div>
 
@@ -30,7 +30,17 @@
                            id="password"
                            v-model="registerForm.password"
                            required
-                           placeholder="Enter your password"
+                           placeholder="Your password"
+                           :disabled="isLoading" />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Confirm Password</label>
+                    <input type="password"
+                           id="confirm-password"
+                           v-model="registerForm.confirmPassword"
+                           required
+                           placeholder="Re-enter your password"
                            :disabled="isLoading" />
                 </div>
 
@@ -63,7 +73,8 @@
             const registerForm = ref({
                 fullName: '',
                 email: '',
-                password: ''
+                password: '',
+                confirmPassword: ''
             });
 
             const errorMessage = ref('');
@@ -71,6 +82,13 @@
 
             const handleRegister = async () => {
                 errorMessage.value = '';
+
+                // password check
+                if (registerForm.value.password !== registerForm.value.confirmPassword) {
+                    errorMessage.value = 'Passwords do not match.';
+                    return;
+                }
+
                 isLoading.value = true;
 
                 try {
@@ -80,7 +98,6 @@
                         password: registerForm.value.password
                     });
 
-                    // After successful register, auto-login if API returns token
                     if (response.token) {
                         accountService.login(response.token);
 
@@ -94,7 +111,6 @@
 
                         router.push('/');
                     } else {
-                        // If no token returned, redirect to login
                         router.push('/login');
                     }
                 } catch (error) {
@@ -113,6 +129,7 @@
         }
     };
 </script>
+
 
 <style scoped>
     .register-container {

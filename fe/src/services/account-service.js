@@ -1,4 +1,5 @@
 import { reactive, readonly } from 'vue';
+const API_BASE_URL = "http://localhost:7020/api/v1/auth";
 
 class AccountService {
   constructor() {
@@ -16,10 +17,27 @@ class AccountService {
 
   getState() {
     return readonly(this.state);
-  }
+    }
+
+    async postRegister(registerUser) {
+        const response = await fetch(`${API_BASE_URL}/register`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(registerUser)
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || "Registration failed");
+        }
+
+        return await response.json();
+    }
 
   async postLogin(loginUser) {
-    const response = await fetch('/api/accounts/login', {
+      const response = await fetch('${API_BASE_URL}/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -40,7 +58,7 @@ class AccountService {
     const headers = this.getHeaderData();
     
     try {
-      const response = await fetch('/api/accounts/logout', {
+        const response = await fetch('${API_BASE_URL}/logout', {
         method: 'GET',
         headers: headers
       });
@@ -104,7 +122,7 @@ class AccountService {
     this.state.currentEmail = email;
     this.state.currentUserId = userId;
     this.state.currentFullName = fullName;
-  }
+    }
 }
 
 
