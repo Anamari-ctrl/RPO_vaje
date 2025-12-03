@@ -39,5 +39,16 @@ This project represents the foundation of an online bookstore platform built wit
 
 ### Configuration
 - Set database connection string in appsetting.json.
-  
+      - In SQL Server Object Explorer, create database and add it's connection string. 
+- Run in Package Manager Console (for project WebStore.Entities):
+      - Add-Migration Initial
+      - Update-database
 ---
+
+### Authors
+- Miša Rožman Atelšek
+- Anamari Orehar
+- Miha Potočnik
+
+---
+
