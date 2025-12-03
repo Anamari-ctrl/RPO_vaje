@@ -37,12 +37,23 @@ This project represents the foundation of an online bookstore platform built wit
 
 ---
 
-### Configuration
+### Configuration BE
 - Set database connection string in appsetting.json.
-      - In SQL Server Object Explorer, create database and add it's connection string. 
+- In SQL Server Object Explorer, create database and add it's connection string. 
 - Run in Package Manager Console (for project WebStore.Entities):
-      - Add-Migration Initial
-      - Update-database
+- Add-Migration Initial
+- Update-database
+
+#### Configuration FE
+- Requirements: Node.js 16+ and npm
+- From PowerShell, install and run the frontend:
+
+```powershell
+npm install
+npm run serve
+```
+
+- Open the app (usually `http://localhost:8081/`)
 ---
 
 ### Authors
