@@ -110,6 +110,7 @@ namespace WebStore.API
             app.UseAuthorization();
 
             app.MapAccountEndpoints();
+            app.MapUserEndpoints();
 
             app.UseCors();
 

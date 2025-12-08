@@ -29,7 +29,7 @@ namespace WebStore.Services
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Iat, now.ToString(),ClaimValueTypes.Integer64), //Issued at (date and time of token generation)
                     new Claim(ClaimTypes.NameIdentifier, user.Email!.ToString()),
-                    new Claim(ClaimTypes.NameIdentifier, user.FullName!.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, user.FirstName!.ToString()+" "+user.LastName!.ToString()),
                     new Claim(ClaimTypes.Email, user.Email!.ToString())
                 ];
 
@@ -52,7 +52,8 @@ namespace WebStore.Services
                 Token = token,
                 Email = user.Email,
                 Expiration = expiration,
-                FullName = user.FullName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 RefreshToken = GenerateRefreshToken(),
                 RefreshTokenExpirationDateTime = DateTime.Now.AddMinutes(int.Parse(_configuration["RefreshToken:EXPIRATION_MINUTES"]!))
             };

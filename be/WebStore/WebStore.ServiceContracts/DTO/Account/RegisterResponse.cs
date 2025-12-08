@@ -15,7 +15,10 @@ namespace WebStore.ServiceContracts.DTO.Account
         [Compare(nameof(Password), ErrorMessage = "Password and confirm password do not match!")]
         public string? ConfirmPassword { get; set; }
 
-        [Required(ErrorMessage = "FullName can't be black!")]
-        public string? FullName { get; set; }
+        [Required(ErrorMessage = "FirstName can't be black!")]
+        public string? FirstName { get; set; }
+
+        [Required(ErrorMessage = "LastName can't be black!")]
+        public string? LastName { get; set; }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.Metrics;
+using System.Net;
 using System.Security.Claims;
 using WebStore.Entities.Identity;
 using WebStore.ServiceContracts;
@@ -17,6 +19,8 @@ namespace WebStore.API.Endpoints.v1
             app.MapPost("api/v1/auth/login", Login);
             app.MapPost("api/v1/auth/refresh", RefreshToken).RequireAuthorization();
             app.MapGet("api/v1/auth/logout", Logout).RequireAuthorization();
+            app.MapGet("api/v1/auth/reset-password", ResetPassword).RequireAuthorization();
+
         }
 
         [AllowAnonymous]
@@ -35,7 +39,8 @@ namespace WebStore.API.Endpoints.v1
 
                 ApplicationUser user = new()
                 {
-                    FullName = registerDTO.FullName,
+                    FirstName = registerDTO.FirstName,
+                    LastName = registerDTO.LastName,
                     Email = registerDTO.Email,
                     UserName = registerDTO.Email,
                 };
@@ -143,5 +148,29 @@ namespace WebStore.API.Endpoints.v1
 
             return Results.NoContent();
         }
+
+        public static async Task<IResult> ResetPassword(string token,
+                                                        string newPassword,
+                                                        UserManager<ApplicationUser> userManager,
+                                                        ClaimsPrincipal user)
+        {
+            ApplicationUser? currentUser = await userManager.GetUserAsync(user);
+
+            if (currentUser == null)
+            {
+                return Results.NotFound();
+            }
+
+            IdentityResult? result = await userManager.ResetPasswordAsync(currentUser, token, newPassword);
+
+            if (!result.Succeeded)
+            {
+                return Results.Problem("Error while changing password!");
+            }
+
+            return Results.Ok("Your password was successfuly changed!");
+        }
+
+
     }
 }

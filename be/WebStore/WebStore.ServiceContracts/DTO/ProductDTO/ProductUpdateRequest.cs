@@ -1,25 +1,31 @@
-﻿using WebStore.Entities.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata.Ecma335;
+using WebStore.Entities.Models;
 
 namespace WebStore.ServiceContracts.DTO.ProductDTO
 {
-    public class ProductResponse
+    public class ProductUpdateRequest
     {
+        [Required(ErrorMessage = "Product id can't be blank!")]
         public Guid ProductId { get; set; }
 
+        [Required(ErrorMessage = "Category id can't be blank!")]
         public Guid CategoryId { get; set; }
 
+        [Required(ErrorMessage = "Genre id can't be blank!")]
         public Guid GenreId { get; set; }
 
+        [Required(ErrorMessage = "Branch can't be blank!")]
         public Guid BranchId { get; set; }
 
-        public int ProductNumber { get; set; }
-
+        [Required(ErrorMessage = "Product name can't be blank!")]
         public string? ProductName { get; set; }
 
         public string? ShortDescription { get; set; }
 
         public string? LongDescription { get; set; }
 
+        [Required(ErrorMessage = "Product price can't be blank!")]
         public decimal Price { get; set; }
 
         public bool IsAvailable { get; set; }
@@ -34,9 +40,9 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
 
         public bool IsActive { get; set; }
 
-        public ProductUpdateRequest ToProductUpdateRequest()
+        public Product ToProduct()
         {
-            return new ProductUpdateRequest()
+            return new Product()
             {
                 ProductId = ProductId,
                 CategoryId = CategoryId,
@@ -52,30 +58,6 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
                 TechnicalDetails = TechnicalDetails,
                 ImageUrl = ImageUrl,
                 IsActive = IsActive
-            };
-        }
-    }
-
-    public static class ProductResponseExtensions
-    {
-        public static ProductResponse ToProductResponse(this Product product)
-        {
-            return new ProductResponse()
-            {
-                ProductId = product.ProductId,
-                CategoryId = product.CategoryId,
-                GenreId = product.GenreId,
-                BranchId = product.BranchId,
-                ProductName = product.ProductName,
-                ShortDescription = product.ShortDescription,
-                LongDescription = product.LongDescription,
-                Price = product.Price,
-                IsAvailable = product.IsAvailable,
-                Warranty = product.Warranty,
-                ManufacturerPageUrl = product.ManufacturerPageUrl,
-                TechnicalDetails = product.TechnicalDetails,
-                ImageUrl = product.ImageUrl,
-                IsActive = product.IsActive
             };
         }
     }
