@@ -16,64 +16,92 @@
             <div v-if="activeScreen === 'dashboard'">
                 <h3>Dashboard</h3>
                 <p>
-                    Hello {{ user.name || "User" }}
-                    (not you?<span class="link" @click="logout"> Logout</span>)
+                    Hello {{ user.firstName || "User" }}
+                    (not you? <span class="link" @click="logout">Logout</span>)
                 </p>
 
                 <p>
-                    In your account dashboard you can <span class="link" @click="activeScreen = 'orders'">view your recent orders</span> and <span class="link" @click="activeScreen = 'settings'">edit your account information</span>
+                    In your account dashboard you can
+                    <span class="link" @click="activeScreen = 'orders'">view your recent orders</span>
+                    and
+                    <span class="link" @click="activeScreen = 'settings'">edit your account information</span>.
                 </p>
             </div>
 
             <!-- Account Settings -->
             <div v-if="activeScreen === 'settings'">
                 <h3>Account Settings</h3>
-
                 <form @submit.prevent="saveProfile">
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input v-model="user.name" type="text" required />
-                    </div>
-                    <div class="form-group">
-                        <label>Lastname</label>
-                        <input v-model="user.lastname" type="text" required />
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" v-model="user.firstName" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" v-model="user.lastName" required />
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label>Email</label>
-                        <input v-model="user.email" type="email" required />
+                        <input type="email" v-model="user.email" required />
                     </div>
 
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" v-model="user.address" />
+                    </div>
 
-                    <h3>Change password</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" v-model="user.city" />
+                        </div>
+                        <div class="form-group">
+                            <label>Postal Code</label>
+                            <input type="text" v-model="user.postalCode" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Country</label>
+                        <input type="text" v-model="user.country" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" v-model="user.phoneNumber" />
+                    </div>
+
+                    <h3>Change Password</h3>
 
                     <div class="form-group">
                         <label>Current Password</label>
-                        <input v-model="user.password" type="password" placeholder="Your password" />
+                        <input type="password" v-model="user.password" />
                     </div>
+
                     <div class="form-group">
                         <label>New Password</label>
-                        <input v-model="user.newPassword" type="password" placeholder="New password" />
+                        <input type="password" v-model="user.newPassword" />
                     </div>
+
                     <div class="form-group">
                         <label>Confirm Password</label>
-                        <input v-model="user.confirmPassword" type="password" placeholder="Re-enter your password" />
+                        <input type="password" v-model="user.confirmPassword" />
                     </div>
 
                     <button type="submit" class="btn-primary">Save Changes</button>
                 </form>
             </div>
 
-
-
-
+            <!-- Orders -->
             <div v-if="activeScreen === 'orders'">
                 <h3>Order History</h3>
 
-                <!-- no orders -->
-                <p v-if="orders.length === 0">You do not have any orders yet.</p>
+                <p v-if="orders.length === 0">You have no orders yet.</p>
 
-                <!-- orders tabela -->
                 <table v-if="orders.length > 0" class="orders-table">
                     <thead>
                         <tr>
@@ -90,39 +118,28 @@
                             <td>{{ new Date(o.createdAt).toLocaleDateString() }}</td>
                             <td>{{ o.status }}</td>
                             <td>{{ o.total }} €</td>
-                            <td>
-                                <button class="btn-small" @click="selectedOrder = o">
-                                    View
-                                </button>
-                            </td>
+                            <td><button class="btn-small" @click="selectedOrder = o">View</button></td>
                         </tr>
                     </tbody>
                 </table>
 
-                <!-- ORDER DETAILS -->
                 <div v-if="selectedOrder" class="order-details">
                     <h4>Order #{{ selectedOrder.id }}</h4>
-
-                    <div v-for="item in selectedOrder.items" :key="item.bookId" class="order-item">
-                        <strong>{{ item.bookTitle }}</strong><br />
+                    <div v-for="item in selectedOrder.items" :key="item.productId" class="order-item">
+                        <strong>{{ item.productName }}</strong><br />
                         Quantity: {{ item.quantity }}<br />
                         Price: {{ item.price }} €
                     </div>
-
-                    <button class="btn-small" @click="selectedOrder = null">
-                        Close
-                    </button>
+                    <button class="btn-small" @click="selectedOrder = null">Close</button>
                 </div>
             </div>
 
-
         </div>
-
     </div>
 </template>
 
 <script>
-    import { ref, watch } from "vue";
+    import { ref, watch, onMounted } from "vue";
     import { useRouter } from "vue-router";
     import accountService from "../services/account-service";
     import orderService from "../services/order-service";
@@ -131,13 +148,20 @@
         name: "ProfileView",
         setup() {
             const router = useRouter();
-
             const activeScreen = ref("dashboard");
 
             const user = ref({
-                name: "",
-                lastname: "",
+                firstName: "",
+                lastName: "",
                 email: "",
+                address: "",
+                city: "",
+                country: "",
+                postalCode: "",
+                phoneNumber: "",
+                password: "",
+                newPassword: "",
+                confirmPassword: ""
             });
 
             const orders = ref([]);
@@ -148,32 +172,51 @@
                 router.push("/login");
             };
 
+            const fetchProfile = async () => {
+                try {
+                    const headers = accountService.getHeaderData();
+                    const response = await fetch("http://localhost:7020/api/v1/users/me", { headers });
+                    if (!response.ok) throw new Error("Failed to fetch profile");
+                    const data = await response.json();
+                    Object.assign(user.value, data);
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
+            const saveProfile = async () => {
+                try {
+                    const headers = accountService.getHeaderData();
+                    const response = await fetch("http://localhost:7020/api/v1/users/me", {
+                        method: "PUT",
+                        headers,
+                        body: JSON.stringify(user.value)
+                    });
+                    if (!response.ok) throw new Error("Failed to save profile");
+                    alert("Profile updated successfully!");
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
             const fetchOrders = async () => {
                 try {
-                    const result = await orderService.getMyOrders();
-                    orders.value = result;
+                    orders.value = await orderService.getMyOrders();
                 } catch (err) {
-                    console.error("Order load failed:", err);
+                    console.error(err);
                 }
             };
 
             watch(activeScreen, (screen) => {
-                if (screen === "orders") {
-                    fetchOrders();
-                }
+                if (screen === "orders") fetchOrders();
             });
 
-            return {
-                user,
-                logout,
-                activeScreen,
-                orders,
-                selectedOrder
-            };
-        },
+            onMounted(fetchProfile);
+
+            return { user, logout, activeScreen, saveProfile, orders, selectedOrder };
+        }
     };
 </script>
-
 
 <style scoped>
     .profile-container {
@@ -213,33 +256,16 @@
         box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
 
-    /* clickable dashboard links */
-    .dash-links {
-        margin-top: 15px;
-    }
-
-        .dash-links li {
-            cursor: pointer;
-            margin-bottom: 8px;
-            color: #0077ff;
-        }
-
-            .dash-links li:hover {
-                text-decoration: underline;
-            }
-
-    /* clickable "Logout" inside text */
-    .link {
-        color: #0077ff;
-        cursor: pointer;
-    }
-
-        .link:hover {
-            text-decoration: underline;
-        }
-
-    /* form styling */
+    /* Form styling */
     .form-group {
+        margin-bottom: 15px;
+        margin-right: 15px;
+        flex: 1;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 30px;
         margin-bottom: 15px;
     }
 
@@ -261,6 +287,41 @@
     }
 
         .btn-primary:hover {
+            background: #005fcc;
+        }
+
+    .link {
+        color: #0077ff;
+        cursor: pointer;
+    }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+        .orders-table th,
+        .orders-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+    .btn-small {
+        padding: 4px 8px;
+        background: #0077ff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+        .btn-small:hover {
             background: #005fcc;
         }
 </style>
