@@ -7,7 +7,7 @@
                    placeholder="🔍 Search books..." />
         </div>
         <div class="nav-1">
-            <router-link class="item" to="/">👤 Profile</router-link>
+            <router-link class="item" to="/profile">👤 Profile</router-link>
             <router-link class="item" to="/">❤︎ Wishlist</router-link>
         </div>
     </nav>

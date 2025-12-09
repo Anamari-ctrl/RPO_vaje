@@ -21,7 +21,7 @@
                 </p>
 
                 <p>
-                    In your account dashboard you can <span class="link" @click="orders">view your recent orders</span> and <span class="link" @click="settings">edit your account information</span>
+                    In your account dashboard you can <span class="link" @click="activeScreen = 'orders'">view your recent orders</span> and <span class="link" @click="activeScreen = 'settings'">edit your account information</span>
                 </p>
             </div>
 
@@ -64,10 +64,57 @@
                 </form>
             </div>
 
+
+
+
             <div v-if="activeScreen === 'orders'">
-                <h3>Orders</h3>
-                <p>Your order history will show here.</p>
+                <h3>Order History</h3>
+
+                <!-- no orders -->
+                <p v-if="orders.length === 0">You do not have any orders yet.</p>
+
+                <!-- orders tabela -->
+                <table v-if="orders.length > 0" class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="o in orders" :key="o.id">
+                            <td>#{{ o.id }}</td>
+                            <td>{{ new Date(o.createdAt).toLocaleDateString() }}</td>
+                            <td>{{ o.status }}</td>
+                            <td>{{ o.total }} €</td>
+                            <td>
+                                <button class="btn-small" @click="selectedOrder = o">
+                                    View
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- ORDER DETAILS -->
+                <div v-if="selectedOrder" class="order-details">
+                    <h4>Order #{{ selectedOrder.id }}</h4>
+
+                    <div v-for="item in selectedOrder.items" :key="item.bookId" class="order-item">
+                        <strong>{{ item.bookTitle }}</strong><br />
+                        Quantity: {{ item.quantity }}<br />
+                        Price: {{ item.price }} €
+                    </div>
+
+                    <button class="btn-small" @click="selectedOrder = null">
+                        Close
+                    </button>
+                </div>
             </div>
+
 
         </div>
 
@@ -75,82 +122,58 @@
 </template>
 
 <script>
-    import { ref, onMounted } from "vue";
+    import { ref, watch } from "vue";
     import { useRouter } from "vue-router";
     import accountService from "../services/account-service";
+    import orderService from "../services/order-service";
 
     export default {
         name: "ProfileView",
         setup() {
             const router = useRouter();
+
             const activeScreen = ref("dashboard");
 
             const user = ref({
-                id: "",
                 name: "",
                 lastname: "",
                 email: "",
-                orderHistory: [],
-                password: "",
-                newPassword: "",
-                confirmPassword: ""
             });
 
-            //  GET /api/v1/users/me
-
-            const loadUser = async () => {
-                try {
-                    const res = await accountService.getMe();
-                    user.value = {
-                        ...user.value,
-                        id: res.data.id,
-                        name: res.data.name,
-                        lastname: res.data.lastname,
-                        email: res.data.email,
-                        orderHistory: res.data.orderHistory || []
-                    };
-                } catch (err) {
-                    console.error("Error loading profile:", err);
-                }
-            };
-
-            //  PUT /api/v1/users/me
-            const saveProfile = async () => {
-                try {
-                    // preveri geslo
-                    if (user.value.newPassword !== user.value.confirmPassword) {
-                        alert("Passwords do not match!");
-                        return;
-                    }
-
-                    const payload = {
-                        name: user.value.name,
-                        lastname: user.value.lastname,
-                        email: user.value.email,
-                        password: user.value.newPassword || null
-                    };
-
-                    await accountService.updateMe(payload);
-                    alert("Profile updated successfully!");
-                } catch (error) {
-                    console.error("Error saving profile:", error);
-                    alert("Failed to save profile.");
-                }
-            };
+            const orders = ref([]);
+            const selectedOrder = ref(null);
 
             const logout = () => {
                 accountService.logout();
                 router.push("/login");
             };
 
-            onMounted(() => {
-                loadUser();
+            const fetchOrders = async () => {
+                try {
+                    const result = await orderService.getMyOrders();
+                    orders.value = result;
+                } catch (err) {
+                    console.error("Order load failed:", err);
+                }
+            };
+
+            watch(activeScreen, (screen) => {
+                if (screen === "orders") {
+                    fetchOrders();
+                }
             });
 
-            return { user, logout, activeScreen, saveProfile };
+            return {
+                user,
+                logout,
+                activeScreen,
+                orders,
+                selectedOrder
+            };
         },
     };
 </script>
+
 
 <style scoped>
     .profile-container {
