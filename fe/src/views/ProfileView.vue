@@ -1,43 +1,76 @@
 <template>
+    <h2>My Profile</h2>
+
     <div class="profile-container">
-        <!-- Profile card -->
-        <div class="profile-card">
-            <h2>Your Profile</h2>
-            <p class="greeting">Hello <span>{{ user.fullName }}</span>!</p>
 
-            <div class="info-row">
-                <strong>Full name:</strong>
-                <span>{{ user.fullName }}</span>
-            </div>
-
-            <div class="info-row">
-                <strong>Email:</strong>
-                <span>{{ user.email }}</span>
-            </div>
-
-            <div class="info-row">
-                <strong>User ID:</strong>
-                <span>{{ user.userId }}</span>
-            </div>
-
-            <button class="logout-btn" @click="logout">Logout</button>
+        <div class="button-table">
+            <button class="table-btn" @click="activeScreen = 'dashboard'">Dashboard</button>
+            <button class="table-btn" @click="activeScreen = 'settings'">Account Settings</button>
+            <button class="table-btn" @click="activeScreen = 'orders'">Orders</button>
+            <button class="table-btn" @click="logout">Logout</button>
         </div>
 
-        <!-- Order history card -->
-        <div class="order-card">
-            <h2>Order History</h2>
+        <div class="content-box">
 
-            <div v-if="user.orderHistory && user.orderHistory.length" class="orders-list">
-                <div class="order-item"
-                     v-for="(order, index) in user.orderHistory"
-                     :key="index">
-                    <strong>Order #{{ index + 1 }}</strong>
-                    <p>{{ order }}</p>
-                </div>
+            <!-- dashboard -->
+            <div v-if="activeScreen === 'dashboard'">
+                <h3>Dashboard</h3>
+                <p>
+                    Hello {{ user.name || "User" }}
+                    (not you?<span class="link" @click="logout"> Logout</span>)
+                </p>
+
+                <p>
+                    In your account dashboard you can <span class="link" @click="orders">view your recent orders</span> and <span class="link" @click="settings">edit your account information</span>
+                </p>
             </div>
 
-            <p v-else class="empty-text">You have no past orders.</p>
+            <!-- Account Settings -->
+            <div v-if="activeScreen === 'settings'">
+                <h3>Account Settings</h3>
+
+                <form @submit.prevent="saveProfile">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input v-model="user.name" type="text" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Lastname</label>
+                        <input v-model="user.lastname" type="text" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input v-model="user.email" type="email" required />
+                    </div>
+
+
+                    <h3>Change password</h3>
+
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <input v-model="user.password" type="password" placeholder="Your password" />
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input v-model="user.newPassword" type="password" placeholder="New password" />
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input v-model="user.confirmPassword" type="password" placeholder="Re-enter your password" />
+                    </div>
+
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </form>
+            </div>
+
+            <div v-if="activeScreen === 'orders'">
+                <h3>Orders</h3>
+                <p>Your order history will show here.</p>
+            </div>
+
         </div>
+
     </div>
 </template>
 
@@ -50,33 +83,72 @@
         name: "ProfileView",
         setup() {
             const router = useRouter();
+            const activeScreen = ref("dashboard");
 
             const user = ref({
-                fullName: "",
+                id: "",
+                name: "",
+                lastname: "",
                 email: "",
-                userId: "",
-                orderHistory: [] 
+                orderHistory: [],
+                password: "",
+                newPassword: "",
+                confirmPassword: ""
             });
 
-            onMounted(() => {
-                if (!accountService.getToken()) {
-                    router.push("/login");
-                    return;
-                }
+            //  GET /api/v1/users/me
 
-                const stored = accountService.getUserData();
-                if (stored) {
-                    user.value = stored;
+            const loadUser = async () => {
+                try {
+                    const res = await accountService.getMe();
+                    user.value = {
+                        ...user.value,
+                        id: res.data.id,
+                        name: res.data.name,
+                        lastname: res.data.lastname,
+                        email: res.data.email,
+                        orderHistory: res.data.orderHistory || []
+                    };
+                } catch (err) {
+                    console.error("Error loading profile:", err);
                 }
-            });
+            };
+
+            //  PUT /api/v1/users/me
+            const saveProfile = async () => {
+                try {
+                    // preveri geslo
+                    if (user.value.newPassword !== user.value.confirmPassword) {
+                        alert("Passwords do not match!");
+                        return;
+                    }
+
+                    const payload = {
+                        name: user.value.name,
+                        lastname: user.value.lastname,
+                        email: user.value.email,
+                        password: user.value.newPassword || null
+                    };
+
+                    await accountService.updateMe(payload);
+                    alert("Profile updated successfully!");
+                } catch (error) {
+                    console.error("Error saving profile:", error);
+                    alert("Failed to save profile.");
+                }
+            };
 
             const logout = () => {
                 accountService.logout();
                 router.push("/login");
             };
 
-            return { user, logout };
-        }
+            onMounted(() => {
+                loadUser();
+            });
+
+            return { user, logout, activeScreen, saveProfile };
+        },
     };
 </script>
 
@@ -84,79 +156,88 @@
     .profile-container {
         display: flex;
         gap: 30px;
-        justify-content: center;
         align-items: flex-start;
-        padding: 40px 20px;
-        flex-wrap: wrap;
     }
 
-    .profile-card,
-    .order-card {
+    .button-table {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        width: 250px;
+        border: 1px solid #ddd;
+        flex-shrink: 0;
+    }
+
+    .table-btn {
+        padding: 16px;
+        background: #fafafa;
+        border: 1px solid #ddd;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-align: left;
+    }
+
+        .table-btn:hover {
+            background: #f0f0f0;
+        }
+
+    .content-box {
+        flex: 1;
+        padding: 20px;
         background: white;
-        padding: 35px;
-        width: 100%;
-        max-width: 420px;
-        border-radius: 12px;
+        min-height: 200px;
+        border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
 
-    h2 {
-        text-align: center;
-        margin-bottom: 20px;
-        color: #333;
+    /* clickable dashboard links */
+    .dash-links {
+        margin-top: 15px;
     }
 
-    .greeting {
-        text-align: center;
-        margin-bottom: 25px;
-        font-size: 1.1rem;
-    }
-
-        .greeting span {
-            font-weight: 600;
+        .dash-links li {
+            cursor: pointer;
+            margin-bottom: 8px;
+            color: #0077ff;
         }
 
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #eee;
-        font-size: 16px;
+            .dash-links li:hover {
+                text-decoration: underline;
+            }
+
+    /* clickable "Logout" inside text */
+    .link {
+        color: #0077ff;
+        cursor: pointer;
     }
 
-    .logout-btn {
-        margin-top: 30px;
+        .link:hover {
+            text-decoration: underline;
+        }
+
+    /* form styling */
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    input {
         width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+    }
+
+    .btn-primary {
         padding: 12px;
-        background-color: #c0392b;
+        background: #0077ff;
         color: white;
         border: none;
         border-radius: 8px;
-        font-weight: 600;
         cursor: pointer;
-        transition: background 0.25s;
+        font-weight: bold;
     }
 
-        .logout-btn:hover {
-            background-color: #a83224;
+        .btn-primary:hover {
+            background: #005fcc;
         }
-
-    .orders-list {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .order-item {
-        padding: 12px;
-        border-radius: 8px;
-        background: #f8f8f8;
-    }
-
-    .empty-text {
-        text-align: center;
-        color: #888;
-        font-size: 0.95rem;
-        margin-top: 10px;
-    }
 </style>
