@@ -24,8 +24,9 @@
 
                 <h3>Price Range</h3>
                 <div class="price-filter">
-                    <input v-model.number="filterValues.minPrice" type="number" placeholder="Min" @input="handleFilterChange" />
-                    <input v-model.number="filterValues.maxPrice" type="number" placeholder="Max" @input="handleFilterChange" />
+                    <input v-model.number="filterValues.minPrice" type="number" placeholder="Min €" @input="handleFilterChange" class="price-input" />
+                    <span class="price-separator">-</span>
+                    <input v-model.number="filterValues.maxPrice" type="number" placeholder="Max €" @input="handleFilterChange" class="price-input" />
                 </div>
 
                 <h3>Availability</h3>
@@ -260,15 +261,23 @@ export default {
 
     .price-filter {
         display: flex;
-        gap: 6px;
+        gap: 4px;
+        align-items: center;
     }
 
-    .price-filter input {
+    .price-input {
         flex: 1;
         padding: 6px 8px;
         border: 1px solid #ddd;
         border-radius: 4px;
         font-size: 0.85rem;
+        width: 0; /* Allow flex to control width */
+    }
+
+    .price-separator {
+        color: #999;
+        font-size: 0.9rem;
+        padding: 0 2px;
     }
 
     .filter-pill {
