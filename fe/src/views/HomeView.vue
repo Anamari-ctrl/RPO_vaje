@@ -4,7 +4,8 @@
             <input v-model="searchQuery"
                    type="text"
                    class="search-bar"
-                   placeholder="🔍 Search books..." />
+                   placeholder="🔍 Search books..."
+                   @input="handleSearch" />
         </div>
         <div class="nav-1">
             <router-link class="item" to="/profile">👤 Profile</router-link>
@@ -14,72 +15,214 @@
     <div class="content">
         <aside class="sidebar">
             <div class="filters">
-                <h3>Genres</h3>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.genres.cs" /><span>Computer Science</span></label>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.genres.fiction" /><span>Fiction</span></label>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.genres.nonfiction" /><span>Non-fiction</span></label>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.genres.history" /><span>History</span></label>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.genres.scifi" /><span>Sci-Fi</span></label>
+                <h3>Sort By</h3>
+                <select v-model="sortBy" @change="handleSortChange" class="sort-select">
+                    <option value="title">Title (A-Z)</option>
+                    <option value="price">Price (Low to High)</option>
+                    <option value="createdAt">Newest</option>
+                </select>
 
-                <h3>Format</h3>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.format.book" /><span>Hardcover</span></label>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.format.ebook" /><span>eBook</span></label>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.format.audio" /><span>Audio Book</span></label>
+                <h3>Price Range</h3>
+                <div class="price-filter">
+                    <input v-model.number="filterValues.minPrice" type="number" placeholder="Min" @input="handleFilterChange" />
+                    <input v-model.number="filterValues.maxPrice" type="number" placeholder="Max" @input="handleFilterChange" />
+                </div>
 
                 <h3>Availability</h3>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.availability.new" /><span>New Arrivals</span></label>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.availability.sale" /><span>On Sale</span></label>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.availability.inStock" /><span>In Stock</span></label>
+                <label class="filter-pill">
+                    <input type="checkbox" v-model="filterValues.inStock" @change="handleFilterChange" />
+                    <span>In Stock</span>
+                </label>
 
-                <h3>Language</h3>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.lang.en" /><span>English</span></label>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.lang.de" /><span>German</span></label>
-                <label class="filter-pill"><input type="checkbox" v-model="filters.lang.sl" /><span>Slovene</span></label>
+                <h3>Brand</h3>
+                <input v-model="filterValues.brand" type="text" placeholder="Brand" class="filter-input" @input="handleFilterChange" />
 
+                <h3>Supplier</h3>
+                <input v-model="filterValues.supplier" type="text" placeholder="Supplier" class="filter-input" @input="handleFilterChange" />
+
+                <button @click="resetFilters" class="reset-btn">Reset Filters</button>
             </div>
         </aside>
 
         <main class="main">
-            <h2 class="section-title">Books</h2>
-            <div class="grid">
-                <div class="card" v-for="(book, idx) in books" :key="idx">
-                    <img :src="book.image" :alt="book.title" />
+            <div class="main-header">
+                <h2 class="section-title">Books</h2>
+                <div class="results-info" v-if="!loading">
+                    Showing {{ (currentPage - 1) * pageSize + 1 }}-{{ Math.min(currentPage * pageSize, totalCount) }} of {{ totalCount }} books
+                </div>
+            </div>
+
+            <div v-if="loading" class="loading">Loading books...</div>
+
+            <div v-else-if="books.length === 0" class="no-results">
+                No books found. Try adjusting your filters.
+            </div>
+
+            <div v-else class="grid">
+                <div class="card" v-for="book in books" :key="book.id">
+                    <img :src="book.image || 'https://via.placeholder.com/240x300?text=No+Image'" :alt="book.title" />
                     <div class="price">{{ book.price }} €</div>
                     <button class="buy">BUY</button>
-                    <div class="description">{{ book.description }}</div>
-                    <div class="stock">Stock: {{ book.stock }}</div>
+                    <div class="description">{{ book.title }}</div>
+                    <div class="stock" :class="{ 'out-of-stock': book.stock === 0 }">
+                        Stock: {{ book.stock }}
+                    </div>
                 </div>
+            </div>
+
+            <!-- Pagination -->
+            <div v-if="totalPages > 1" class="pagination">
+                <button 
+                    @click="previousPage" 
+                    :disabled="currentPage === 1"
+                    class="btn-page">
+                    ← Previous
+                </button>
+                
+                <div class="page-numbers">
+                    <button
+                        v-for="page in paginationButtons"
+                        :key="page"
+                        @click="goToPage(page)"
+                        :class="{ active: currentPage === page }"
+                        class="btn-page-number">
+                        {{ page }}
+                    </button>
+                </div>
+
+                <button 
+                    @click="nextPage" 
+                    :disabled="currentPage === totalPages"
+                    class="btn-page">
+                    Next →
+                </button>
             </div>
         </main>
     </div>
 </template>
 
 <script>
-    export default {
-        name: 'HomeView',
-        data() {
-            return {
-                books: [
-                    { title: 'Essential Computer Science', price: 40, image: require('@/assets/book1.jpg'),stock: 2 , description: 'A Programmer’s Guide to Foundational Concepts 1st ed. Edition' },
-                    { title: 'Intro to Computer Science', price: 35, image: require('@/assets/book2.svg'), stock: 4, description: 'A friendly introduction for curious middle and high school students on their way to learn the basic fundamentals' },
-                    { title: 'Algorithms and Data', price: 57, image: require('@/assets/book3.svg'), stock: 8, description: 'Advanced Algorithms and Data Structures' },
-                    { title: 'Essential Computer Science', price: 22, image: require('@/assets/book4.svg'), stock: 0, description: 'A Programmer’s Guide to Foundational Concepts 1st ed. Edition' },
-                    { title: 'Programming Essentials', price: 29, image: require('@/assets/book5.svg'), stock: 1, description: 'Provides students with a deep, working understanding of the essential concepts of programming languages, completely revised, with significant new material.' },
-                    { title: 'Foundations of CS', price: 48, image: require('@/assets/book6.svg'), stock: 5, description: 'Foundations-of-CS is an open, community-driven primer covering the essential building blocks of computer science.' },
-                    { title: 'Algorithms and Data', price: 57, image: require('@/assets/book3.svg'), stock: 2, description: 'Advanced Algorithms and Data Structures' },
-                    { title: 'Essential Computer Science', price: 22, image: require('@/assets/book4.svg'), stock: 3, description: 'A Programmer’s Guide to Foundational Concepts 1st ed. Edition' },
-                    { title: 'Programming Essentials', price: 29, image: require('@/assets/book5.svg'), stock: 5, description: 'Provides students with a deep, working understanding of the essential concepts of programming languages, completely revised, with significant new material.' },
-                    { title: 'Foundations of CS', price: 48, image: require('@/assets/book6.svg'), stock: 0, description: 'Foundations-of-CS is an open, community-driven primer covering the essential building blocks of computer science.' }
-                ],
-                filters: {
-                    genres: { cs: true, fiction: false, nonfiction: false, history: false, scifi: false },
-                    format: { book: true, ebook: false, audio: false },
-                    availability: { new: false, sale: false, inStock: true },
-                    lang: { en: true, de: false, sl: false }
-                }
+import mockBooksService from '../services/mock-books-service';
+
+export default {
+    name: 'HomeView',
+    data() {
+        return {
+            books: [],
+            searchQuery: '',
+            currentPage: 1,
+            pageSize: 9,
+            totalCount: 0,
+            totalPages: 0,
+            loading: false,
+            sortBy: 'title',
+            filterValues: {
+                minPrice: null,
+                maxPrice: null,
+                inStock: false,
+                brand: '',
+                supplier: ''
             }
+        };
+    },
+    computed: {
+        paginationButtons() {
+            const buttons = [];
+            const maxButtons = 5;
+            
+            let start = Math.max(1, this.currentPage - Math.floor(maxButtons / 2));
+            let end = Math.min(this.totalPages, start + maxButtons - 1);
+            
+            if (end - start < maxButtons - 1) {
+                start = Math.max(1, end - maxButtons + 1);
+            }
+            
+            for (let i = start; i <= end; i++) {
+                buttons.push(i);
+            }
+            
+            return buttons;
         }
+    },
+    methods: {
+        async fetchBooks() {
+            this.loading = true;
+            try {
+                const result = await mockBooksService.getBooks({
+                    page: this.currentPage,
+                    pageSize: this.pageSize,
+                    sortBy: this.sortBy,
+                    sortOrder: this.sortBy === 'price' ? 'asc' : 'asc',
+                    filters: {
+                        search: this.searchQuery,
+                        minPrice: this.filterValues.minPrice,
+                        maxPrice: this.filterValues.maxPrice,
+                        inStock: this.filterValues.inStock ? 'true' : null,
+                        brand: this.filterValues.brand,
+                        supplier: this.filterValues.supplier
+                    }
+                });
+                
+                this.books = result.items || [];
+                this.totalCount = result.totalCount || 0;
+                this.currentPage = result.currentPage || 1;
+                this.totalPages = result.totalPages || 1;
+            } catch (error) {
+                console.error('Error fetching books:', error);
+                this.books = [];
+            } finally {
+                this.loading = false;
+            }
+        },
+        handleSearch() {
+            this.currentPage = 1;
+            this.fetchBooks();
+        },
+        handleSortChange() {
+            this.currentPage = 1;
+            this.fetchBooks();
+        },
+        handleFilterChange() {
+            this.currentPage = 1;
+            this.fetchBooks();
+        },
+        resetFilters() {
+            this.searchQuery = '';
+            this.filterValues = {
+                minPrice: null,
+                maxPrice: null,
+                inStock: false,
+                brand: '',
+                supplier: ''
+            };
+            this.sortBy = 'title';
+            this.currentPage = 1;
+            this.fetchBooks();
+        },
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++;
+                this.fetchBooks();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+        previousPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+                this.fetchBooks();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+        goToPage(page) {
+            this.currentPage = page;
+            this.fetchBooks();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    },
+    mounted() {
+        this.fetchBooks();
     }
+};
 </script>
 
 <style scoped>
@@ -103,10 +246,30 @@
         gap: 18px;
     }
 
-        .filters h3 {
-            margin: 0 0 8px 0;
-            font-size: 1rem;
-        }
+    .filters h3 {
+        margin: 0 0 8px 0;
+        font-size: 1rem;
+    }
+
+    .sort-select, .filter-input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.95rem;
+    }
+
+    .price-filter {
+        display: flex;
+        gap: 6px;
+    }
+
+    .price-filter input {
+        flex: 1;
+        padding: 6px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
 
     .filter-pill {
         display: flex;
@@ -116,25 +279,53 @@
         cursor: pointer;
     }
 
-        .filter-pill input {
-            width: 16px;
-            height: 16px;
-            margin-right: 6px;
-        }
+    .filter-pill input {
+        width: 16px;
+        height: 16px;
+        margin-right: 6px;
+    }
 
-        .filter-pill span {
-            font-size: 0.95rem;
-        }
+    .filter-pill span {
+        font-size: 0.95rem;
+    }
 
-    .color-box {
-        width: 14px;
-        height: 14px;
-        border-radius: 3px;
+    .reset-btn {
+        padding: 8px 12px;
+        background: #e8e8e8;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        margin-top: 8px;
+    }
+
+    .reset-btn:hover {
+        background: #ddd;
     }
 
     /* Main area */
     .main {
         background: transparent;
+        padding: 18px;
+    }
+
+    .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .results-info {
+        font-size: 0.95rem;
+        color: #666;
+    }
+
+    .loading, .no-results {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        font-size: 1.1rem;
     }
 
     .grid {
@@ -154,18 +345,19 @@
         border-radius: 12px;
         overflow: hidden;
     }
-        .card:hover {
-            transform: translateY(-6px);
-            overflow: visible;
-        }
 
-        .card img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            margin-bottom: 12px;
-            border-radius: 6px;
-        }
+    .card:hover {
+        transform: translateY(-6px);
+        overflow: visible;
+    }
+
+    .card img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        margin-bottom: 12px;
+        border-radius: 6px;
+    }
 
     .price {
         display: inline-block;
@@ -187,35 +379,87 @@
         cursor: pointer;
     }
 
-
-
-    .filters > div + h3 {
-        margin-top: 12px;
+    .description {
+        max-height: 40px; 
+        overflow: hidden;
+        font-size: 0.9rem;
+        color: #444;
+        margin: 8px 0;
     }
 
-    @media (max-width: 900px) {
-        .content {
-            grid-template-columns: 1fr;
-        }
+    .card:hover .description {
+        overflow: visible;
+        max-height: 400px;
+    }
 
-        .sidebar {
-            order: 2
-        }
+    .stock {
+        font-size: 0.9rem;
+        color: #666;
+    }
 
-        .main {
-            order: 1
-        }
+    .stock.out-of-stock {
+        color: #d9534f;
+        font-weight: 600;
+    }
 
-        .card img {
-            height: 160px
-        }
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 30px;
+        padding: 20px;
+    }
+
+    .btn-page {
+        padding: 8px 12px;
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .btn-page:hover:not(:disabled) {
+        background: #e8e8e8;
+    }
+
+    .btn-page:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .page-numbers {
+        display: flex;
+        gap: 4px;
+    }
+
+    .btn-page-number {
+        padding: 6px 10px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        min-width: 36px;
+    }
+
+    .btn-page-number:hover {
+        background: #f5f5f5;
+    }
+
+    .btn-page-number.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
     }
 
     .nav {
         display: flex;
         align-items: center;
         gap: 20px;
-        padding: 8px 16px; /* thinner nav */
+        padding: 8px 16px;
         background: var(--panel);
         border-bottom: 1px solid var(--muted);
         width: 100%;
@@ -246,16 +490,27 @@
         width: 50%;
     }
 
+    @media (max-width: 900px) {
+        .content {
+            grid-template-columns: 1fr;
+        }
 
-    .description {
-        max-height: 40px; 
-        overflow: hidden;
-        font-size: 0.9rem;
-        color: #444;
-    }
-    .card:hover .description {
-        overflow: visible;
-        max-height: 400px;
-    }
+        .sidebar {
+            order: 2;
+        }
 
+        .main {
+            order: 1;
+        }
+
+        .card img {
+            height: 160px;
+        }
+
+        .main-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+    }
 </style>
