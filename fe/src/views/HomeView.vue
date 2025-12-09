@@ -46,6 +46,8 @@
                     <img :src="book.image" :alt="book.title" />
                     <div class="price">{{ book.price }} €</div>
                     <button class="buy">BUY</button>
+                    <div class="description">{{ book.description }}</div>
+                    <div class="stock">Stock: {{ book.stock }}</div>
                 </div>
             </div>
         </main>
@@ -58,16 +60,16 @@
         data() {
             return {
                 books: [
-                    { title: 'Elements of Computer Science', price: 40, image: require('@/assets/book1.jpg') },
-                    { title: 'Intro to Computer Science', price: 35, image: require('@/assets/book2.svg') },
-                    { title: 'Algorithms and Data', price: 57, image: require('@/assets/book3.svg') },
-                    { title: 'Essential Computer Science', price: 22, image: require('@/assets/book4.svg') },
-                    { title: 'Programming Essentials', price: 29, image: require('@/assets/book5.svg') },
-                    { title: 'Foundations of CS', price: 48, image: require('@/assets/book6.svg') },
-                    { title: 'Algorithms and Data', price: 57, image: require('@/assets/book3.svg') },
-                    { title: 'Essential Computer Science', price: 22, image: require('@/assets/book4.svg') },
-                    { title: 'Programming Essentials', price: 29, image: require('@/assets/book5.svg') },
-                    { title: 'Foundations of CS', price: 48, image: require('@/assets/book6.svg') }
+                    { title: 'Essential Computer Science', price: 40, image: require('@/assets/book1.jpg'),stock: 2 , description: 'A Programmer’s Guide to Foundational Concepts 1st ed. Edition' },
+                    { title: 'Intro to Computer Science', price: 35, image: require('@/assets/book2.svg'), stock: 4, description: 'A friendly introduction for curious middle and high school students on their way to learn the basic fundamentals' },
+                    { title: 'Algorithms and Data', price: 57, image: require('@/assets/book3.svg'), stock: 8, description: 'Advanced Algorithms and Data Structures' },
+                    { title: 'Essential Computer Science', price: 22, image: require('@/assets/book4.svg'), stock: 0, description: 'A Programmer’s Guide to Foundational Concepts 1st ed. Edition' },
+                    { title: 'Programming Essentials', price: 29, image: require('@/assets/book5.svg'), stock: 1, description: 'Provides students with a deep, working understanding of the essential concepts of programming languages, completely revised, with significant new material.' },
+                    { title: 'Foundations of CS', price: 48, image: require('@/assets/book6.svg'), stock: 5, description: 'Foundations-of-CS is an open, community-driven primer covering the essential building blocks of computer science.' },
+                    { title: 'Algorithms and Data', price: 57, image: require('@/assets/book3.svg'), stock: 2, description: 'Advanced Algorithms and Data Structures' },
+                    { title: 'Essential Computer Science', price: 22, image: require('@/assets/book4.svg'), stock: 3, description: 'A Programmer’s Guide to Foundational Concepts 1st ed. Edition' },
+                    { title: 'Programming Essentials', price: 29, image: require('@/assets/book5.svg'), stock: 5, description: 'Provides students with a deep, working understanding of the essential concepts of programming languages, completely revised, with significant new material.' },
+                    { title: 'Foundations of CS', price: 48, image: require('@/assets/book6.svg'), stock: 0, description: 'Foundations-of-CS is an open, community-driven primer covering the essential building blocks of computer science.' }
                 ],
                 filters: {
                     genres: { cs: true, fiction: false, nonfiction: false, history: false, scifi: false },
@@ -152,6 +154,10 @@
         border-radius: 12px;
         overflow: hidden;
     }
+        .card:hover {
+            transform: translateY(-6px);
+            overflow: visible;
+        }
 
         .card img {
             width: 100%;
@@ -181,7 +187,8 @@
         cursor: pointer;
     }
 
-    /* Sections separation inside sidebar */
+
+
     .filters > div + h3 {
         margin-top: 12px;
     }
@@ -238,4 +245,17 @@
         padding: 6px 12px;
         width: 50%;
     }
+
+
+    .description {
+        max-height: 40px; 
+        overflow: hidden;
+        font-size: 0.9rem;
+        color: #444;
+    }
+    .card:hover .description {
+        overflow: visible;
+        max-height: 400px;
+    }
+
 </style>
