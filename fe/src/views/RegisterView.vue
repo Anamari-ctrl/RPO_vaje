@@ -5,12 +5,22 @@
 
             <form @submit.prevent="handleRegister">
                 <div class="form-group">
-                    <label for="fullName">Full Name</label>
+                    <label for="firstName">First Name</label>
                     <input type="text"
                            id="fullName"
-                           v-model="registerForm.fullName"
+                           v-model="registerForm.firstName"
                            required
-                           placeholder="Your full name, e.g: Jane Doe"
+                           placeholder="Your first name, e.g: Jane"
+                           :disabled="isLoading" />
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Lastname</label>
+                    <input type="text"
+                           id="fullName"
+                           v-model="registerForm.lastName"
+                           required
+                           placeholder="Your lastname, e.g: Doe"
                            :disabled="isLoading" />
                 </div>
 
@@ -71,7 +81,8 @@
             const router = useRouter();
 
             const registerForm = ref({
-                fullName: '',
+                firstName: '',
+                lastName: '',
                 email: '',
                 password: '',
                 confirmPassword: ''
@@ -83,7 +94,6 @@
             const handleRegister = async () => {
                 errorMessage.value = '';
 
-                // password check
                 if (registerForm.value.password !== registerForm.value.confirmPassword) {
                     errorMessage.value = 'Passwords do not match.';
                     return;
@@ -93,21 +103,21 @@
 
                 try {
                     const response = await accountService.postRegister({
-                        fullName: registerForm.value.fullName,
+                        firstName: registerForm.value.firstName,
+                        lastName: registerForm.value.lastName,
                         email: registerForm.value.email,
-                        password: registerForm.value.password
+                        password: registerForm.value.password,
+                        confirmPassword: registerForm.value.confirmPassword
                     });
 
                     if (response.token) {
                         accountService.login(response.token);
 
-                        if (response.email && response.userId) {
-                            accountService.saveUserData(
-                                response.email,
-                                response.userId,
-                                response.fullName || ''
-                            );
-                        }
+                        accountService.saveUserData(
+                            response.email,
+                            response.userId,
+                            `${response.firstName} ${response.lastName}`
+                        );
 
                         router.push('/');
                     } else {
