@@ -112,7 +112,7 @@ export default {
             books: [],
             searchQuery: '',
             currentPage: 1,
-            pageSize: 9,
+            pageSize: 12,
             totalCount: 0,
             totalPages: 0,
             loading: false,
