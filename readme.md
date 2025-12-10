@@ -40,11 +40,19 @@ This project represents the foundation of an online bookstore platform built wit
 ---
 
 ### Configuration BE
-- Set database connection string in appsetting.json.
-- In SQL Server Object Explorer, create database and add it's connection string. 
-- Run in Package Manager Console (for project WebStore.Entities):
-- Add-Migration Initial
-- Update-database
+1. Set database connection string in appsetting.json.
+    - One way to get it:
+      1. In Visual studio open 'SQL Server Object Explorer'.
+      2. Create database. Right click on database and select Options. Find ConnectionString and add it to appsettings.json.
+3.  Open 'Package Manager Console' (View -> Other Windows).
+4.  Select 'Default project': WebStore.Entities (make sure that startup project is 'WebStore.API')
+5.  Run next commands:
+    1. Add-Migration NameOfMigration
+    2. Update-database
+
+Note that: 
+    1. For every model structure change in folders Models and Identity you have to run those two commands so that database is updated.
+    2. When commiting to repository, ignore folder Migrations (in project WebStore.Entities)
 
 #### Configuration FE
 - Requirements: Node.js 16+ and npm
