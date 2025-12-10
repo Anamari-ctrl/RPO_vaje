@@ -3,22 +3,30 @@
 Three Owls Book Store is an application created as an academic project. It includes user registration and login, product browsing with filtering and sorting, a detailed product view, a functional shopping cart, order placement, multilingual support, and user profile management.
 This project represents the foundation of an online bookstore platform built with a modern tech stack.
 
-<img width="1891" height="943" alt="image" src="https://github.com/user-attachments/assets/3a301222-2606-4d47-a97f-2663c5512659" />
-
+<img width="1916" height="893" alt="slika" src="https://github.com/user-attachments/assets/45e30be9-53ed-4e89-bec9-4ae17a031b93" />
 
 
 ---
 
 ## Features
 
-- User management: registration, login, edit user data, settings, change user password, order history, ..
+Implemented:
+
+- User management: registration, login, edit user data, change user password
 - Product catalog:
-    - browse products based on category (book, audio book, e-book) and genre (horror, thriller, romance, ...), ...
-    - filter products based on price, availability, language, category, genre, ...
+    - filter products based on price, availability, brand, supplier ...
+    - search products by title
+    - sort products by title, price, create date ...
+
+To be implemented:
+
+- User management: settings, order history, ..
+- Product catalog:
+    - filter products based on price, availability, category, genre ...
 - Branches,
 - Shopping carts and orders
 - User reviews for products
-- Change language
+- Change language option
 
 ---
 
@@ -39,7 +47,8 @@ This project represents the foundation of an online bookstore platform built wit
 
 ---
 
-### Configuration BE
+## Configuration
+###  Backend
 1. Set database connection string in appsetting.json.
     - One way to get it:
       1. In Visual studio open 'SQL Server Object Explorer'.
@@ -47,16 +56,17 @@ This project represents the foundation of an online bookstore platform built wit
 3.  Open 'Package Manager Console' (View -> Other Windows).
 4.  Select 'Default project': WebStore.Entities (make sure that startup project is 'WebStore.API')
 5.  Run next commands:
+
 ```powershell
     Add-Migration NameOfMigration
     Update-database
 ```
 
 Note that: 
-    1. For every model structure change in folders Models and Identity you have to run those two commands so that database is updated.
-    2. When commiting to repository, ignore folder Migrations (in project WebStore.Entities)
+1. For every model structure change in folders Models and Identity you have to run those both commands so that database is updated.
+2. When commiting to repository, ignore folder Migrations (in project WebStore.Entities)
 
-#### Configuration FE
+### Frontend
 - Requirements: Node.js 16+ and npm
 - From PowerShell, install and run the frontend:
 
@@ -65,13 +75,14 @@ npm install
 npm run serve
 ```
 
-- Open the app (usually `http://localhost:8081/`)
+- Open the app (usually `http://localhost:8080/`)
 ---
 
-### Authors
-- Miša Rožman Atelšek
-- Anamari Orehar
-- Miha Potočnik
+
+### Authors and support
+- Miša Rožman Atelšek: misarozmana@gmail.com
+- Anamari Orehar: anamari.orehar@gmail.com
+- Miha Potočnik: mihapot@gmail.com
 
 ---
 
