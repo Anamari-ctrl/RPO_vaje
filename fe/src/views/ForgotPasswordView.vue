@@ -1,29 +1,18 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h2>Login</h2>
+  <div class="password-container">
+    <div class="password-card">
+      <h2>Forgot Password?</h2>
+      <p class="subtitle">Enter your email address and we'll send you a link to reset your password.</p>
       
-      <form @submit.prevent="handleLogin">
+      <form @submit.prevent="handleForgotPassword">
         <div class="form-group">
-          <label for="email">Email</label>
+          <label for="email">Email Address</label>
           <input
             type="email"
             id="email"
-            v-model="loginForm.email"
+            v-model="email"
             required
             placeholder="Enter your email"
-            :disabled="isLoading"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            v-model="loginForm.password"
-            required
-            placeholder="Enter your password"
             :disabled="isLoading"
           />
         </div>
@@ -32,17 +21,17 @@
           {{ errorMessage }}
         </div>
 
+        <div v-if="successMessage" class="success-message">
+          {{ successMessage }}
+        </div>
+
         <button type="submit" class="btn-primary" :disabled="isLoading">
-          {{ isLoading ? 'Logging in...' : 'Login' }}
+          {{ isLoading ? 'Sending...' : 'Send Reset Link' }}
         </button>
       </form>
 
-      <div class="password-recovery">
-        <router-link to="/forgot-password">Forgot your password?</router-link>
-      </div>
-
-      <div class="register-link">
-        <p>Don't have an account? <router-link to="/register">Register here</router-link></p>
+      <div class="back-link">
+        <router-link to="/login">← Back to Login</router-link>
       </div>
     </div>
   </div>
@@ -51,67 +40,60 @@
 <script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import accountService from '../services/account-service';
-import { LoginUser } from '../models/login-user';
 
 export default {
-  name: 'LoginView',
+  name: 'ForgotPasswordView',
   setup() {
     const router = useRouter();
-    const loginForm = ref({
-      email: '',
-      password: ''
-    });
+    const email = ref('');
     const errorMessage = ref('');
+    const successMessage = ref('');
     const isLoading = ref(false);
 
-    const handleLogin = async () => {
+    const handleForgotPassword = async () => {
       errorMessage.value = '';
+      successMessage.value = '';
       isLoading.value = true;
 
       try {
-        const loginUser = new LoginUser(
-          loginForm.value.email,
-          loginForm.value.password
-        );
+        const response = await fetch('/api/v1/auth/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: email.value })
+        });
 
-        const response = await accountService.postLogin(loginUser);
-
-        // Assuming the response contains token and user data
-        if (response.token) {
-          accountService.login(response.token);
-          
-          // Save user data if provided
-          if (response.email && response.userId) {
-            accountService.saveUserData(
-              response.email,
-              response.userId,
-              response.fullName || ''
-            );
-          }
-
-          // Redirect to home page
-          router.push('/');
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to send reset link');
         }
+
+        successMessage.value = 'Check your email for the reset link. Redirecting to login...';
+        
+        setTimeout(() => {
+          router.push('/login');
+        }, 3000);
       } catch (error) {
-        errorMessage.value = error.message || 'Login failed. Please try again.';
+        errorMessage.value = error.message || 'Failed to send reset link. Please try again.';
       } finally {
         isLoading.value = false;
       }
     };
 
     return {
-      loginForm,
+      email,
       errorMessage,
+      successMessage,
       isLoading,
-      handleLogin
+      handleForgotPassword
     };
   }
 };
 </script>
 
 <style scoped>
-.login-container {
+.password-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -119,7 +101,7 @@ export default {
   padding: 20px;
 }
 
-.login-card {
+.password-card {
   background: white;
   padding: 40px;
   border-radius: 8px;
@@ -130,9 +112,16 @@ export default {
 
 h2 {
   margin-top: 0;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   text-align: center;
   color: #333;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 25px;
 }
 
 .form-group {
@@ -174,6 +163,15 @@ input:disabled {
   font-size: 14px;
 }
 
+.success-message {
+  background-color: #efe;
+  color: #3c3;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
 .btn-primary {
   width: 100%;
   padding: 12px;
@@ -196,39 +194,18 @@ input:disabled {
   cursor: not-allowed;
 }
 
-.password-recovery {
-  margin-top: 12px;
-  text-align: center;
-}
-
-.password-recovery a {
-  color: #42b983;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.password-recovery a:hover {
-  text-decoration: underline;
-}
-
-.register-link {
+.back-link {
   margin-top: 20px;
   text-align: center;
 }
 
-.register-link p {
-  color: #666;
-  font-size: 14px;
-}
-
-.register-link a {
+.back-link a {
   color: #42b983;
   text-decoration: none;
   font-weight: 600;
 }
 
-.register-link a:hover {
+.back-link a:hover {
   text-decoration: underline;
 }
 </style>
