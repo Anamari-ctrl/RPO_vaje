@@ -47,8 +47,10 @@ This project represents the foundation of an online bookstore platform built wit
 3.  Open 'Package Manager Console' (View -> Other Windows).
 4.  Select 'Default project': WebStore.Entities (make sure that startup project is 'WebStore.API')
 5.  Run next commands:
-    1. Add-Migration NameOfMigration
-    2. Update-database
+```powershell
+    Add-Migration NameOfMigration
+    Update-database
+```
 
 Note that: 
     1. For every model structure change in folders Models and Identity you have to run those two commands so that database is updated.
