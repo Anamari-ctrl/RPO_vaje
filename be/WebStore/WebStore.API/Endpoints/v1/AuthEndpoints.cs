@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.Metrics;
-using System.Net;
 using System.Security.Claims;
 using WebStore.Entities.Identity;
 using WebStore.ServiceContracts;
 using WebStore.ServiceContracts.DTO.Account;
+using WebStore.ServiceContracts.DTO.Auth;
 using WebStore.Services.Helpers;
 
 namespace WebStore.API.Endpoints.v1
@@ -19,8 +18,8 @@ namespace WebStore.API.Endpoints.v1
             app.MapPost("api/v1/auth/login", Login);
             app.MapPost("api/v1/auth/refresh", RefreshToken).RequireAuthorization();
             app.MapGet("api/v1/auth/logout", Logout).RequireAuthorization();
-            app.MapGet("api/v1/auth/reset-password", ResetPassword).RequireAuthorization();
-
+            app.MapPost("api/v1/auth/reset-password", ResetPassword);
+            app.MapPost("api/v1/auth/forgot-password", ForgotPassword);
         }
 
         [AllowAnonymous]
@@ -146,31 +145,90 @@ namespace WebStore.API.Endpoints.v1
         {
             await signInManager.SignOutAsync();
 
-            return Results.NoContent();
+            return Results.Ok();
         }
 
-        public static async Task<IResult> ResetPassword(string token,
-                                                        string newPassword,
+        public static async Task<IResult> ForgotPassword(ForgotPasswordDTO forgotPassword,
+                                                         UserManager<ApplicationUser> userManager)
+        {
+            if (!ValidationHelper.IsModelValid(forgotPassword, out List<ValidationResult> errors))
+            {
+                Dictionary<string, string[]> validationErrors = new()
+                {
+                    {"", errors.Select(x=>x.ErrorMessage).ToArray()! }
+                };
+
+                return Results.ValidationProblem(validationErrors);
+            }
+
+            ApplicationUser? user = await userManager.FindByEmailAsync(forgotPassword.Email!);
+
+            if (user == null)
+            {
+                return Results.BadRequest("Email was not found!");
+            }
+
+            string token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+            //Dictionary<string, string> param = new()
+            //{
+            //    {"token", token},
+            //    {"email", forgotPassword.Email!},
+            //};
+
+            //var callback = QueryHelpers.AddQueryString(forgotPassword.ClientUri!, param!);
+
+            //var resp = await resend.EmailSendAsync(new EmailMessage()
+            //{
+            //    From = "onboarding@resend.dev",
+            //    To = forgotPassword.Email!,
+            //    Subject = "Three owls book store - forgotten password",
+            //    HtmlBody = "<p>Click <a>here</a> to reset your password: </p>",
+            //});
+
+            return Results.Ok(token);
+        }
+
+        public static async Task<IResult> ResetPassword(ResetPasswordDTO resetPasswordDTO,
                                                         UserManager<ApplicationUser> userManager,
                                                         ClaimsPrincipal user)
         {
-            ApplicationUser? currentUser = await userManager.GetUserAsync(user);
+            if (!ValidationHelper.IsModelValid(resetPasswordDTO, out List<ValidationResult> errors))
+            {
+                Dictionary<string, string[]> validationErrors = new()
+                {
+                    {"", errors.Select(x=>x.ErrorMessage).ToArray()! }
+                };
+
+                return Results.ValidationProblem(validationErrors);
+            }
+
+            ApplicationUser? currentUser;
+
+            if (!string.IsNullOrEmpty(resetPasswordDTO.Email))
+            {
+                currentUser = await userManager.FindByEmailAsync(resetPasswordDTO.Email);
+            }
+            else
+            {
+                currentUser = await userManager.GetUserAsync(user);
+            }
 
             if (currentUser == null)
             {
-                return Results.NotFound();
+                return Results.NotFound("User was not found!");
             }
 
-            IdentityResult? result = await userManager.ResetPasswordAsync(currentUser, token, newPassword);
+            IdentityResult? result = await userManager.ResetPasswordAsync(currentUser,
+                                                                          resetPasswordDTO.Token!,
+                                                                          resetPasswordDTO.NewPassword!);
 
             if (!result.Succeeded)
             {
-                return Results.Problem("Error while changing password!");
+                return Results.BadRequest(new { Errors = result.Errors.Select(x => x.Description) });
             }
 
             return Results.Ok("Your password was successfuly changed!");
         }
-
-
     }
 }

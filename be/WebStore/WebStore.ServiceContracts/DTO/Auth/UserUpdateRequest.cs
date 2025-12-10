@@ -1,7 +1,10 @@
-﻿namespace WebStore.ServiceContracts.DTO.Account
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebStore.ServiceContracts.DTO.Account
 {
     public class UserUpdateRequest
     {
+        [Required]
         public Guid UserId { get; set; }
 
         public string? FirstName { get; set; }

@@ -8,10 +8,10 @@ namespace WebStore.API.Endpoints.v1
     {
         public static void MapBooksEndpoints(this IEndpointRouteBuilder app)
         {
-            app.MapGet("api/v1/users/books", GetBooks).RequireAuthorization();
+            app.MapGet("api/v1/books", GetBooks).RequireAuthorization();
         }
 
-        public static async Task<IResult> GetBooks([AsParameters] RequestParameters parameters,
+        public static async Task<IResult> GetBooks(RequestParameters parameters,
                                                    ProductService productService,
                                                    HttpContext context)
         {
