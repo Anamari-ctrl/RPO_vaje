@@ -4,12 +4,14 @@ using WebStore.Entities.Identity;
 
 namespace WebStore.Entities.Models
 {
-    public class Order
+    public class Order : BaseEntity
     {
         [Key]
         public Guid OrderId { get; set; }
 
         public int OrderNumber { get; set; }
+
+        public string? OrderStatus { get; set; }
 
         public Guid UserId { get; set; }
 
@@ -20,13 +22,13 @@ namespace WebStore.Entities.Models
 
         public decimal TotalAmount { get; set; }
 
-        public string Address { get; set; } = string.Empty;
+        public string? Address { get; set; }
 
-        public string City { get; set; } = string.Empty;
+        public string? City { get; set; }
 
-        public string Country { get; set; } = string.Empty;
+        public string? Country { get; set; }
 
-        public string PostalCode { get; set; } = string.Empty;
+        public string? PostalCode { get; set; }
 
         public ICollection<OrderItem> OrderItems { get; set; } = [];
     }

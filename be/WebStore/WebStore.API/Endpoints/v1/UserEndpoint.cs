@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using WebStore.Entities.Identity;
+using WebStore.ServiceContracts;
 using WebStore.ServiceContracts.DTO.Account;
+using WebStore.ServiceContracts.DTO.OrderDTO;
 
 namespace WebStore.API.Endpoints.v1
 {
@@ -11,6 +13,7 @@ namespace WebStore.API.Endpoints.v1
         {
             app.MapGet("api/v1/users/me", GetUserData).RequireAuthorization();
             app.MapPut("api/v1/users/me", UpdateUserData).RequireAuthorization();
+            app.MapPut("api/v1/users/orderHistory", GetUserOrderHistory).RequireAuthorization();
         }
 
         public static async Task<IResult> GetUserData(string? userId,
@@ -72,5 +75,19 @@ namespace WebStore.API.Endpoints.v1
             return Results.Ok(userUpdateRequest);
         }
 
+        public static async Task<IResult> GetUserOrderHistory(ClaimsPrincipal userPrincipal,
+                                                              UserManager<ApplicationUser> userManager,
+                                                              IOrderService orderService)
+        {
+            ApplicationUser? user = await userManager.GetUserAsync(userPrincipal);
+            if (user == null)
+            {
+                return Results.Problem("Error while getting active user!");
+            }
+
+            List<OrderResponse> userOrderHistory = await orderService.GetUserOrderHistory(user.Id);
+
+            return Results.Ok(userOrderHistory);
+        }
     }
 }

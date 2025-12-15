@@ -12,7 +12,7 @@ namespace WebStore.API.Endpoints.v1
 {
     public static class AuthEndpoints
     {
-        public static void MapAccountEndpoints(this IEndpointRouteBuilder app)
+        public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
         {
             app.MapPost("api/v1/auth/register", Register);
             app.MapPost("api/v1/auth/login", Login);
