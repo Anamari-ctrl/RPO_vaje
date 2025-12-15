@@ -8,6 +8,8 @@ using System.Text;
 using WebStore.API.Endpoints.v1;
 using WebStore.Entities.DatabaseContext;
 using WebStore.Entities.Identity;
+using WebStore.Repositories;
+using WebStore.RepositoryContracts;
 using WebStore.ServiceContracts;
 using WebStore.Services;
 
@@ -20,10 +22,15 @@ namespace WebStore.API
             var builder = WebApplication.CreateBuilder(args);
 
             //Repositories
-
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IBranchRepository, BranchRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
             //Services
             builder.Services.AddTransient<IJwtService, JwtService>();
+            builder.Services.AddTransient<IOrderService, OrderService>();
+            builder.Services.AddTransient<IProductService, ProductService>();
+            builder.Services.AddTransient<IBranchService, BranchService>();
 
             // Add services to the container.
             builder.Services.AddAuthorization();
@@ -114,8 +121,10 @@ namespace WebStore.API
 
             app.UseAuthorization();
 
-            app.MapAccountEndpoints();
+            //Endpoints
+            app.MapAuthEndpoints();
             app.MapUserEndpoints();
+            app.MapBooksEndpoints();
 
             app.UseCors();
 

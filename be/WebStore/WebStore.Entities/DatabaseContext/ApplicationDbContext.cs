@@ -9,7 +9,7 @@ namespace WebStore.Entities.DatabaseContext
     {
         public virtual DbSet<Branch>? Branches { get; set; }
         public virtual DbSet<Category>? Categories { get; set; }
-        public virtual DbSet<OrderItem>? Orders { get; set; }
+        public virtual DbSet<Order>? Orders { get; set; }
         public virtual DbSet<OrderItem>? OrderItem { get; set; }
         public virtual DbSet<Product>? Products { get; set; }
         public virtual DbSet<Review>? Reviews { get; set; }
@@ -34,6 +34,9 @@ namespace WebStore.Entities.DatabaseContext
 
                 entity.Property(o => o.TotalAmount)
                       .HasPrecision(18, 2);
+
+                entity.Property(x => x.OrderNumber)
+                      .ValueGeneratedOnAdd();
             });
 
             modelBuilder.Entity<OrderItem>(entity =>

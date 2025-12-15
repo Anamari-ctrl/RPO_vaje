@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WebStore.Repositories\WebStore.Repositories.csproj" />
     <ProjectReference Include="..\WebStore.ServiceContracts\WebStore.ServiceContracts.csproj" />
     <ProjectReference Include="..\WebStore.Services\WebStore.Services.csproj" />
   </ItemGroup>

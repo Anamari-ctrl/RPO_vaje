@@ -7,20 +7,22 @@ namespace WebStore.Entities.Models
         [Key]
         public Guid BranchId { get; set; }
 
-        public string BranchName { get; set; } = string.Empty;
+        public string? BranchName { get; set; }
 
-        public string Address { get; set; } = string.Empty;
+        public string? Address { get; set; }
 
-        public string City { get; set; } = string.Empty;
+        public string? City { get; set; }
 
-        public string Country { get; set; } = string.Empty;
+        public string? Country { get; set; }
 
-        public string PostalCode { get; set; } = string.Empty;
+        public string? PostalCode { get; set; }
 
-        public string Phone { get; set; } = string.Empty;
+        public string? Phone { get; set; }
 
-        public string Responsible { get; set; } = string.Empty;
+        public string? Responsible { get; set; }
 
-        public string ImageUrl { get; set; } = string.Empty;
+        public string? OpeningHours { get; set; }
+
+        public string? ImageUrl { get; set; }
     }
 }
