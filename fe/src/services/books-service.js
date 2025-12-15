@@ -63,6 +63,36 @@ export class BooksService {
     }
   }
 
+    /**
+   * Fetch single book by ID
+   * @param {string|number} id
+   * @returns {Promise<Object>}
+   */
+    async getBookById(id) {
+        const url = `${this.baseUrl}/${id}`;
+
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...this.getAuthHeaders()
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Failed to fetch book:', error);
+            throw error;
+        }
+    }
+
+
   /**
    * Get authorization headers if user is logged in
    */

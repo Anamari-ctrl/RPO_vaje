@@ -60,10 +60,14 @@
             </div>
 
             <div v-else class="grid">
-                <div class="card" v-for="book in books" :key="book.id">
+                <div class="card clickable"
+                     v-for="book in books"
+                     :key="book.id"
+                     @click="openBook(book.id)">
+
                     <img :src="book.image || 'https://via.placeholder.com/240x300?text=No+Image'" :alt="book.title" />
                     <div class="price">{{ book.price }} €</div>
-                    <button class="buy">BUY</button>
+                    <button class="buy" @click.stop>BUY</button>
                     <div class="description">{{ book.title }}</div>
                     <div class="stock" :class="{ 'out-of-stock': book.stock === 0 }">
                         Stock: {{ book.stock }}
@@ -175,6 +179,9 @@ export default {
                 this.loading = false;
             }
         },
+        openBook(id) {
+            this.$router.push(`/books/${id}`);
+        },
         handleSearch() {
             this.currentPage = 1;
             this.fetchBooks();
@@ -222,7 +229,8 @@ export default {
     },
     mounted() {
         this.fetchBooks();
-    }
+        }
+
 };
 </script>
 
@@ -522,4 +530,8 @@ export default {
             gap: 10px;
         }
     }
+    .card.clickable {
+        cursor: pointer;
+    }
+
 </style>

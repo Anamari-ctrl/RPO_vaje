@@ -6,6 +6,7 @@ import ForgotPasswordView from '../views/ForgotPasswordView.vue'
 import ResetPasswordView from '../views/ResetPasswordView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import accountService from '../services/account-service'
+import BookDetailView from "../views/BookDetailView.vue";
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -13,7 +14,8 @@ const routes = [
   { path: '/register', name: 'Register', component: RegisterView },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPasswordView },
   { path: '/reset-password/:token', name: 'ResetPassword', component: ResetPasswordView },
-  { path: '/profile', name: 'Profile', component: ProfileView },
+    { path: '/profile', name: 'Profile', component: ProfileView },
+    {path: '/books/:id', name: 'BookDetail', component: BookDetailView, props: true },
 ]
 
 const router = createRouter({

@@ -7,7 +7,7 @@
                 <div class="form-group">
                     <label for="firstName">First Name</label>
                     <input type="text"
-                           id="fullName"
+                           id="firstName"
                            v-model="registerForm.firstName"
                            required
                            placeholder="Your first name, e.g: Jane"
@@ -17,7 +17,7 @@
                 <div class="form-group">
                     <label for="lastName">Lastname</label>
                     <input type="text"
-                           id="fullName"
+                           id="lastName"
                            v-model="registerForm.lastName"
                            required
                            placeholder="Your lastname, e.g: Doe"
@@ -47,7 +47,7 @@
                 <div class="form-group">
                     <label for="password">Confirm Password</label>
                     <input type="password"
-                           id="confirm-password"
+                           id="confirmPassword"
                            v-model="registerForm.confirmPassword"
                            required
                            placeholder="Re-enter your password"
