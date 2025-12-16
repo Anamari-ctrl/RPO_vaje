@@ -69,6 +69,7 @@
                     <div class="price">{{ book.price }} €</div>
                     <button class="buy" @click.stop>BUY</button>
                     <div class="description">{{ book.title }}</div>
+                    <div class="description">{{ book.shortDescription }}</div>
                     <div class="stock" :class="{ 'out-of-stock': book.stock === 0 }">
                         Stock: {{ book.stock }}
                     </div>

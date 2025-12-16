@@ -7,9 +7,7 @@
         <div class="info">
             <h1>{{ book.title }}</h1>
 
-            <p class="price">{{ book.price }} €</p>
-
-            <p class="short">{{ book.shortDescription }}</p>
+            <p class="price">{{ book.price }}&nbsp;&#8364;</p>
 
             <div class="stock" :class="{ out: !book.isAvailable }">
                 {{ book.isAvailable ? 'In stock' : 'Out of stock' }}
@@ -28,7 +26,9 @@
 </template>
 
 <script>
-    import booksService from '@/services/books-service';
+    import booksService from '@/services/mock-books-service';
+    //import booksService from '@/services/books-service'; tole bomo dali ko bo backend delu haha
+
 
     export default {
         name: 'BookDetailView',
@@ -70,13 +70,27 @@
         margin: 10px 0;
     }
 
-    .stock.out {
-        color: #d9534f;
+    .stock {
+        font-weight: 600;
+        color: #2e7d32;
+    }
+
+        .stock.out {
+            color: #c62828;
+        }
+    .buy:disabled {
+        background: #ccc;
+        cursor: not-allowed;
     }
 
     .buy {
-        margin: 20px 0;
+        border-radius: 18px;
+        border: 2px solid #cfcfcf;
+        background: transparent;
         padding: 10px 20px;
+        color: #777;
+        cursor: pointer;
+        margin: 20px 0 0 0;
     }
 
     .loading {
