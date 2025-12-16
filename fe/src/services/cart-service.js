@@ -81,10 +81,16 @@ class CartService {
   /**
    * Get shipping cost
    */
-  getShipping() {
-    const subtotal = this.getSubtotal();
-    return subtotal > 50 ? 0 : 5; // Free shipping over 50€
-  }
+    getShipping() {
+        const subtotal = this.getSubtotal();
+        const itemCount = this.getItemCount();
+
+        if (itemCount === 0) {
+            return 0; // brez poštnine, če je košarica prazna
+        }
+
+        return subtotal > 50 ? 0 : 5; // brez poštnine nad 50 €
+    }
 
   /**
    * Get cart total
