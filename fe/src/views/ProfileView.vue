@@ -99,38 +99,33 @@
             <!-- Orders -->
             <div v-if="activeScreen === 'orders'">
                 <h3>Order History</h3>
-
                 <p v-if="orders.length === 0">You have no orders yet.</p>
 
-                <table v-if="orders.length > 0" class="orders-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Total</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="o in orders" :key="o.id">
-                            <td>#{{ o.id }}</td>
-                            <td>{{ new Date(o.createdAt).toLocaleDateString() }}</td>
-                            <td>{{ o.status }}</td>
-                            <td>{{ o.total }} €</td>
-                            <td><button class="btn-small" @click="selectedOrder = o">View</button></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div v-if="orders.length > 0" class="orders-list">
+                    <div v-for="o in orders" :key="o.id" class="order-card">
+                        <div class="order-summary" @click="toggleOrder(o)">
+                            <strong>Order #{{ o.id }}</strong>
+                            <span>{{ new Date(o.createdAt).toLocaleDateString() }}</span>
+                            <span>{{ o.status }}</span>
+                            <span>{{ o.total }} {{ '\u20AC' }}</span>
+                        </div>
 
-                <div v-if="selectedOrder" class="order-details">
-                    <h4>Order #{{ selectedOrder.id }}</h4>
-                    <div v-for="item in selectedOrder.items" :key="item.productId" class="order-item">
-                        <strong>{{ item.productName }}</strong><br />
-                        Quantity: {{ item.quantity }}<br />
-                        Price: {{ item.price }} €
+                        <div v-if="selectedOrder && selectedOrder.id === o.id" class="order-details">
+                            <div v-for="item in selectedOrder.items" :key="item.productId" class="order-item">
+                                {{ item.productName }}  | <strong>    Quantity: </strong> {{ item.quantity }}  |  <strong>   Price: </strong> {{ item.price }} {{ '\u20AC' }}
+</div>
+                            <div class="order-totals">
+                                <p>
+                                    Subtotal: {{ o.total }} {{ '\u20AC' }}
+                                </p>
+                                <p>
+                                    Tax (22%): {{ orderTax(selectedOrder)
+                                    }} {{ '\u20AC' }}
+                                </p>
+                                <p><strong>Total: {{ orderTotal(selectedOrder) }} {{ '\u20AC' }}</strong></p>
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn-small" @click="selectedOrder = null">Close</button>
                 </div>
             </div>
 
@@ -142,7 +137,9 @@
     import { ref, watch, onMounted } from "vue";
     import { useRouter } from "vue-router";
     import accountService from "../services/account-service";
-    import orderService from "../services/order-service";
+    // import orderService from "../services/order-service"; // API
+    import orderService from "../services/mock-order-service"; // mock verzija
+
 
     export default {
         name: "ProfileView",
@@ -150,20 +147,7 @@
             const router = useRouter();
             const activeScreen = ref("dashboard");
 
-            const user = ref({
-                firstName: "",
-                lastName: "",
-                email: "",
-                address: "",
-                city: "",
-                country: "",
-                postalCode: "",
-                phoneNumber: "",
-                password: "",
-                newPassword: "",
-                confirmPassword: ""
-            });
-
+            const user = ref({});
             const orders = ref([]);
             const selectedOrder = ref(null);
 
@@ -184,21 +168,6 @@
                 }
             };
 
-            const saveProfile = async () => {
-                try {
-                    const headers = accountService.getHeaderData();
-                    const response = await fetch("http://localhost:7020/api/v1/users/me", {
-                        method: "PUT",
-                        headers,
-                        body: JSON.stringify(user.value)
-                    });
-                    if (!response.ok) throw new Error("Failed to save profile");
-                    alert("Profile updated successfully!");
-                } catch (err) {
-                    console.error(err);
-                }
-            };
-
             const fetchOrders = async () => {
                 try {
                     orders.value = await orderService.getMyOrders();
@@ -207,13 +176,32 @@
                 }
             };
 
+            const toggleOrder = (order) => {
+                selectedOrder.value = selectedOrder.value && selectedOrder.value.id === order.id ? null : order;
+            };
+
+            const TAX_RATE = 0.22;
+
+            const orderTax = (order) => {
+                return (order.total * TAX_RATE / (1 + TAX_RATE)).toFixed(2);
+            };
+
+            const orderSubtotal = (order) => {
+                return (order.total - orderTax(order)).toFixed(2);
+            };
+
+            const orderTotal = (order) => {
+                return order.total.toFixed(2);
+            };
+
+
             watch(activeScreen, (screen) => {
                 if (screen === "orders") fetchOrders();
             });
 
             onMounted(fetchProfile);
 
-            return { user, logout, activeScreen, saveProfile, orders, selectedOrder };
+            return { user, logout, activeScreen, orders, selectedOrder, toggleOrder, orderSubtotal, orderTax, orderTotal };
         }
     };
 </script>
@@ -300,17 +288,44 @@
         }
 
 
-    .orders-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
+    .orders-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
-        .orders-table th,
-        .orders-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+    .order-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #f9f9f9;
+        transition: background 0.2s;
+    }
+
+        .order-card:hover {
+            background: #f0f0f0;
         }
+
+    .order-summary {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px;
+        font-weight: bold;
+    }
+
+    .order-details {
+        padding: 12px;
+        background: #fff;
+        border-top: 1px solid #ccc;
+    }
+
+    .order-item {
+        padding: 4px 0;
+    }
+
+    .order-totals p {
+        margin: 4px 0;
+    }
 
     .btn-small {
         padding: 4px 8px;
