@@ -67,7 +67,12 @@
 
                     <img :src="book.image || 'https://via.placeholder.com/240x300?text=No+Image'" :alt="book.title" />
                     <div class="price">{{ book.price }} €</div>
-                    <button class="buy" @click.stop>BUY</button>
+                    <button 
+                        class="buy" 
+                        @click.stop="addToCart(book)"
+                        :disabled="book.stock === 0">
+                        {{ book.stock === 0 ? 'OUT OF STOCK' : 'ADD TO CART' }}
+                    </button>
                     <div class="description">{{ book.title }}</div>
                     <div class="description">{{ book.shortDescription }}</div>
                     <div class="stock" :class="{ 'out-of-stock': book.stock === 0 }">
@@ -109,9 +114,31 @@
 
 <script>
 import mockBooksService from '../services/mock-books-service';
+import cartService from '../services/cart-service';
+import { useRouter } from 'vue-router';
 
 export default {
     name: 'HomeView',
+    setup() {
+        const router = useRouter();
+
+        const openBook = (bookId) => {
+            router.push({ name: 'BookDetail', params: { id: bookId } });
+        };
+
+        const addToCart = (book) => {
+            if (book.stock > 0) {
+                cartService.addItem(book, 1);
+                // Optional: Show a success message or toast notification
+                alert(`Added "${book.title}" to cart!`);
+            }
+        };
+
+        return {
+            openBook,
+            addToCart
+        };
+    },
     data() {
         return {
             books: [],
@@ -179,9 +206,6 @@ export default {
             } finally {
                 this.loading = false;
             }
-        },
-        openBook(id) {
-            this.$router.push(`/books/${id}`);
         },
         handleSearch() {
             this.currentPage = 1;
@@ -390,11 +414,26 @@ export default {
 
     .buy {
         border-radius: 18px;
-        border: 2px solid #cfcfcf;
-        background: transparent;
-        padding: 6px 14px;
-        color: #777;
+        border: 2px solid #42b983;
+        background: white;
+        padding: 8px 16px;
+        color: #42b983;
         cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .buy:hover:not(:disabled) {
+        background: #42b983;
+        color: white;
+    }
+
+    .buy:disabled {
+        border-color: #ddd;
+        color: #999;
+        cursor: not-allowed;
+        background: #f5f5f5;
     }
 
     .description {

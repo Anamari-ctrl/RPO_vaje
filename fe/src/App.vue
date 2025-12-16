@@ -9,8 +9,9 @@
       <nav class="nav" v-if="!isAuthPage">
         <router-link class="item" to="/">🏠 Home</router-link>
         <router-link class="item" to="/">📚 Books</router-link>
+        <router-link class="item" to="/stores">🏪 Stores</router-link>
         <router-link class="item" to="/">🏷️ Discounts</router-link>
-        <div class="cart">🛒 130 €</div>
+        <router-link to="/cart" class="cart">🛒 {{ cartTotal.toFixed(2) }} €</router-link>
       </nav>
     </header>
 
@@ -21,6 +22,7 @@
 <script>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import cartService from './services/cart-service';
 
 export default {
   name: 'App',
@@ -31,8 +33,13 @@ export default {
       return route.name === 'Login' || route.name === 'Register';
     });
 
+    const cartTotal = computed(() => {
+      return cartService.getTotal();
+    });
+
     return {
-      isAuthPage
+      isAuthPage,
+      cartTotal
     };
   }
 }
@@ -71,5 +78,12 @@ export default {
   background: #9fe6df;
   font-weight: 700;
   color: #083533;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.header .cart:hover {
+  background: #8dd5cd;
 }
 </style>
