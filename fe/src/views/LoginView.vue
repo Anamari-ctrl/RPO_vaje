@@ -1,50 +1,52 @@
 <template>
   <div class="login-container">
-    <div class="login-card">
-      <h2>Login</h2>
-      
-      <form @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            v-model="loginForm.email"
-            required
-            placeholder="Enter your email"
-            :disabled="isLoading"
-          />
-        </div>
+      <div class="login-card">
+          <h2>Login</h2>
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            v-model="loginForm.password"
-            required
-            placeholder="Enter your password"
-            :disabled="isLoading"
-          />
-        </div>
+          <form @submit.prevent="handleLogin">
+              <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email"
+                         id="email"
+                         v-model="loginForm.email"
+                         required
+                         placeholder="Enter your email"
+                         :disabled="isLoading" />
+              </div>
 
-        <div v-if="errorMessage" class="error-message">
-          {{ errorMessage }}
-        </div>
+              <div class="form-group">
+                  <label for="password">Password</label>
+                  <input type="password"
+                         id="password"
+                         v-model="loginForm.password"
+                         required
+                         placeholder="Enter your password"
+                         :disabled="isLoading" />
+              </div>
 
-        <button type="submit" class="btn-primary" :disabled="isLoading">
-          {{ isLoading ? 'Logging in...' : 'Login' }}
-        </button>
-      </form>
+              <div v-if="errorMessage" class="error-message">
+                  {{ errorMessage }}
+              </div>
 
-      <div class="password-recovery">
-        <router-link to="/forgot-password">Forgot your password?</router-link>
+              <button type="submit" class="btn-primary" :disabled="isLoading">
+                  {{ isLoading ? 'Logging in...' : 'Login' }}
+              </button>
+          </form>
+
+          <div class="password-recovery">
+              <router-link to="/forgot-password">Forgot your password?</router-link>
+          </div>
+
+          <div class="register-link">
+              <p>Don't have an account? <router-link to="/register">Register here</router-link></p>
+          </div>
+
+          <div class="guest-link">
+              <router-link to="/" class="btn-guest">Continue as Guest</router-link>
+          </div>
+
+
       </div>
-
-      <div class="register-link">
-        <p>Don't have an account? <router-link to="/register">Register here</router-link></p>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -231,4 +233,28 @@ input:disabled {
 .register-link a:hover {
   text-decoration: underline;
 }
+    .btn-guest {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        background-color: #f0f0f0;
+        color: #333;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        text-decoration: none;
+    }
+
+        .btn-guest:hover {
+            background-color: #e0e0e0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+        }
+
+
 </style>
