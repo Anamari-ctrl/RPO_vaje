@@ -37,11 +37,16 @@ class AccountService {
     }
 
     async postLogin(loginUser) {
+        // Map payload to backend DTO keys
+        const payload = {
+            Email: loginUser.email ?? loginUser.Email,
+            Password: loginUser.password ?? loginUser.Password
+        };
 
         const response = await fetch(`${API_BASE_URL}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(loginUser)
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
@@ -51,8 +56,12 @@ class AccountService {
 
         const data = await response.json();
 
-        // Save token
-        this.login(data.token);
+        // Save tokens
+        this.login(data.Token || data.token, data.RefreshToken || data.refreshToken);
+
+        // Persist token expirations if needed
+        if (data.Expiration) localStorage.setItem('tokenExpiration', new Date(data.Expiration).toISOString());
+        if (data.RefreshTokenExpirationDateTime) localStorage.setItem('refreshTokenExpiration', new Date(data.RefreshTokenExpirationDateTime).toISOString());
 
         // Fetch user data
         await this.fetchUserData();
@@ -123,8 +132,9 @@ class AccountService {
         }
     }
 
-    login(token) {
-        localStorage.setItem('token', token);
+    login(token, refreshToken = null) {
+        if (token) localStorage.setItem('token', token);
+        if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
         this.state.isUserLoggedIn = true;
     }
 
@@ -147,6 +157,35 @@ class AccountService {
             'Content-Type': 'application/json',
             ...(token && { 'Authorization': `Bearer ${token}` })
         };
+    }
+
+    async postRefreshToken() {
+        const token = localStorage.getItem('token');
+        const refreshToken = localStorage.getItem('refreshToken');
+
+        if (!token || !refreshToken) {
+            throw new Error('No tokens available to refresh');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/refresh`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ Token: token, RefreshToken: refreshToken })
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || "Failed to refresh token");
+        }
+
+        const data = await response.json();
+
+        // Update tokens
+        this.login(data.Token || data.token, data.RefreshToken || data.refreshToken);
+        if (data.Expiration) localStorage.setItem('tokenExpiration', new Date(data.Expiration).toISOString());
+        if (data.RefreshTokenExpirationDateTime) localStorage.setItem('refreshTokenExpiration', new Date(data.RefreshTokenExpirationDateTime).toISOString());
+
+        return data;
     }
 
     async fetchUserData() {
