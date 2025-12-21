@@ -1,0 +1,36 @@
+[
+  {
+    "BranchId": "b1000000-0000-0000-0000-000000000001",
+    "BranchName": "City Center Books",
+    "Address": "42 Library Lane",
+    "City": "New York",
+    "Country": "USA",
+    "PostalCode": "10018",
+    "Phone": "+1-212-555-0100",
+    "Responsible": "Alice Reader",
+    "OpeningHours": "09:00 - 21:00",
+    "ImageUrl": "/images/branches/city_center.jpg",
+    "IsActive": true,
+    "CreatedBy": "System",
+    "Created": "2023-01-01T08:00:00Z",
+    "UpdatedBy": null,
+    "Updated": null
+  },
+  {
+    "BranchId": "b2000000-0000-0000-0000-000000000002",
+    "BranchName": "Campus Textbooks",
+    "Address": "101 University Dr",
+    "City": "Boston",
+    "Country": "USA",
+    "PostalCode": "02115",
+    "Phone": "+1-617-555-0200",
+    "Responsible": "Bob Scholar",
+    "OpeningHours": "08:00 - 18:00",
+    "ImageUrl": "/images/branches/campus.jpg",
+    "IsActive": true,
+    "CreatedBy": "System",
+    "Created": "2023-01-01T08:00:00Z",
+    "UpdatedBy": null,
+    "Updated": null
+  }
+]

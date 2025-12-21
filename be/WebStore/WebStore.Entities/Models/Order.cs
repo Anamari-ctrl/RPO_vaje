@@ -13,7 +13,7 @@ namespace WebStore.Entities.Models
 
         public string? OrderStatus { get; set; }
 
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
 
         [ForeignKey("UserId")]
         public ApplicationUser? User { get; set; }
@@ -29,7 +29,5 @@ namespace WebStore.Entities.Models
         public string? Country { get; set; }
 
         public string? PostalCode { get; set; }
-
-        public ICollection<OrderItem> OrderItems { get; set; } = [];
     }
 }

@@ -125,6 +125,7 @@ namespace WebStore.API
             app.MapAuthEndpoints();
             app.MapUserEndpoints();
             app.MapBooksEndpoints();
+            app.MapBranchEndpoints();
 
             app.UseCors();
 

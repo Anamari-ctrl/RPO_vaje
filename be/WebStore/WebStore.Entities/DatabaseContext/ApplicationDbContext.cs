@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using WebStore.Entities.Identity;
 using WebStore.Entities.Models;
 
@@ -14,8 +15,7 @@ namespace WebStore.Entities.DatabaseContext
         public virtual DbSet<Product>? Products { get; set; }
         public virtual DbSet<Review>? Reviews { get; set; }
         public virtual DbSet<Rating>? Ratings { get; set; }
-        public virtual DbSet<ShoppingCart>? ShoppingCarts { get; set; }
-        public virtual DbSet<ShoppingCartItem>? ShoppingCartItem { get; set; }
+        public virtual DbSet<Genre>? Genres { get; set; }
 
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -27,7 +27,21 @@ namespace WebStore.Entities.DatabaseContext
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Branch>().ToTable("Branches");
+
+            GetMockData<Branch>("branches", modelBuilder);
+
             modelBuilder.Entity<Category>().ToTable("Categories");
+
+            GetMockData<Category>("categories", modelBuilder);
+
+            modelBuilder.Entity<Genre>().ToTable("Genres");
+
+            GetMockData<Genre>("genres", modelBuilder);
+
+            modelBuilder.Entity<Product>().ToTable("Products");
+
+            GetMockData<Product>("products", modelBuilder);
+
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.ToTable("Orders");
@@ -39,6 +53,8 @@ namespace WebStore.Entities.DatabaseContext
                       .ValueGeneratedOnAdd();
             });
 
+            GetMockData<Order>("orders", modelBuilder);
+
             modelBuilder.Entity<OrderItem>(entity =>
             {
                 entity.ToTable("OrderItems");
@@ -46,36 +62,32 @@ namespace WebStore.Entities.DatabaseContext
                 entity.Property(oi => oi.PriceAtPurchase)
                       .HasPrecision(18, 2);
 
-                entity.HasOne(orderItem => orderItem.Order)
-                      .WithMany(order => order.OrderItems)
-                      .HasForeignKey(orderItem => orderItem.OrderId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
                 entity.HasOne(orderItem => orderItem.Product)
                       .WithMany()
                       .HasForeignKey(orderItem => orderItem.ProductId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<Product>().ToTable("Products");
+            GetMockData<OrderItem>("orderitems", modelBuilder);
+
             modelBuilder.Entity<Review>().ToTable("Reviews");
             modelBuilder.Entity<Rating>().ToTable("Rating");
+        }
 
-            modelBuilder.Entity<ShoppingCart>().ToTable("ShoppingCarts");
-            modelBuilder.Entity<ShoppingCartItem>(entity =>
+        public static void GetMockData<T>(string fileName, ModelBuilder modelBuilder)
+            where T : class
+        {
+            string? mockJsonData = File.ReadAllText($"MockData/Mock_{fileName}.json");
+
+            List<T>? items = JsonSerializer.Deserialize<List<T>>(mockJsonData);
+
+            if (items != null)
             {
-                entity.ToTable("ShoppingCartItems");
-
-                entity.HasOne(x => x.ShoppingCart)
-                      .WithMany(x => x.Items)
-                      .HasForeignKey(x => x.CartId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(shoppingCartItem => shoppingCartItem.Product)
-                      .WithMany()
-                      .HasForeignKey(shoppingCartItem => shoppingCartItem.ProductId)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
+                foreach (var branch in items)
+                {
+                    modelBuilder.Entity<T>().HasData(branch);
+                }
+            }
         }
     }
 }

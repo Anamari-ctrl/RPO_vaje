@@ -8,7 +8,7 @@ namespace WebStore.Entities.Models
         [Key]
         public Guid ReviewId { get; set; }
 
-        public string Author { get; set; } = string.Empty;
+        public string? Author { get; set; }
 
         public bool IsAuthorVisible { get; set; }
 
@@ -18,7 +18,7 @@ namespace WebStore.Entities.Models
         [ForeignKey("UserId")]
         public Guid UserId { get; set; }
 
-        public string Comment { get; set; } = string.Empty;
+        public string? Comment { get; set; }
 
         public int Rating { get; set; }
     }

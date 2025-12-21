@@ -36,10 +36,10 @@ namespace WebStore.Entities.Models
 
         public int Warranty { get; set; }
 
-        public string ManufacturerPageUrl { get; set; } = string.Empty;
+        public string? ManufacturerPageUrl { get; set; } 
 
-        public string TechnicalDetails { get; set; } = string.Empty;
+        public string? TechnicalDetails { get; set; } 
 
-        public string ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
     }
 }

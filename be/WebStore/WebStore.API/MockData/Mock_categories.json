@@ -1,0 +1,42 @@
+[
+  {
+    "CategoryId": "c1000000-0000-0000-0000-000000000001",
+    "CategoryName": "Fiction",
+    "ImageUrl": "/images/categories/fiction.png",
+    "IsActive": true,
+    "CreatedBy": "System",
+    "Created": "2023-01-15T10:00:00Z",
+    "UpdatedBy": null,
+    "Updated": null
+  },
+  {
+    "CategoryId": "c2000000-0000-0000-0000-000000000002",
+    "CategoryName": "Non-Fiction",
+    "ImageUrl": "/images/categories/nonfiction.png",
+    "IsActive": true,
+    "CreatedBy": "System",
+    "Created": "2023-01-15T10:00:00Z",
+    "UpdatedBy": null,
+    "Updated": null
+  },
+  {
+    "CategoryId": "c3000000-0000-0000-0000-000000000003",
+    "CategoryName": "Technology",
+    "ImageUrl": "/images/categories/tech.png",
+    "IsActive": true,
+    "CreatedBy": "System",
+    "Created": "2023-01-15T10:00:00Z",
+    "UpdatedBy": null,
+    "Updated": null
+  },
+  {
+    "CategoryId": "c4000000-0000-0000-0000-000000000004",
+    "CategoryName": "Science",
+    "ImageUrl": "/images/categories/science.png",
+    "IsActive": true,
+    "CreatedBy": "System",
+    "Created": "2023-01-15T10:00:00Z",
+    "UpdatedBy": null,
+    "Updated": null
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "GenreId": "a1000000-0000-0000-0000-000000000001",
+    "Name": "Fantasy",
+    "Description": "Magic, supernatural elements, and imaginary worlds.",
+    "IsActive": true,
+    "CreatedBy": "System",
+    "Created": "2023-01-15T10:00:00Z",
+    "UpdatedBy": null,
+    "Updated": null
+  },
+  {
+    "GenreId": "a2000000-0000-0000-0000-000000000002",
+    "Name": "Mystery",
+    "Description": "Suspenseful stories focusing on solving a crime or secret.",
+    "IsActive": true,
+    "CreatedBy": "System",
+    "Created": "2023-01-15T10:00:00Z",
+    "UpdatedBy": null,
+    "Updated": null
+  },
+  {
+    "GenreId": "a3000000-0000-0000-0000-000000000003",
+    "Name": "Programming",
+    "Description": "Technical guides and references for software development.",
+    "IsActive": true,
+    "CreatedBy": "System",
+    "Created": "2023-01-15T10:00:00Z",
+    "UpdatedBy": null,
+    "Updated": null
+  },
+  {
+    "GenreId": "a4000000-0000-0000-0000-000000000004",
+    "Name": "History",
+    "Description": "Accounts of past events and historical analysis.",
+    "IsActive": true,
+    "CreatedBy": "System",
+    "Created": "2023-01-15T10:00:00Z",
+    "UpdatedBy": null,
+    "Updated": null
+  }
+]
