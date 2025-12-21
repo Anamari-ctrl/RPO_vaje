@@ -52,6 +52,7 @@
 <script>
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import accountService from '@/services/account-service';
 
 export default {
   name: 'ResetPasswordView',
@@ -87,21 +88,11 @@ export default {
       isLoading.value = true;
 
       try {
-        const response = await fetch('/api/v1/auth/reset-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            token: token,
-            newPassword: formData.value.password
-          })
+        await accountService.postResetPassword({
+          token,
+          newPassword: formData.value.password,
+          confirmPassword: formData.value.confirmPassword
         });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || 'Failed to reset password');
-        }
 
         successMessage.value = 'Password reset successfully! Redirecting to login...';
 

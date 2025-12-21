@@ -40,6 +40,7 @@
 <script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import accountService from '@/services/account-service';
 
 export default {
   name: 'ForgotPasswordView',
@@ -56,18 +57,7 @@ export default {
       isLoading.value = true;
 
       try {
-        const response = await fetch('/api/v1/auth/forgot-password', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email: email.value })
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || 'Failed to send reset link');
-        }
+        await accountService.postForgotPassword(email.value);
 
         successMessage.value = 'Check your email for the reset link. Redirecting to login...';
         

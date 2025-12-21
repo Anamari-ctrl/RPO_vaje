@@ -60,6 +60,56 @@ class AccountService {
         return data;
     }
 
+    async postForgotPassword(email) {
+        const payload = {
+            Email: email,
+            ClientUri: `${window.location.origin}/reset-password`
+        };
+
+        const response = await fetch(`${API_BASE_URL}/forgot-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || "Failed to send reset link");
+        }
+
+        // Backend returns token string; return it if needed
+        try {
+            const data = await response.json();
+            return data;
+        } catch {
+            return true;
+        }
+    }
+
+    async postResetPassword({ token, newPassword, confirmPassword, email = null }) {
+        const payload = {
+            Token: token,
+            NewPassword: newPassword,
+            ConfirmPassword: confirmPassword,
+            Email: email
+        };
+
+        const response = await fetch(`${API_BASE_URL}/reset-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...this.getHeaderData() },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            // Backend may return { Errors: [...] }
+            const message = error.message || (error.Errors ? error.Errors.join(" | ") : "Failed to reset password");
+            throw new Error(message);
+        }
+
+        return await response.json().catch(() => ({}));
+    }
+
     async postLogout() {
         const headers = this.getHeaderData();
 
