@@ -8,7 +8,7 @@ namespace WebStore.API.Endpoints.v1
     {
         public static void MapBooksEndpoints(this IEndpointRouteBuilder app)
         {
-            app.MapGet("api/v1/books", GetBooks);
+            app.MapPost("api/v1/books", GetBooks);
             app.MapGet("api/v1/books/", GetBookData);
         }
 

@@ -113,7 +113,7 @@
 </template>
 
 <script>
-import mockBooksService from '../services/mock-books-service';
+import booksService from '../services/books-service';
 import cartService from '../services/cart-service';
 import { useRouter } from 'vue-router';
 
@@ -181,7 +181,7 @@ export default {
         async fetchBooks() {
             this.loading = true;
             try {
-                const result = await mockBooksService.getBooks({
+                const result = await booksService.getBooks({
                     page: this.currentPage,
                     pageSize: this.pageSize,
                     sortBy: this.sortBy,
