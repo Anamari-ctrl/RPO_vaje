@@ -11,15 +11,27 @@
 Three Owls Book Store is an application created as an academic project. It includes user registration and login, product browsing with filtering and sorting, a detailed product view, a functional shopping cart, order placement, multilingual support, and user profile management.
 This project represents the foundation of an online bookstore platform built with a modern tech stack.
 
+#### 🏡 Home page
 <img width="1893" height="988" alt="slika" src="https://github.com/user-attachments/assets/222650f8-f48b-4675-a3f6-b2d36b0808f5" />
+
+#### 🔐 Login page
 <img width="1916" height="902" alt="slika" src="https://github.com/user-attachments/assets/05add66a-9ab7-4485-94c2-a2a9a38d4786" />
+
+#### 🔒 Register page
 <img width="1917" height="903" alt="slika" src="https://github.com/user-attachments/assets/e1f27c4e-88e5-4a61-ad5b-a9aa799f2aa0" />
+
+#### 🛒 Cart
 <img width="1258" height="538" alt="slika" src="https://github.com/user-attachments/assets/cbb4f3a5-b5c3-444c-b1b7-f5e2866a3b9f" />
+
+#### 📄 User order history
 <img width="1898" height="615" alt="slika" src="https://github.com/user-attachments/assets/e25d4349-0e58-4464-81ec-29403209f4ec" />
+
+#### 🏬 List of branches
+<img width="1902" height="801" alt="slika" src="https://github.com/user-attachments/assets/9076c7e8-6277-4b09-8b72-8cab53392d19" />
 
 ---
 
-## Features
+## 🔧 Features
 
 Implemented:
 
@@ -28,17 +40,17 @@ Implemented:
     - filter products based on price, availability, brand, supplier ...
     - search products by title
     - sort products by title, price, create date ...
+    - Change language option
+    - Shopping carts
 - Branches
-- 
 
 To be implemented:
 
 - User management: settings, ..
 - Product catalog:
     - filter products based on price, availability, category, genre ...
-- Shopping carts and orders
+- Orders
 - User reviews for products
-- Change language option
 
 ---
 
@@ -59,12 +71,12 @@ To be implemented:
 
 ---
 
-## Configuration
+## 🛠 Configuration
 ###  Backend
 1. Set database connection string in appsetting.json.
     - One way to get it:
       1. In Visual studio open 'SQL Server Object Explorer'.
-      2. Create database. Right click on database and select Options. Find ConnectionString and add it to appsettings.json.
+      2. Create database. Right click on database and select Options. Find ConnectionString and add it to appsettings.json (Be careful that connection string has value 'false' for property Encrypt).
 3.  Open 'Package Manager Console' (View -> Other Windows).
 4.  Select 'Default project': WebStore.Entities (make sure that startup project is 'WebStore.API')
 5.  Run next commands:
@@ -90,7 +102,7 @@ npm run serve
 - Open the app (usually `http://localhost:8080/`)
 ---
 
-## Project structure
+## 🧬 Project structure
 
 ### Backend
 
@@ -166,10 +178,9 @@ fe/
 
 ---
 
-### Authors and support
+### 🧙‍♂️ Authors and support
 - Miša Rožman Atelšek: misarozmana@gmail.com
 - Anamari Orehar: anamari.orehar@gmail.com
 - Miha Potočnik: mihapot@gmail.com
 
 ---
-
