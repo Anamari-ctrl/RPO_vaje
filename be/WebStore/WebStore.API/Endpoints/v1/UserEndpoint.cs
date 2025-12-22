@@ -41,39 +41,57 @@ namespace WebStore.API.Endpoints.v1
             return Results.Ok(userData);
         }
 
-        public static async Task<IResult> UpdateUserData(UserUpdateRequest? userUpdateRequest,
-                                                         UserManager<ApplicationUser> userManager)
+        public static async Task<IResult> UpdateUserData(
+     UserUpdateRequest? userUpdateRequest,
+     UserManager<ApplicationUser> userManager,
+     ClaimsPrincipal userPrincipal)
         {
             if (userUpdateRequest == null)
+                return Results.BadRequest("Request body was empty.");
+
+            try
             {
-                return Results.Problem("Provided user was null!");
+                // Always get the user from the authenticated principal
+                var appUser = await userManager.GetUserAsync(userPrincipal);
+
+                if (appUser == null)
+                    return Results.NotFound("Authenticated user not found.");
+
+                // Update allowed fields
+                appUser.FirstName = userUpdateRequest.FirstName;
+                appUser.LastName = userUpdateRequest.LastName;
+                appUser.Address = userUpdateRequest.Address;
+                appUser.City = userUpdateRequest.City;
+                appUser.Country = userUpdateRequest.Country;
+                appUser.PostalCode = userUpdateRequest.PostalCode;
+                appUser.PhoneNumber = userUpdateRequest.PhoneNumber;
+
+                // Handle email change properly
+                if (!string.Equals(appUser.Email, userUpdateRequest.Email, StringComparison.OrdinalIgnoreCase))
+                {
+                    appUser.Email = userUpdateRequest.Email;
+                    appUser.UserName = userUpdateRequest.Email;
+                    appUser.NormalizedEmail = userUpdateRequest.Email.ToUpper();
+                    appUser.NormalizedUserName = userUpdateRequest.Email.ToUpper();
+                }
+
+                var result = await userManager.UpdateAsync(appUser);
+
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                    return Results.BadRequest($"Failed to update user: {errors}");
+                }
+
+                return Results.Ok("Profile updated successfully.");
             }
-
-            ApplicationUser? appUser = await userManager.FindByIdAsync(userUpdateRequest.UserId.ToString());
-
-            if (appUser == null)
+            catch (Exception ex)
             {
-                return Results.Problem("User was not found!");
+                Console.WriteLine("🔥 UpdateUserData error: " + ex);
+                return Results.Problem("Internal server error: " + ex.Message);
             }
-
-            appUser.FirstName = userUpdateRequest.FirstName;
-            appUser.LastName = userUpdateRequest.LastName;
-            appUser.Email = userUpdateRequest.Email;
-            appUser.Address = userUpdateRequest.Address;
-            appUser.City = userUpdateRequest.City;
-            appUser.Country = userUpdateRequest.Country;
-            appUser.PostalCode = userUpdateRequest.PostalCode;
-            appUser.PhoneNumber = userUpdateRequest.PhoneNumber;
-
-            IdentityResult result = await userManager.UpdateAsync(appUser);
-
-            if (!result.Succeeded)
-            {
-                return Results.Problem("Error while changing user data!");
-            }
-
-            return Results.Ok(userUpdateRequest);
         }
+
 
         public static async Task<IResult> GetUserOrderHistory(ClaimsPrincipal userPrincipal,
                                                               UserManager<ApplicationUser> userManager,

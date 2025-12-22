@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <h2>My Profile</h2>
 
     <div class="profile-container">
@@ -113,13 +113,14 @@
                         <div v-if="selectedOrder && selectedOrder.id === o.id" class="order-details">
                             <div v-for="item in selectedOrder.items" :key="item.productId" class="order-item">
                                 {{ item.productName }}  | <strong>    Quantity: </strong> {{ item.quantity }}  |  <strong>   Price: </strong> {{ item.price }} {{ '\u20AC' }}
-</div>
+                            </div>
                             <div class="order-totals">
                                 <p>
                                     Subtotal: {{ o.total }} {{ '\u20AC' }}
                                 </p>
                                 <p>
-                                    Tax (22%): {{ orderTax(selectedOrder)
+                                    Tax (22%): {{
+ orderTax(selectedOrder)
                                     }} {{ '\u20AC' }}
                                 </p>
                                 <p><strong>Total: {{ orderTotal(selectedOrder) }} {{ '\u20AC' }}</strong></p>
@@ -137,9 +138,7 @@
     import { ref, watch, onMounted } from "vue";
     import { useRouter } from "vue-router";
     import accountService from "../services/account-service";
-    // import orderService from "../services/order-service"; // API
-    import orderService from "../services/mock-order-service"; // mock verzija
-
+    import orderService from "../services/order-service";
 
     export default {
         name: "ProfileView",
@@ -151,11 +150,13 @@
             const orders = ref([]);
             const selectedOrder = ref(null);
 
+            // Logout
             const logout = () => {
                 accountService.logout();
                 router.push("/login");
             };
 
+            // Fetch user profile
             const fetchProfile = async () => {
                 try {
                     const headers = accountService.getHeaderData();
@@ -168,6 +169,7 @@
                 }
             };
 
+            // Fetch user orders
             const fetchOrders = async () => {
                 try {
                     orders.value = await orderService.getMyOrders();
@@ -181,19 +183,47 @@
             };
 
             const TAX_RATE = 0.22;
+            const orderTax = (order) => ((order.total * TAX_RATE) / (1 + TAX_RATE)).toFixed(2);
+            const orderSubtotal = (order) => (order.total - orderTax(order)).toFixed(2);
+            const orderTotal = (order) => order.total.toFixed(2);
 
-            const orderTax = (order) => {
-                return (order.total * TAX_RATE / (1 + TAX_RATE)).toFixed(2);
+            // Save profile (posodobi vse podatke)
+            const saveProfile = async () => {
+                try {
+                    const payload = {
+                        UserId: user.value.id,
+                        FirstName: user.value.firstName || "",
+                        LastName: user.value.lastName || "",
+                        Email: user.value.email || "",
+                        Address: user.value.address || "",
+                        City: user.value.city || "",
+                        PostalCode: user.value.postalCode || "",
+                        Country: user.value.country || "",
+                        PhoneNumber: user.value.phoneNumber || ""
+                    };
+
+
+                    const headers = accountService.getHeaderData();
+                    const response = await fetch("http://localhost:7020/api/v1/users/me", {
+                        method: "PUT",
+                        headers: {
+                            ...headers,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error("Failed to save profile");
+
+                    const updatedUser = await response.json();
+                    Object.assign(user.value, updatedUser); // osveži podatke na frontendu
+
+                    alert("Profile updated successfully!");
+                } catch (err) {
+                    console.error(err);
+                    alert("Error saving profile. Please try again.");
+                }
             };
-
-            const orderSubtotal = (order) => {
-                return (order.total - orderTax(order)).toFixed(2);
-            };
-
-            const orderTotal = (order) => {
-                return order.total.toFixed(2);
-            };
-
 
             watch(activeScreen, (screen) => {
                 if (screen === "orders") fetchOrders();
@@ -201,7 +231,18 @@
 
             onMounted(fetchProfile);
 
-            return { user, logout, activeScreen, orders, selectedOrder, toggleOrder, orderSubtotal, orderTax, orderTotal };
+            return {
+                user,
+                logout,
+                activeScreen,
+                orders,
+                selectedOrder,
+                toggleOrder,
+                orderSubtotal,
+                orderTax,
+                orderTotal,
+                saveProfile
+            };
         }
     };
 </script>
