@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div class="register-container">
         <div class="register-card">
             <h2>Register</h2>
@@ -6,51 +6,51 @@
             <form @submit.prevent="handleRegister">
                 <div class="form-group">
                     <label for="firstName">First Name</label>
-                    <input type="text"
-                           id="firstName"
+                    <input id="firstName"
+                           type="text"
                            v-model="registerForm.firstName"
+                           placeholder="Your first name, e.g. Jane"
                            required
-                           placeholder="Your first name, e.g: Jane"
                            :disabled="isLoading" />
                 </div>
 
                 <div class="form-group">
-                    <label for="lastName">Lastname</label>
-                    <input type="text"
-                           id="lastName"
+                    <label for="lastName">Last Name</label>
+                    <input id="lastName"
+                           type="text"
                            v-model="registerForm.lastName"
+                           placeholder="Your last name, e.g. Doe"
                            required
-                           placeholder="Your lastname, e.g: Doe"
                            :disabled="isLoading" />
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email"
-                           id="email"
+                    <input id="email"
+                           type="email"
                            v-model="registerForm.email"
+                           placeholder="janedoe@mail.com"
                            required
-                           placeholder="Your email, e.g: janedoe@mail.com"
                            :disabled="isLoading" />
                 </div>
 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password"
-                           id="password"
+                    <input id="password"
+                           type="password"
                            v-model="registerForm.password"
-                           required
                            placeholder="Your password"
+                           required
                            :disabled="isLoading" />
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Confirm Password</label>
-                    <input type="password"
-                           id="confirmPassword"
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input id="confirmPassword"
+                           type="password"
                            v-model="registerForm.confirmPassword"
-                           required
                            placeholder="Re-enter your password"
+                           required
                            :disabled="isLoading" />
                 </div>
 
@@ -64,38 +64,41 @@
             </form>
 
             <div class="register-link">
-                <p>Already have an account? <router-link to="/login">Login here</router-link></p>
+                <p>
+                    Already have an account?
+                    <router-link to="/login">Login here</router-link>
+                </p>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import { ref } from 'vue';
-    import { useRouter } from 'vue-router';
-    import accountService from '../services/account-service';
+    import { ref } from "vue";
+    import { useRouter } from "vue-router";
+    import accountService from "../services/account-service";
 
     export default {
-        name: 'RegisterView',
+        name: "RegisterView",
         setup() {
             const router = useRouter();
 
             const registerForm = ref({
-                firstName: '',
-                lastName: '',
-                email: '',
-                password: '',
-                confirmPassword: ''
+                firstName: "",
+                lastName: "",
+                email: "",
+                password: "",
+                confirmPassword: ""
             });
 
-            const errorMessage = ref('');
+            const errorMessage = ref("");
             const isLoading = ref(false);
 
             const handleRegister = async () => {
-                errorMessage.value = '';
+                errorMessage.value = "";
 
                 if (registerForm.value.password !== registerForm.value.confirmPassword) {
-                    errorMessage.value = 'Passwords do not match.';
+                    errorMessage.value = "Passwords do not match.";
                     return;
                 }
 
@@ -103,14 +106,15 @@
 
                 try {
                     const response = await accountService.postRegister({
-                        firstName: registerForm.value.firstName,
-                        lastName: registerForm.value.lastName,
-                        email: registerForm.value.email,
-                        password: registerForm.value.password,
-                        confirmPassword: registerForm.value.confirmPassword
+                        // ⬅️ POMEMBNO: PascalCase za backend
+                        FirstName: registerForm.value.firstName,
+                        LastName: registerForm.value.lastName,
+                        Email: registerForm.value.email,
+                        Password: registerForm.value.password,
+                        ConfirmPassword: registerForm.value.confirmPassword
                     });
 
-                    if (response.token) {
+                    if (response?.token) {
                         accountService.login(response.token);
 
                         accountService.saveUserData(
@@ -119,12 +123,13 @@
                             `${response.firstName} ${response.lastName}`
                         );
 
-                        router.push('/');
+                        router.push("/");
                     } else {
-                        router.push('/login');
+                        router.push("/login");
                     }
-                } catch (error) {
-                    errorMessage.value = error.message || 'Registration failed. Please try again.';
+                } catch (err) {
+                    errorMessage.value =
+                        err?.message || "Registration failed. Please try again.";
                 } finally {
                     isLoading.value = false;
                 }
@@ -139,7 +144,6 @@
         }
     };
 </script>
-
 
 <style scoped>
     .register-container {
@@ -160,7 +164,6 @@
     }
 
     h2 {
-        margin-top: 0;
         margin-bottom: 30px;
         text-align: center;
         color: #333;
@@ -173,8 +176,8 @@
     label {
         display: block;
         margin-bottom: 5px;
-        color: #555;
         font-weight: 500;
+        color: #555;
     }
 
     input {
@@ -183,7 +186,6 @@
         border: 1px solid #ddd;
         border-radius: 4px;
         font-size: 14px;
-        box-sizing: border-box;
     }
 
         input:focus {
@@ -193,7 +195,6 @@
 
         input:disabled {
             background-color: #f5f5f5;
-            cursor: not-allowed;
         }
 
     .error-message {
@@ -202,7 +203,6 @@
         padding: 10px;
         border-radius: 4px;
         margin-bottom: 20px;
-        font-size: 14px;
     }
 
     .btn-primary {
@@ -215,7 +215,6 @@
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: background-color 0.3s;
     }
 
         .btn-primary:hover:not(:disabled) {
@@ -232,15 +231,10 @@
         text-align: center;
     }
 
-        .register-link p {
-            color: #666;
-            font-size: 14px;
-        }
-
         .register-link a {
             color: #42b983;
-            text-decoration: none;
             font-weight: 600;
+            text-decoration: none;
         }
 
             .register-link a:hover {
