@@ -63,9 +63,9 @@
                 <div class="card clickable"
                      v-for="book in books"
                      :key="book.id"
-                     @click="openBook(book.id)">
+                      @click="openBook(book.id)">
 
-                    <img :src="book.image || 'https://via.placeholder.com/240x300?text=No+Image'" :alt="book.title" />
+                    <img :src="book.image || 'https://via.placeholder.com/240x300?text=No+Image'" :alt="book.title" onerror="this.style.display='none'"/>
                     <div class="price">{{ book.price }} €</div>
                     <button 
                         class="buy" 

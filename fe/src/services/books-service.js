@@ -63,19 +63,20 @@ export class BooksService {
       meta = { TotalCount: meta.TotalCount ?? 0, CurrentPage: page, TotalPages: 1 };
     }
 
-    const products = await response.json();
+      const data = await response.json();
+      console.log(data); // preveri, kaj dejansko pride
 
-    const items = Array.isArray(products)
-      ? products.map(p => ({
-          id: p.ProductId,
-          title: p.ProductName,
-          price: p.Price,
-          image: p.ImageUrl,
-          shortDescription: p.ShortDescription,
-          // UI currently uses numeric stock; backend provides availability boolean
-          stock: p.IsAvailable ? 1 : 0
-        }))
-      : [];
+      const itemsArray = Array.isArray(data.items) ? data.items : data;
+
+      const items = itemsArray.map(p => ({
+          id: p.productId,
+          title: p.productName,
+          price: p.price,
+          image: p.imageUrl,
+          shortDescription: p.shortDescription,
+          stock: p.isAvailable ? 1 : 0
+      }));
+
 
     return {
       items,
