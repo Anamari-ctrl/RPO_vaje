@@ -107,13 +107,13 @@ export class BooksService {
 
     const p = await response.json();
     return {
-      id: p.ProductId,
-      title: p.ProductName,
-      price: p.Price,
-      imageUrl: p.ImageUrl,
-      isAvailable: p.IsAvailable,
-      longDescription: p.LongDescription,
-      technicalDetails: p.TechnicalDetails
+      id: p.productId,
+      title: p.productName,
+      price: p.price,
+      imageUrl: p.imageUrl,
+      isAvailable: p.isAvailable,
+      longDescription: p.longDescription,
+      technicalDetails: p.technicalDetails
     };
   }
 

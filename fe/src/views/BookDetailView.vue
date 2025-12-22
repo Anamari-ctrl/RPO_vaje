@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div v-if="loading" class="loading">
         Loading book details...
     </div>
@@ -11,7 +11,7 @@
         <div class="info">
             <h1>{{ book.title }}</h1>
 
-            <p class="price">{{ book.price.toFixed(2) }} �</p>
+            <p class="price">{{ book.price }} €</p>
 
             <div class="stock" :class="{ out: !book.isAvailable }">
                 {{ book.isAvailable ? 'In stock' : 'Out of stock' }}
@@ -27,7 +27,7 @@
             <p>{{ book.longDescription || 'No description available.' }}</p>
 
             <h3>Technical details</h3>
-            <pre>{{ book.technicalDetails || '�' }}</pre>
+            <pre>{{ book.technicalDetails || '—' }}</pre>
         </div>
     </div>
 
@@ -93,10 +93,18 @@
         padding: 40px;
     }
 
-    .image img {
+    .image {
         width: 100%;
-        border-radius: 12px;
+        max-width: 400px;
     }
+
+        .image img {
+            width: 100%;
+            height: 500px; /* vedno enak okvir */
+            object-fit: cover;
+            border-radius: 12px;
+            background: #f0f0f0; /* če ni slike, bo siva površina */
+        }
 
     .price {
         font-size: 1.6rem;
