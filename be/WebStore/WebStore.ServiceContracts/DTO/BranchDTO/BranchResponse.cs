@@ -23,6 +23,26 @@ namespace WebStore.ServiceContracts.DTO.BranchDTO
         public string? OpeningHours { get; set; }
 
         public string? ImageUrl { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public BranchUpdateRequest ToBranchUpdateRequest()
+        {
+            return new BranchUpdateRequest()
+            {
+                BranchId = BranchId,
+                BranchName = BranchName,
+                Address = Address,
+                City = City,
+                Country = Country,
+                PostalCode = PostalCode,
+                Phone = Phone,
+                Responsible = Responsible,
+                OpeningHours = OpeningHours,
+                ImageUrl = ImageUrl,
+                IsActive = IsActive
+            };
+        }
     }
 
     public static class BranchResponseExtensions
@@ -40,7 +60,8 @@ namespace WebStore.ServiceContracts.DTO.BranchDTO
                 Phone = branch.Phone,
                 Responsible = branch.Responsible,
                 OpeningHours = branch.OpeningHours,
-                ImageUrl = branch.ImageUrl
+                ImageUrl = branch.ImageUrl,
+                IsActive = branch.IsActive
             };
         }
     }

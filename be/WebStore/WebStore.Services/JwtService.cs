@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using WebStore.Entities.Identity;
 using WebStore.ServiceContracts;
-using WebStore.ServiceContracts.DTO.Account;
+using WebStore.ServiceContracts.DTO.AuthDTO;
 
 namespace WebStore.Services
 {
@@ -19,7 +19,7 @@ namespace WebStore.Services
             _configuration = configuration;
         }
 
-        public AuthenticationResponse CreateJwtToken(ApplicationUser user)
+        public AuthenticationResponse CreateJwtToken(ApplicationUser user, string role)
         {
             DateTime expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:EXPIRATION_MINUTES"]));
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -30,7 +30,8 @@ namespace WebStore.Services
                     new Claim(JwtRegisteredClaimNames.Iat, now.ToString(),ClaimValueTypes.Integer64), //Issued at (date and time of token generation)
                     new Claim(ClaimTypes.NameIdentifier, user.Email!.ToString()),
                     new Claim(ClaimTypes.NameIdentifier, user.FirstName!.ToString()+" "+user.LastName!.ToString()),
-                    new Claim(ClaimTypes.Email, user.Email!.ToString())
+                    new Claim(ClaimTypes.Email, user.Email!.ToString()),
+                    new Claim(ClaimTypes.Role, role)
                 ];
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));

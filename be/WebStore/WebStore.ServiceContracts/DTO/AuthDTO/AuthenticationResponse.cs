@@ -1,4 +1,4 @@
-﻿namespace WebStore.ServiceContracts.DTO.Account
+﻿namespace WebStore.ServiceContracts.DTO.AuthDTO
 {
     public class AuthenticationResponse
     {
@@ -10,5 +10,6 @@
         public DateTime Expiration { get; set; }
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime RefreshTokenExpirationDateTime { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

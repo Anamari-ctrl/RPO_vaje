@@ -1,7 +1,9 @@
 ﻿using WebStore.Entities.Models;
+using WebStore.Entities.RequestFeatures;
 using WebStore.RepositoryContracts;
 using WebStore.ServiceContracts;
 using WebStore.ServiceContracts.DTO.BranchDTO;
+using WebStore.Services.Helpers;
 
 namespace WebStore.Services
 {
@@ -14,19 +16,32 @@ namespace WebStore.Services
             _repository = branchRepository;
         }
 
-        public Task<BranchResponse> CreateItem(BranchAddRequest? addRequest, string createdBy)
+        public async Task<BranchResponse> CreateItem(BranchAddRequest? addRequest)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(addRequest);
+
+            ValidationHelper.ModelValidation(addRequest);
+
+            Branch branch = addRequest.ToBranch();
+            branch.Created = DateTime.Now;
+
+            await _repository.AddAsync(branch);
+
+            return branch.ToBranchResponse();
         }
 
-        public Task<bool> Deactivate(Guid? itemId, string updatedBy)
+        public async Task<bool> DeleteItem(Guid? itemId)
         {
-            throw new NotImplementedException();
-        }
+            ArgumentNullException.ThrowIfNull(itemId);
 
-        public Task<bool> DeleteItem(Guid? itemId)
-        {
-            throw new NotImplementedException();
+            Branch? branch = await _repository.GetByIdAsync(itemId.Value);
+
+            if (branch == null)
+            {
+                return false;
+            }
+
+            return await _repository.DeleteAsync(branch.BranchId);
         }
 
         public async Task<List<BranchResponse>> GetActiveItems()
@@ -43,14 +58,44 @@ namespace WebStore.Services
             return branches.Select(x => x.ToBranchResponse()).ToList();
         }
 
-        public Task<BranchResponse?> GetItemById(Guid? itemId)
+        public async Task<PagedList<BranchResponse>> GetAllBranchesAsync(RequestParameters parameters, bool onlyActive)
         {
-            throw new NotImplementedException();
+            var branches = await _repository.GetAllBranchesAsync(parameters, false);
+
+            var branchesDto = branches.Select(x => x.ToBranchResponse()).AsEnumerable();
+
+            return PagedList<BranchResponse>.ToPagedList(branches, branchesDto);
+
         }
 
-        public Task<BranchResponse> UpdateItem(BranchUpdateRequest? updateRequest, string updatedBy)
+        public async Task<BranchResponse?> GetItemById(Guid? itemId)
         {
-            throw new NotImplementedException();
+            if (!itemId.HasValue)
+            {
+                return null;
+            }
+
+            Branch? branch = await _repository.GetByIdAsync(itemId.Value);
+
+            return branch?.ToBranchResponse();
+        }
+
+        public async Task<BranchResponse> UpdateItem(BranchUpdateRequest? updateRequest)
+        {
+            ArgumentNullException.ThrowIfNull(updateRequest);
+
+            ValidationHelper.ModelValidation(updateRequest);
+
+            Branch? branch = await _repository.GetByIdAsync(updateRequest.BranchId);
+
+            if (branch == null)
+            {
+                throw new ArgumentException($"Given branch with id {updateRequest.BranchId} doesn't exists!");
+            }
+
+            await _repository.UpdateAsync(branch);
+
+            return branch.ToBranchResponse();
         }
     }
 }

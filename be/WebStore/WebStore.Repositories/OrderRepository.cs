@@ -14,7 +14,7 @@ namespace WebStore.Repositories
 
         public async Task<List<Order>> GetUserOrderHistory(Guid userId)
         {
-            return await _db.Orders!.Where(x => x.UserId == userId).ToListAsync();
+            return await _db.Orders!.Where(x => x.UserId == userId).Include(x => x.OrderItems).ToListAsync();
         }
     }
 }

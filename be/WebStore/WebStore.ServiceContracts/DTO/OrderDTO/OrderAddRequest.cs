@@ -1,10 +1,11 @@
 ﻿using WebStore.Entities.Models;
+using WebStore.ServiceContracts.DTO.OrderItemDTO;
 
 namespace WebStore.ServiceContracts.DTO.OrderDTO
 {
     public class OrderAddRequest
     {
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
 
         public string? OrderStatus { get; set; }
 
@@ -18,6 +19,8 @@ namespace WebStore.ServiceContracts.DTO.OrderDTO
 
         public string? PostalCode { get; set; }
 
+        public List<OrderItemAddRequest> OrderItems { get; set; } = [];
+
         public Order ToOrder()
         {
             return new Order()
@@ -29,6 +32,7 @@ namespace WebStore.ServiceContracts.DTO.OrderDTO
                 City = City,
                 Country = Country,
                 PostalCode = PostalCode,
+                OrderItems = OrderItems.Select(x => x.ToOrderItem()).ToList()
             };
         }
     }

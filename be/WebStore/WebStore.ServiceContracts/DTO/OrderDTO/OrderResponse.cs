@@ -1,4 +1,5 @@
 ﻿using WebStore.Entities.Models;
+using WebStore.ServiceContracts.DTO.OrderItemDTO;
 
 namespace WebStore.ServiceContracts.DTO.OrderDTO
 {
@@ -6,7 +7,7 @@ namespace WebStore.ServiceContracts.DTO.OrderDTO
     {
         public Guid OrderId { get; set; }
 
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
 
         public string? OrderStatus { get; set; }
 
@@ -26,6 +27,8 @@ namespace WebStore.ServiceContracts.DTO.OrderDTO
 
         public bool IsActive { get; set; }
 
+        public List<OrderItemResponse> OrderItems { get; set; } = [];
+
         public OrderUpdateRequest ToOrderUpdateRequest()
         {
             return new OrderUpdateRequest()
@@ -41,6 +44,18 @@ namespace WebStore.ServiceContracts.DTO.OrderDTO
         {
             return new OrderResponse()
             {
+                OrderId = order.OrderId,
+                UserId = order.UserId,
+                OrderStatus = order.OrderStatus,
+                OrderNumber = order.OrderNumber,
+                OrderDate = order.OrderDate,
+                TotalAmount = order.TotalAmount,
+                Address = order.Address,
+                City = order.City,
+                Country = order.Country,
+                PostalCode = order.PostalCode,
+                IsActive = order.IsActive,
+                OrderItems = order.OrderItems.Select(x => x.ToOrderItemResponse()).ToList()
             };
         }
     }

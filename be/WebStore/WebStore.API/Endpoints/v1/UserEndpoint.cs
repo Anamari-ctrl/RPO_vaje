@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using WebStore.Entities.Identity;
 using WebStore.ServiceContracts;
-using WebStore.ServiceContracts.DTO.Account;
+using WebStore.ServiceContracts.DTO.AuthDTO;
 using WebStore.ServiceContracts.DTO.OrderDTO;
 
 namespace WebStore.API.Endpoints.v1
@@ -13,14 +13,14 @@ namespace WebStore.API.Endpoints.v1
         {
             app.MapGet("api/v1/users/me", GetUserData).RequireAuthorization();
             app.MapPut("api/v1/users/me", UpdateUserData).RequireAuthorization();
-            app.MapPut("api/v1/users/orderHistory", GetUserOrderHistory).RequireAuthorization();
+            app.MapGet("api/v1/users/orderHistory", GetUserOrderHistory).RequireAuthorization();
         }
 
         public static async Task<IResult> GetUserData(string? userId,
                                                       UserManager<ApplicationUser> userManager,
                                                       ClaimsPrincipal userPrincipal)
         {
-            ApplicationUser? user = null;
+            ApplicationUser? user;
 
             if (!string.IsNullOrEmpty(userId))
             {
@@ -41,10 +41,9 @@ namespace WebStore.API.Endpoints.v1
             return Results.Ok(userData);
         }
 
-        public static async Task<IResult> UpdateUserData(
-     UserUpdateRequest? userUpdateRequest,
-     UserManager<ApplicationUser> userManager,
-     ClaimsPrincipal userPrincipal)
+        public static async Task<IResult> UpdateUserData(UserUpdateRequest? userUpdateRequest,
+                                                         UserManager<ApplicationUser> userManager,
+                                                         ClaimsPrincipal userPrincipal)
         {
             if (userUpdateRequest == null)
                 return Results.BadRequest("Request body was empty.");
@@ -71,7 +70,7 @@ namespace WebStore.API.Endpoints.v1
                 {
                     appUser.Email = userUpdateRequest.Email;
                     appUser.UserName = userUpdateRequest.Email;
-                    appUser.NormalizedEmail = userUpdateRequest.Email.ToUpper();
+                    appUser.NormalizedEmail = userUpdateRequest.Email!.ToUpper();
                     appUser.NormalizedUserName = userUpdateRequest.Email.ToUpper();
                 }
 

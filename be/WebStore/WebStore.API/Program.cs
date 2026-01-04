@@ -12,12 +12,13 @@ using WebStore.Repositories;
 using WebStore.RepositoryContracts;
 using WebStore.ServiceContracts;
 using WebStore.Services;
+using WebStore.Services.Helpers;
 
 namespace WebStore.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -25,15 +26,21 @@ namespace WebStore.API
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IBranchRepository, BranchRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 
             //Services
             builder.Services.AddTransient<IJwtService, JwtService>();
             builder.Services.AddTransient<IOrderService, OrderService>();
             builder.Services.AddTransient<IProductService, ProductService>();
             builder.Services.AddTransient<IBranchService, BranchService>();
+            builder.Services.AddTransient<IRatingService, RatingService>();
 
             // Add services to the container.
-            builder.Services.AddAuthorization();
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+            });
 
             var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 
@@ -73,12 +80,14 @@ namespace WebStore.API
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders()
                 .AddUserStore<UserStore<ApplicationUser, ApplicationRole, ApplicationDbContext, Guid>>()
-                .AddRoleStore<RoleStore<ApplicationRole, ApplicationDbContext, Guid>>();
+                .AddRoleStore<RoleStore<ApplicationRole, ApplicationDbContext, Guid>>()
+                .AddRoleManager<RoleManager<ApplicationRole>>();
 
             builder.Services.Configure<DataProtectionTokenProviderOptions>(opt =>
             {
                 opt.TokenLifespan = TimeSpan.FromHours(2);
             });
+
 
             builder.Services.AddAuthentication(options =>
             {
@@ -112,22 +121,39 @@ namespace WebStore.API
                 };
             });
 
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             //Endpoints
             app.MapAuthEndpoints();
-            app.MapUserEndpoints();
             app.MapBooksEndpoints();
             app.MapBranchEndpoints();
+            app.MapOrderEndpoints();
+            app.MapProductEndpoints();
+            app.MapRatingEndpoints();
+            app.MapUserEndpoints();
 
             app.UseCors();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    await TestUserGenerator.CreateUserAsync(services);
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while seeding the database.");
+                }
+            }
 
             app.Run();
         }

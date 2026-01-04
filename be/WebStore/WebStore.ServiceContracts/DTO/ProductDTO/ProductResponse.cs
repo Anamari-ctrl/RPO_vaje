@@ -1,4 +1,5 @@
 ﻿using WebStore.Entities.Models;
+using WebStore.ServiceContracts.DTO.RatingDTO;
 
 namespace WebStore.ServiceContracts.DTO.ProductDTO
 {
@@ -26,13 +27,15 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
 
         public int Warranty { get; set; }
 
-        public string ManufacturerPageUrl { get; set; } = string.Empty;
+        public string? ManufacturerPageUrl { get; set; }
 
-        public string TechnicalDetails { get; set; } = string.Empty;
+        public string? TechnicalDetails { get; set; }
 
-        public string ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
 
         public bool IsActive { get; set; }
+
+        public List<RatingResponse> Ratings { get; set; } = [];
 
         public ProductUpdateRequest ToProductUpdateRequest()
         {
@@ -51,7 +54,7 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
                 ManufacturerPageUrl = ManufacturerPageUrl,
                 TechnicalDetails = TechnicalDetails,
                 ImageUrl = ImageUrl,
-                IsActive = IsActive
+                IsActive = IsActive                
             };
         }
     }
@@ -75,7 +78,8 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
                 ManufacturerPageUrl = product.ManufacturerPageUrl,
                 TechnicalDetails = product.TechnicalDetails,
                 ImageUrl = product.ImageUrl,
-                IsActive = product.IsActive
+                IsActive = product.IsActive,
+                Ratings = product.Ratings.Select(x => x.ToRatingResponse()).ToList()
             };
         }
     }

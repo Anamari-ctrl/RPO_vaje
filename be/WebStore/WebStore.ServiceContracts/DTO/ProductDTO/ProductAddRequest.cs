@@ -36,6 +36,8 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
 
         public bool IsActive { get; set; }
 
+        public string? CreatedBy { get; set; }
+
         public Product ToProduct()
         {
             return new Product()
@@ -52,7 +54,8 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
                 ManufacturerPageUrl = ManufacturerPageUrl,
                 TechnicalDetails = TechnicalDetails,
                 ImageUrl = ImageUrl,
-                IsActive = IsActive
+                IsActive = IsActive,
+                CreatedBy = CreatedBy
             };
         }
     }

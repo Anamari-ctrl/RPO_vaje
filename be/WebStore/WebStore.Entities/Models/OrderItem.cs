@@ -21,5 +21,9 @@ namespace WebStore.Entities.Models
         public int Quantity { get; set; }
 
         public decimal PriceAtPurchase { get; set; }
+
+        public string? ProductName { get; set; }
+
+        public string? ShortDescription { get; set; }
     }
 }

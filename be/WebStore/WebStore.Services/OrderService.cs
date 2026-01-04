@@ -8,33 +8,32 @@ namespace WebStore.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly IOrderRepository _repository;
+        private readonly IOrderRepository _orderRepository;
 
         public OrderService(IOrderRepository repository)
         {
-            _repository = repository;
+            _orderRepository = repository;
         }
 
-        public async Task<OrderResponse> CreateItem(OrderAddRequest? addRequest, string createdBy)
+        public async Task<OrderResponse> CreateItem(OrderAddRequest? addRequest)
         {
             ArgumentNullException.ThrowIfNull(addRequest);
 
             ValidationHelper.ModelValidation(addRequest);
 
             Order order = addRequest.ToOrder();
-            order.CreatedBy = createdBy;
             order.Created = DateTime.Now;
 
-            await _repository.AddAsync(order);
+            await _orderRepository.AddAsync(order);
 
             return order.ToOrderResponse();
         }
 
-        public async Task<bool> Deactivate(Guid? itemId, string updatedBy)
+        public async Task<bool> Deactivate(Guid? itemId)
         {
             ArgumentNullException.ThrowIfNull(itemId);
 
-            Order? order = await _repository.GetByIdAsync(itemId.Value);
+            Order? order = await _orderRepository.GetByIdAsync(itemId.Value);
 
             if (order == null)
             {
@@ -43,7 +42,7 @@ namespace WebStore.Services
 
             order.IsActive = false;
 
-            await _repository.UpdateAsync(order);
+            await _orderRepository.UpdateAsync(order);
 
             return true;
         }
@@ -52,14 +51,14 @@ namespace WebStore.Services
         {
             ArgumentNullException.ThrowIfNull(itemId);
 
-            Order? order = await _repository.GetByIdAsync(itemId.Value);
+            Order? order = await _orderRepository.GetByIdAsync(itemId.Value);
 
             if (order == null)
             {
                 return false;
             }
 
-            return await _repository.DeleteAsync(itemId.Value);
+            return await _orderRepository.DeleteAsync(itemId.Value);
         }
 
         public Task<List<OrderResponse>> GetActiveItems()
@@ -79,7 +78,7 @@ namespace WebStore.Services
                 return null;
             }
 
-            Order? order = await _repository.GetByIdAsync(itemId.Value);
+            Order? order = await _orderRepository.GetByIdAsync(itemId.Value);
 
             return order?.ToOrderResponse();
         }
@@ -91,25 +90,25 @@ namespace WebStore.Services
                 return [];
             }
 
-            List<Order> orders = await _repository.GetUserOrderHistory(userId.Value);
+            List<Order> orders = await _orderRepository.GetUserOrderHistory(userId.Value);
 
             return orders.Select(x => x.ToOrderResponse()).ToList();
         }
 
-        public async Task<OrderResponse> UpdateItem(OrderUpdateRequest? updateRequest, string updatedBy)
+        public async Task<OrderResponse> UpdateItem(OrderUpdateRequest? updateRequest)
         {
             ArgumentNullException.ThrowIfNull(updateRequest);
 
             ValidationHelper.ModelValidation(updateRequest);
 
-            Order? order = await _repository.GetByIdAsync(updateRequest.OrderId);
+            Order? order = await _orderRepository.GetByIdAsync(updateRequest.OrderId);
 
             if (order == null)
             {
                 throw new ArgumentException($"Given order with id {updateRequest.OrderId} doesn't exists!");
             }
 
-            await _repository.UpdateAsync(order);
+            await _orderRepository.UpdateAsync(order);
 
             return order.ToOrderResponse();
         }

@@ -16,7 +16,8 @@ namespace WebStore.API.Endpoints.v1
                                                    IProductService productService,
                                                    HttpContext context)
         {
-            PagedList<ProductResponse> pagedListBooks = await productService.GetAllProductsAsync(parameters);
+            PagedList<ProductResponse> pagedListBooks = await productService.GetAllProductsAsync(parameters,
+                                                                                                 onlyActive: true);
 
             var metaData = new
             {

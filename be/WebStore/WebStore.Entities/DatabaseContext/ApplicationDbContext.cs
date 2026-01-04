@@ -13,7 +13,6 @@ namespace WebStore.Entities.DatabaseContext
         public virtual DbSet<Order>? Orders { get; set; }
         public virtual DbSet<OrderItem>? OrderItem { get; set; }
         public virtual DbSet<Product>? Products { get; set; }
-        public virtual DbSet<Review>? Reviews { get; set; }
         public virtual DbSet<Rating>? Ratings { get; set; }
         public virtual DbSet<Genre>? Genres { get; set; }
 
@@ -38,7 +37,15 @@ namespace WebStore.Entities.DatabaseContext
 
             GetMockData<Genre>("genres", modelBuilder);
 
-            modelBuilder.Entity<Product>().ToTable("Products");
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.ToTable("Products");
+
+                entity.HasMany(x => x.Ratings)
+                      .WithOne()
+                      .HasForeignKey(x => x.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
             GetMockData<Product>("products", modelBuilder);
 
@@ -51,6 +58,11 @@ namespace WebStore.Entities.DatabaseContext
 
                 entity.Property(x => x.OrderNumber)
                       .ValueGeneratedOnAdd();
+
+                entity.HasMany(x => x.OrderItems)
+                      .WithOne(x => x.Order)
+                      .HasForeignKey(x => x.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             GetMockData<Order>("orders", modelBuilder);
@@ -70,12 +82,18 @@ namespace WebStore.Entities.DatabaseContext
 
             GetMockData<OrderItem>("orderitems", modelBuilder);
 
-            modelBuilder.Entity<Review>().ToTable("Reviews");
             modelBuilder.Entity<Rating>().ToTable("Rating");
+
+            modelBuilder.Entity<Rating>(entity =>
+            {
+                entity.HasKey(x => x.RatingId);
+
+                entity.HasIndex(x => x.ProductId);
+            });
         }
 
-        public static void GetMockData<T>(string fileName, ModelBuilder modelBuilder)
-            where T : class
+        private static void GetMockData<T>(string fileName,
+                                           ModelBuilder modelBuilder) where T : class
         {
             string? mockJsonData = File.ReadAllText($"MockData/Mock_{fileName}.json");
 
@@ -83,9 +101,9 @@ namespace WebStore.Entities.DatabaseContext
 
             if (items != null)
             {
-                foreach (var branch in items)
+                foreach (var item in items)
                 {
-                    modelBuilder.Entity<T>().HasData(branch);
+                    modelBuilder.Entity<T>().HasData(item);
                 }
             }
         }

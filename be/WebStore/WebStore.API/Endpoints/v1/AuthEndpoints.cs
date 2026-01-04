@@ -4,8 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using WebStore.Entities.Identity;
 using WebStore.ServiceContracts;
-using WebStore.ServiceContracts.DTO.Account;
-using WebStore.ServiceContracts.DTO.Auth;
+using WebStore.ServiceContracts.DTO.AuthDTO;
 using WebStore.Services.Helpers;
 
 namespace WebStore.API.Endpoints.v1
@@ -26,44 +25,57 @@ namespace WebStore.API.Endpoints.v1
         public static async Task<IResult> Register(RegisterResponse registerDTO,
                                                    UserManager<ApplicationUser> userManager,
                                                    SignInManager<ApplicationUser> signInManager,
+                                                   RoleManager<ApplicationRole> roleManager,
                                                    IJwtService jwtService)
         {
-            if (ValidationHelper.IsModelValid(registerDTO, out List<ValidationResult> errors))
+            if (!ValidationHelper.IsModelValid(registerDTO, out List<ValidationResult> errors))
             {
-                var userWithEmail = await userManager.FindByEmailAsync(registerDTO.Email!);
-                if (userWithEmail != null)
-                {
-                    return Results.Problem($"Email {registerDTO.Email} is already taken!");
-                }
+                var errorsMessages = string.Join("|", errors.Select(x => x.ErrorMessage));
+                return Results.Problem(errorsMessages);
+            }
 
-                ApplicationUser user = new()
-                {
-                    FirstName = registerDTO.FirstName,
-                    LastName = registerDTO.LastName,
-                    Email = registerDTO.Email,
-                    UserName = registerDTO.Email,
-                };
+            var userWithEmail = await userManager.FindByEmailAsync(registerDTO.Email!);
+            if (userWithEmail != null)
+            {
+                return Results.Problem($"Email {registerDTO.Email} is already taken!");
+            }
 
-                IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password!);
-                if (result.Succeeded)
-                {
-                    await signInManager.SignInAsync(user, isPersistent: false);
+            ApplicationUser user = new()
+            {
+                FirstName = registerDTO.FirstName,
+                LastName = registerDTO.LastName,
+                Email = registerDTO.Email,
+                UserName = registerDTO.Email
+            };
 
-                    var authenticationResponse = jwtService.CreateJwtToken(user);
+            bool userRoleExists = await roleManager.RoleExistsAsync("User");
 
-                    user.RefreshToken = authenticationResponse.RefreshToken;
-                    user.RefreshTokenExpirationDateTime = authenticationResponse.RefreshTokenExpirationDateTime;
+            if (!userRoleExists)
+            {
+                return Results.Problem("User role does not exists. Check backend configuration!");
+            }
 
-                    await userManager.UpdateAsync(user);
+            IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password!);
 
-                    return Results.Ok(authenticationResponse);
-                }
-
+            if (!result.Succeeded)
+            {
                 return Results.BadRequest("Validation was OK, but the registration was not successful!");
             }
 
-            var errorsMessages = string.Join("|", errors.Select(x => x.ErrorMessage));
-            return Results.Problem(errorsMessages);
+            await userManager.AddToRoleAsync(user, "User");
+
+            await signInManager.SignInAsync(user, isPersistent: false);
+
+            var authenticationResponse = jwtService.CreateJwtToken(user, "User");
+
+            user.RefreshToken = authenticationResponse.RefreshToken;
+            user.RefreshTokenExpirationDateTime = authenticationResponse.RefreshTokenExpirationDateTime;
+
+            await userManager.UpdateAsync(user);
+
+            authenticationResponse.IsAdmin = await userManager.IsInRoleAsync(user, "Admin");
+
+            return Results.Ok(authenticationResponse);
         }
 
         [AllowAnonymous]
@@ -72,37 +84,45 @@ namespace WebStore.API.Endpoints.v1
                                                 UserManager<ApplicationUser> userManager,
                                                 IJwtService jwtService)
         {
-            if (ValidationHelper.IsModelValid(loginDTO, out List<ValidationResult> errors))
+            if (!ValidationHelper.IsModelValid(loginDTO, out List<ValidationResult> errors))
             {
-                var result = await signInManager.PasswordSignInAsync(loginDTO.Email,
-                                                                     loginDTO.Password,
-                                                                     isPersistent: true,
-                                                                     lockoutOnFailure: false);
+                var errorMessages = string.Join("|", errors.Select(x => x.ErrorMessage));
 
-                if (result.Succeeded)
-                {
-                    var user = await userManager.FindByEmailAsync(loginDTO.Email);
-                    if (user == null)
-                    {
-                        return Results.NoContent();
-                    }
+                return Results.Problem(errorMessages);
+            }
 
-                    var authenticationResponse = jwtService.CreateJwtToken(user);
+            var result = await signInManager.PasswordSignInAsync(loginDTO.Email,
+                                                                 loginDTO.Password,
+                                                                 isPersistent: true,
+                                                                 lockoutOnFailure: false);
 
-                    user.RefreshToken = authenticationResponse.RefreshToken;
-                    user.RefreshTokenExpirationDateTime = authenticationResponse.RefreshTokenExpirationDateTime;
-
-                    await userManager.UpdateAsync(user);
-
-                    return Results.Ok(authenticationResponse);
-                }
-
+            if (!result.Succeeded)
+            {
                 return Results.Problem("Username or password are not correct!");
             }
 
-            var errorMessages = string.Join("|", errors.Select(x => x.ErrorMessage));
+            var user = await userManager.FindByEmailAsync(loginDTO.Email);
+            if (user == null)
+            {
+                return Results.NoContent();
+            }
 
-            return Results.Problem(errorMessages);
+            string role = "Admin";
+            bool isUserAdmin = await userManager.IsInRoleAsync(user, role);
+            if (!isUserAdmin)
+            {
+                role = "User";
+            }
+
+            var authenticationResponse = jwtService.CreateJwtToken(user, role);
+            authenticationResponse.IsAdmin = isUserAdmin;
+
+            user.RefreshToken = authenticationResponse.RefreshToken;
+            user.RefreshTokenExpirationDateTime = authenticationResponse.RefreshTokenExpirationDateTime;
+
+            await userManager.UpdateAsync(user);
+
+            return Results.Ok(authenticationResponse);
         }
 
         public static async Task<IResult> RefreshToken(TokenModel tokenModel,
@@ -131,7 +151,14 @@ namespace WebStore.API.Endpoints.v1
                 return Results.BadRequest("Invalid refresh token");
             }
 
-            AuthenticationResponse response = jwtService.CreateJwtToken(user);
+            string role = "Admin";
+            bool isUserAdmin = await userManager.IsInRoleAsync(user, role);
+            if (!isUserAdmin)
+            {
+                role = "User";
+            }
+
+            AuthenticationResponse response = jwtService.CreateJwtToken(user, role);
 
             user.RefreshToken = response.RefreshToken;
             user.RefreshTokenExpirationDateTime = response.RefreshTokenExpirationDateTime;

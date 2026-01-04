@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebStore.ServiceContracts.DTO.Auth
+namespace WebStore.ServiceContracts.DTO.AuthDTO
 {
     public class ForgotPasswordDTO
     {

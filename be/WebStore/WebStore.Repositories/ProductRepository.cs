@@ -1,4 +1,5 @@
-﻿using WebStore.Entities.DatabaseContext;
+﻿using Microsoft.EntityFrameworkCore;
+using WebStore.Entities.DatabaseContext;
 using WebStore.Entities.Models;
 using WebStore.Entities.RequestFeatures;
 using WebStore.Repositories.Extensions;
@@ -10,9 +11,10 @@ namespace WebStore.Repositories
     {
         public ProductRepository(ApplicationDbContext db) : base(db)
         {
+
         }
 
-        public async Task<PagedList<Product>> GetAllProductsAsync(RequestParameters request)
+        public async Task<PagedList<Product>> GetAllProductsAsync(RequestParameters request, bool onlyActive)
         {
             var query = _db.Products!.AsQueryable();
 
@@ -20,9 +22,14 @@ namespace WebStore.Repositories
             {
                 var lowerCaseTerm = request.SearchTerm.ToLower();
                 query = query.Where(x =>
-                x.ProductName!.ToLower().Contains(lowerCaseTerm) ||
+                (x.ProductName!.ToLower().Contains(lowerCaseTerm) ||
                 x.LongDescription!.ToLower().Contains(lowerCaseTerm) ||
-                x.ShortDescription!.ToLower().Contains(lowerCaseTerm));
+                x.ShortDescription!.ToLower().Contains(lowerCaseTerm)));
+            }
+
+            if (onlyActive)
+            {
+                query = query.Where(x => x.IsActive);
             }
 
             if (!string.IsNullOrWhiteSpace(request.SortColumn))
@@ -34,7 +41,23 @@ namespace WebStore.Repositories
                 query.OrderBy(x => x.ProductName);
             }
 
+            query = query.Include(x => x.Ratings).AsQueryable();
+
             return await PagedList<Product>.CreateAsync(query, request.PageNumber, request.PageSize);
+        }
+
+        public override async Task<Product?> GetByIdAsync(Guid id)
+        {
+            Product? product = await _dbSet.FindAsync(id);
+
+            if (product == null)
+            {
+                return null;
+            }
+
+            product.Ratings = await _db.Ratings!.Where(x => x.ProductId == product.ProductId).ToListAsync();
+
+            return product;
         }
     }
 }

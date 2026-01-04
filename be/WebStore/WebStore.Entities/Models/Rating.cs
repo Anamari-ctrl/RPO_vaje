@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebStore.Entities.Models
 {
-    public class Rating
+    public class Rating : BaseEntity
     {
         [Key]
         public Guid RatingId { get; set; }
@@ -15,5 +15,7 @@ namespace WebStore.Entities.Models
         public Guid UserId { get; set; }
 
         public int RatingValue { get; set; }
+
+        public string? Comment { get; set; }
     }
 }

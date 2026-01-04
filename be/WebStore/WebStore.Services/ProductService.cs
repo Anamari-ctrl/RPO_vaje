@@ -16,8 +16,7 @@ namespace WebStore.Services
             _repository = repository;
         }
 
-        public async Task<ProductResponse> CreateItem(ProductAddRequest? addRequest,
-                                                string createdBy)
+        public async Task<ProductResponse> CreateItem(ProductAddRequest? addRequest)
         {
             ArgumentNullException.ThrowIfNull(addRequest);
 
@@ -27,16 +26,10 @@ namespace WebStore.Services
 
             product.ProductId = Guid.NewGuid();
             product.Created = DateTime.Now;
-            product.CreatedBy = createdBy;
 
             await _repository.AddAsync(product);
 
             return product.ToProductResponse();
-        }
-
-        public Task<bool> Deactivate(Guid? itemId, string updatedBy)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<bool> DeleteItem(Guid? itemId)
@@ -63,9 +56,11 @@ namespace WebStore.Services
             throw new NotImplementedException();
         }
 
-        public async Task<PagedList<ProductResponse>> GetAllProductsAsync(RequestParameters parameters)
+        public async Task<PagedList<ProductResponse>> GetAllProductsAsync(RequestParameters parameters,
+                                                                          bool onlyActive)
         {
-            var productEntities = await _repository.GetAllProductsAsync(parameters);
+            var productEntities = await _repository.GetAllProductsAsync(parameters,
+                                                                        onlyActive);
 
             var productDTOs = productEntities.Select(x => x.ToProductResponse()).AsEnumerable();
 
@@ -84,7 +79,7 @@ namespace WebStore.Services
             return product?.ToProductResponse();
         }
 
-        public async Task<ProductResponse> UpdateItem(ProductResponse? updateRequest, string updatedBy)
+        public async Task<ProductResponse> UpdateItem(ProductUpdateRequest? updateRequest)
         {
             ArgumentNullException.ThrowIfNull(updateRequest);
 

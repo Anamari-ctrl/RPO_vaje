@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Reflection.Metadata.Ecma335;
 using WebStore.Entities.Models;
 
 namespace WebStore.ServiceContracts.DTO.ProductDTO
@@ -32,11 +31,11 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
 
         public int Warranty { get; set; }
 
-        public string ManufacturerPageUrl { get; set; } = string.Empty;
+        public string? ManufacturerPageUrl { get; set; }
 
-        public string TechnicalDetails { get; set; } = string.Empty;
+        public string? TechnicalDetails { get; set; }
 
-        public string ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
 
         public bool IsActive { get; set; }
 

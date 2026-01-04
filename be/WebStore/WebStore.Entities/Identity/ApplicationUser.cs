@@ -18,6 +18,7 @@ namespace WebStore.Entities.Identity
 
         public string? RefreshToken { get; set; } = string.Empty;
 
-        public DateTime? RefreshTokenExpirationDateTime { get; set; }        
+        public DateTime? RefreshTokenExpirationDateTime { get; set; }
+        public string? Role { get; set; } = string.Empty;
     }
 }

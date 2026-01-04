@@ -1,6 +1,6 @@
 ﻿using WebStore.Entities.Identity;
 
-namespace WebStore.ServiceContracts.DTO.Account
+namespace WebStore.ServiceContracts.DTO.AuthDTO
 {
     public class UserDataResponse
     {

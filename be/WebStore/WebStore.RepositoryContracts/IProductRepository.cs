@@ -5,6 +5,6 @@ namespace WebStore.RepositoryContracts
 {
     public interface IProductRepository : IRepository<Product>
     {
-        Task<PagedList<Product>> GetAllProductsAsync(RequestParameters parameters);
+        Task<PagedList<Product>> GetAllProductsAsync(RequestParameters parameters, bool onlyActive);
     }
 }
