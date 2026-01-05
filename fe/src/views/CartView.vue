@@ -51,7 +51,11 @@
             <span><strong>{{ total.toFixed(2) }}€</strong></span>
           </div>
 
-          <button @click="checkout" class="btn-checkout">CHECKOUT</button>
+          <button @click="checkout" class="btn-checkout" :disabled="isProcessing">
+            {{ isProcessing ? 'Processing...' : 'CHECKOUT' }}
+          </button>
+
+          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
           <p class="international-note">
             For international orders, please email <a href="mailto:info@owls.com">info@owls.com</a>.
@@ -63,13 +67,19 @@
 </template>
 
 <script>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import cartService from '../services/cart-service';
+import orderService from '../services/order-service';
+import accountService from '../services/account-service';
 
 export default {
   name: 'CartView',
   setup() {
+    const router = useRouter();
     const cartState = cartService.getState();
+    const isProcessing = ref(false);
+    const errorMessage = ref('');
 
     const cartItems = computed(() => cartState.items);
     const subtotal = computed(() => cartService.getSubtotal());
@@ -90,9 +100,51 @@ export default {
       cartService.removeItem(itemId);
     };
 
-    const checkout = () => {
-      // TODO: Implement checkout flow
-      alert('Checkout functionality coming soon!');
+    const checkout = async () => {
+      errorMessage.value = '';
+      
+      const accountState = accountService.getState();
+      if (!accountState.isUserLoggedIn || !accountState.currentUserId) {
+        errorMessage.value = 'Please log in to proceed with checkout';
+        setTimeout(() => {
+          router.push('/login');
+        }, 1500);
+        return;
+      }
+
+      if (cartItems.value.length === 0) {
+        errorMessage.value = 'Your cart is empty';
+        return;
+      }
+
+      isProcessing.value = true;
+      try {
+        const orderData = {
+          userId: accountState.currentUserId,
+          orderDate: new Date().toISOString(),
+          totalAmount: total.value,
+          shippingCost: shipping.value,
+          orderItems: cartItems.value.map(item => ({
+            productId: item.id,
+            quantity: item.quantity,
+            unitPrice: item.price
+          }))
+        };
+
+        const response = await orderService.createOrder(orderData);
+        
+        cartService.clearCart();
+        
+        router.push(`/profile`);
+        
+        const orderId = response.id || response.orderId || 'successfully created';
+        alert(`Order ${orderId}! Your order has been placed.`);
+      } catch (err) {
+        console.error('Failed to create order:', err);
+        errorMessage.value = err.message || 'Failed to create order. Please try again.';
+      } finally {
+        isProcessing.value = false;
+      }
     };
 
     return {
@@ -103,7 +155,9 @@ export default {
       increaseQuantity,
       decreaseQuantity,
       removeItem,
-      checkout
+      checkout,
+      isProcessing,
+      errorMessage
     };
   }
 };
@@ -297,10 +351,27 @@ export default {
   cursor: pointer;
   margin-top: 20px;
   letter-spacing: 0.5px;
+  transition: background 0.2s;
 }
 
-.btn-checkout:hover {
+.btn-checkout:hover:not(:disabled) {
   background: #3557c7;
+}
+
+.btn-checkout:disabled {
+  background: #999;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.error-message {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9rem;
 }
 
 .international-note {
