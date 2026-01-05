@@ -43,14 +43,14 @@ Implemented:
     - Change language option
     - Shopping carts
 - Branches
+- Orders
+- User reviews for products
 
 To be implemented:
 
 - User management: settings, ..
 - Product catalog:
     - filter products based on price, availability, category, genre ...
-- Orders
-- User reviews for products
 
 ---
 
@@ -89,6 +89,7 @@ To be implemented:
 Note that: 
 1. For every model structure change in folders Models and Identity you have to run those both commands so that database is updated.
 2. When commiting to repository, ignore folder Migrations (in project WebStore.Entities)
+3. For each migration, other name must be provided.
 
 ### Frontend
 - Requirements: Node.js 16+ and npm
@@ -107,25 +108,29 @@ npm run serve
 ### Backend
 
 ```Powershell
-└───WebStore
+    WebStore
     ├───WebStore.API
     │   ├───Endpoints
     │   │   └───v1
+    │   ├───MockData
     │   └───Properties
     ├───WebStore.Entities
     │   ├───DatabaseContext
     │   ├───Identity
+    │   ├───Migrations
     │   ├───Models
     │   └───RequestFeatures
     ├───WebStore.Repositories
-    │   └───Extensions
+    │   ├───Extensions
     ├───WebStore.RepositoryContracts
     ├───WebStore.ServiceContracts
-    │   └───DTO
-    │       ├───Auth
-    │       ├───BranchDTO
-    │       ├───OrderDTO
-    │       └───ProductDTO
+    │   ├───DTO
+    │   │   ├───AuthDTO
+    │   │   ├───BranchDTO
+    │   │   ├───OrderDTO
+    │   │   ├───OrderItemDTO
+    │   │   ├───ProductDTO
+    │   │   └───RatingDTO
     └───WebStore.Services
         └───Helpers
 ```
@@ -175,12 +180,23 @@ fe/
         └── ProfileView.vue
 
 ```
-
 ---
+## 🔥 Testing
 
-### 🧙‍♂️ Authors and support
+Miha Potočnik: Designed and executed unit tests using defined test cases to validate individual components against functional and edge-case requirements.
+
+Anamari Orehar: Performed integration testing to verify correct interactions, data exchange, and interface compatibility between system modules.
+
+Miša Rožman Atelšek: Conducted system-level and acceptance testing to ensure overall functionality, performance, and compliance with project specifications.
+
+### 👼 Testers
 - Miša Rožman Atelšek: misarozmana@gmail.com
 - Anamari Orehar: anamari.orehar@gmail.com
 - Miha Potočnik: mihapot@gmail.com
 
+---
+## 🧙‍♂️ Authors and support
+- Miša Rožman Atelšek: misarozmana@gmail.com
+- Anamari Orehar: anamari.orehar@gmail.com
+- Miha Potočnik: mihapot@gmail.com
 ---
