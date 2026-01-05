@@ -4,6 +4,24 @@ const API_BASE_URL = "http://localhost:7020/api/v1";
 
 class OrderService {
 
+    async createOrder(orderData) {
+        const headers = accountService.getHeaderData();
+        headers['Content-Type'] = 'application/json';
+
+        const response = await fetch(`${API_BASE_URL}/orders/create`, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(orderData)
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || "Failed to create order");
+        }
+
+        return await response.json();
+    }
+
     async getMyOrders() {
         const headers = accountService.getHeaderData();
 
