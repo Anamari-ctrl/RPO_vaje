@@ -1,4 +1,11 @@
 ﻿<template>
+    <nav class="nav">
+        <div class="nav-1">
+            <router-link class="item" to="/profile">👤 Profile</router-link>
+            <router-link class="item" to="/">❤︎ Wishlist</router-link>
+        </div>
+    </nav>
+
     <h2>My Profile</h2>
 
     <div class="profile-container">
@@ -97,38 +104,41 @@
             </div>
 
             <!-- Orders -->
+            <!-- Orders -->
             <div v-if="activeScreen === 'orders'">
                 <h3>Order History</h3>
                 <p v-if="orders.length === 0">You have no orders yet.</p>
 
                 <div v-if="orders.length > 0" class="orders-list">
                     <div v-for="o in orders" :key="o.id" class="order-card">
+                        <!-- Order summary -->
                         <div class="order-summary" @click="toggleOrder(o)">
-                            <strong>Order #{{ o.id }}</strong>
+                            <strong>Order #{{ o.number }}</strong>
                             <span>{{ new Date(o.createdAt).toLocaleDateString() }}</span>
                             <span>{{ o.status }}</span>
-                            <span>{{ o.total }} {{ '\u20AC' }}</span>
+                            <span>{{ orderTotal(o) }} €</span>
                         </div>
 
+                        <!-- Order details (expand on click) -->
                         <div v-if="selectedOrder && selectedOrder.id === o.id" class="order-details">
+                            <h4>Items in this order:</h4>
                             <div v-for="item in selectedOrder.items" :key="item.productId" class="order-item">
-                                {{ item.productName }}  | <strong>    Quantity: </strong> {{ item.quantity }}  |  <strong>   Price: </strong> {{ item.price }} {{ '\u20AC' }}
+                                {{ item.productName }} |
+                                <strong>Quantity:</strong> {{ item.quantity }} |
+                                <strong>Price:</strong> {{ item.price }} €
                             </div>
+
+
                             <div class="order-totals">
-                                <p>
-                                    Subtotal: {{ o.total }} {{ '\u20AC' }}
-                                </p>
-                                <p>
-                                    Tax (22%): {{
- orderTax(selectedOrder)
-                                    }} {{ '\u20AC' }}
-                                </p>
-                                <p><strong>Total: {{ orderTotal(selectedOrder) }} {{ '\u20AC' }}</strong></p>
+                                <p>Subtotal: {{ orderSubtotal(selectedOrder) }} €</p>
+                                <p>Tax (22%): {{ orderTax(selectedOrder) }} €</p>
+                                <p><strong>Total: {{ orderTotal(selectedOrder) }} €</strong></p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
 
         </div>
     </div>
@@ -183,9 +193,21 @@
             };
 
             const TAX_RATE = 0.22;
-            const orderTax = (order) => ((order.total * TAX_RATE) / (1 + TAX_RATE)).toFixed(2);
-            const orderSubtotal = (order) => (order.total - orderTax(order)).toFixed(2);
-            const orderTotal = (order) => order.total.toFixed(2);
+            const orderTax = (order) => {
+                if (!order || order.total == null) return "0.00";
+                return ((order.total * TAX_RATE) / (1 + TAX_RATE)).toFixed(2);
+            };
+
+            const orderSubtotal = (order) => {
+                if (!order || order.total == null) return "0.00";
+                return (order.total - parseFloat(orderTax(order))).toFixed(2);
+            };
+
+            const orderTotal = (order) => {
+                if (!order || order.total == null) return "0.00";
+                return order.total.toFixed(2);
+            };
+
 
             // Save profile (posodobi vse podatke)
             const saveProfile = async () => {
@@ -380,4 +402,36 @@
         .btn-small:hover {
             background: #005fcc;
         }
+
+    .item {
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 500;
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: background 0.2s;
+    }
+
+        .item:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+    .nav {
+        display: flex;
+        align-items: center;
+        padding: 8px 16px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--muted);
+        width: 100%;
+    }
+
+    /* push this container to the RIGHT */
+    .nav-1 {
+        margin-left: auto;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
+
 </style>

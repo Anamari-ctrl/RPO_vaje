@@ -1,79 +1,82 @@
 <template>
-  <div class="stores-view">
-    <h1 class="page-title">Our Stores</h1>
-    <p class="subtitle">Visit us at any of our locations across Slovenia</p>
-
-    <div v-if="loading" class="loading">Loading stores...</div>
-
-    <div v-else class="stores-grid">
-      <div v-for="store in stores" :key="store.id" class="store-card">
-        <div class="store-header">
-          <h2>{{ store.title }}</h2>
-          <p class="address">📍 {{ store.location.address }}</p>
+    <nav class="nav">
+        <div class="nav-1">
+            <router-link class="item" to="/profile">👤 Profile</router-link>
+            <router-link class="item" to="/">❤︎ Wishlist</router-link>
         </div>
+    </nav>
 
-        <div class="store-content">
-          <!-- Working Hours -->
-          <div class="section">
-            <h3>🕒 Working Hours</h3>
-            <div class="hours-list">
-              <div v-for="(hours, day) in store.workingHours" :key="day" class="hours-row">
-                <span class="day">{{ capitalize(day) }}:</span>
-                <span class="hours">{{ hours }}</span>
-              </div>
+    <div class="stores-view">
+        <h1 class="page-title">Our Stores</h1>
+        <p class="subtitle">Visit us at any of our locations across Slovenia</p>
+
+        <div v-if="loading" class="loading">Loading stores...</div>
+
+        <div v-else class="stores-grid">
+            <div v-for="store in stores" :key="store.id" class="store-card">
+                <div class="store-header">
+                    <h2>{{ store.title }}</h2>
+                    <p class="address">📍 {{ store.location.address }}</p>
+                </div>
+
+                <div class="store-content">
+                    <!-- Working Hours -->
+                    <div class="section">
+                        <h3>🕒 Working Hours</h3>
+                        <div class="hours-list">
+                            <div v-for="(hours, day) in store.workingHours" :key="day" class="hours-row">
+                                <span class="day">{{ capitalize(day) }}:</span>
+                                <span class="hours">{{ hours }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact -->
+                    <div class="section">
+                        <h3>📞 Contact</h3>
+                        <div class="contact-info">
+                            <p><strong>Phone:</strong> <a :href="`tel:${store.contact.phone}`">{{ store.contact.phone }}</a></p>
+                            <p><strong>Email:</strong> <a :href="`mailto:${store.contact.email}`">{{ store.contact.email }}</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Manager -->
+                    <div class="section">
+                        <h3>👤 Store Manager</h3>
+                        <div class="manager-info">
+                            <p><strong>{{ store.manager.name }}</strong></p>
+                            <p><a :href="`mailto:${store.manager.email}`">{{ store.manager.email }}</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Notices -->
+                    <div class="section" v-if="store.notices && store.notices.length > 0">
+                        <h3>📢 Notices</h3>
+                        <ul class="notices-list">
+                            <li v-for="(notice, index) in store.notices" :key="index">{{ notice }}</li>
+                        </ul>
+                    </div>
+
+                    <!-- Map -->
+                    <div class="section map-section">
+                        <h3>🗺️ Location</h3>
+                        <div class="map-container">
+                            <iframe :src="`https://www.openstreetmap.org/export/embed.html?bbox=${store.location.lng - 0.01},${store.location.lat - 0.01},${store.location.lng + 0.01},${store.location.lat + 0.01}&layer=mapnik&marker=${store.location.lat},${store.location.lng}`"
+                                    width="100%"
+                                    height="250"
+                                    frameborder="0"
+                                    style="border: 1px solid #ddd; border-radius: 8px;"></iframe>
+                            <a :href="`https://www.openstreetmap.org/?mlat=${store.location.lat}&mlon=${store.location.lng}#map=16/${store.location.lat}/${store.location.lng}`"
+                               target="_blank"
+                               class="map-link">
+                                Open in OpenStreetMap →
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-
-          <!-- Contact -->
-          <div class="section">
-            <h3>📞 Contact</h3>
-            <div class="contact-info">
-              <p><strong>Phone:</strong> <a :href="`tel:${store.contact.phone}`">{{ store.contact.phone }}</a></p>
-              <p><strong>Email:</strong> <a :href="`mailto:${store.contact.email}`">{{ store.contact.email }}</a></p>
-            </div>
-          </div>
-
-          <!-- Manager -->
-          <div class="section">
-            <h3>👤 Store Manager</h3>
-            <div class="manager-info">
-              <p><strong>{{ store.manager.name }}</strong></p>
-              <p><a :href="`mailto:${store.manager.email}`">{{ store.manager.email }}</a></p>
-            </div>
-          </div>
-
-          <!-- Notices -->
-          <div class="section" v-if="store.notices && store.notices.length > 0">
-            <h3>📢 Notices</h3>
-            <ul class="notices-list">
-              <li v-for="(notice, index) in store.notices" :key="index">{{ notice }}</li>
-            </ul>
-          </div>
-
-          <!-- Map -->
-          <div class="section map-section">
-            <h3>🗺️ Location</h3>
-            <div class="map-container">
-              <iframe
-                :src="`https://www.openstreetmap.org/export/embed.html?bbox=${store.location.lng - 0.01},${store.location.lat - 0.01},${store.location.lng + 0.01},${store.location.lat + 0.01}&layer=mapnik&marker=${store.location.lat},${store.location.lng}`"
-                width="100%"
-                height="250"
-                frameborder="0"
-                style="border: 1px solid #ddd; border-radius: 8px;"
-              ></iframe>
-              <a 
-                :href="`https://www.openstreetmap.org/?mlat=${store.location.lat}&mlon=${store.location.lng}#map=16/${store.location.lat}/${store.location.lng}`"
-                target="_blank"
-                class="map-link"
-              >
-                Open in OpenStreetMap →
-              </a>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -293,4 +296,35 @@ export default {
     font-size: 1.4rem;
   }
 }
+
+    .item {
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 500;
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: background 0.2s;
+    }
+
+        .item:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+    .nav {
+        display: flex;
+        align-items: center;
+        padding: 8px 16px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--muted);
+        width: 100%;
+    }
+
+    /* push this container to the RIGHT */
+    .nav-1 {
+        margin-left: auto;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
 </style>

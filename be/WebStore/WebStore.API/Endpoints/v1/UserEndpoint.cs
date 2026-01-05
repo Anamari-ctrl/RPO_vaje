@@ -20,7 +20,7 @@ namespace WebStore.API.Endpoints.v1
                                                       UserManager<ApplicationUser> userManager,
                                                       ClaimsPrincipal userPrincipal)
         {
-            ApplicationUser? user;
+            ApplicationUser? user = null;
 
             if (!string.IsNullOrEmpty(userId))
             {
@@ -41,9 +41,10 @@ namespace WebStore.API.Endpoints.v1
             return Results.Ok(userData);
         }
 
-        public static async Task<IResult> UpdateUserData(UserUpdateRequest? userUpdateRequest,
-                                                         UserManager<ApplicationUser> userManager,
-                                                         ClaimsPrincipal userPrincipal)
+        public static async Task<IResult> UpdateUserData(
+     UserUpdateRequest? userUpdateRequest,
+     UserManager<ApplicationUser> userManager,
+     ClaimsPrincipal userPrincipal)
         {
             if (userUpdateRequest == null)
                 return Results.BadRequest("Request body was empty.");
@@ -70,7 +71,7 @@ namespace WebStore.API.Endpoints.v1
                 {
                     appUser.Email = userUpdateRequest.Email;
                     appUser.UserName = userUpdateRequest.Email;
-                    appUser.NormalizedEmail = userUpdateRequest.Email!.ToUpper();
+                    appUser.NormalizedEmail = userUpdateRequest.Email.ToUpper();
                     appUser.NormalizedUserName = userUpdateRequest.Email.ToUpper();
                 }
 
