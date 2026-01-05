@@ -1,10 +1,4 @@
 ﻿<template>
-    <nav class="nav">
-        <div class="nav-1">
-            <router-link class="item" to="/profile">👤 Profile</router-link>
-            <router-link class="item" to="/">❤︎ Wishlist</router-link>
-        </div>
-    </nav>
     <h2>My Profile</h2>
 
     <div class="profile-container">
@@ -386,22 +380,4 @@
         .btn-small:hover {
             background: #005fcc;
         }
-
-    .nav {
-        display: flex;
-        align-items: center;
-        padding: 8px 16px;
-        background: var(--panel);
-        border-bottom: 1px solid var(--muted);
-        width: 100%;
-    }
-
-    .nav-1 {
-        margin-left: auto;
-        display: flex;
-        gap: 20px;
-        align-items: center;
-    }
-
-
 </style>
