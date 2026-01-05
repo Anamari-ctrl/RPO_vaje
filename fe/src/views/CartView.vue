@@ -1,65 +1,72 @@
 <template>
-  <div class="cart-container">
-    <div class="cart-content">
-      <h1 class="cart-title">Cart</h1>
+    <nav class="nav">
 
-      <div v-if="cartItems.length === 0" class="empty-cart">
-        <p>Your cart is empty</p>
-        <router-link to="/" class="btn-continue">Continue Shopping</router-link>
-      </div>
+        <div class="nav-1">
+            <router-link class="item" to="/profile">👤 Profile</router-link>
+            <router-link class="item" to="/">❤︎ Wishlist</router-link>
+        </div>
+    </nav>
+    <div class="cart-container">
+        <div class="cart-content">
+            <h1 class="cart-title">Cart</h1>
 
-      <div v-else class="cart-layout">
-        <!-- Cart Items -->
-        <div class="cart-items">
-          <div v-for="item in cartItems" :key="item.id" class="cart-item">
-            <img :src="item.image || 'https://via.placeholder.com/120x160?text=Book'" :alt="item.title" class="item-image" />
-            
-            <div class="item-details">
-              <h3 class="item-title">{{ item.title }}</h3>
-              <p class="item-price">{{ item.price }} €</p>
+            <div v-if="cartItems.length === 0" class="empty-cart">
+                <p>Your cart is empty</p>
+                <router-link to="/" class="btn-continue">Continue Shopping</router-link>
             </div>
 
-            <div class="item-actions">
-              <div class="quantity-controls">
-                <button @click="decreaseQuantity(item)" class="qty-btn">-</button>
-                <span class="quantity">{{ item.quantity }}</span>
-                <button @click="increaseQuantity(item)" class="qty-btn">+</button>
-              </div>
-              <button @click="removeItem(item.id)" class="btn-remove">Remove</button>
+            <div v-else class="cart-layout">
+                <!-- Cart Items -->
+                <div class="cart-items">
+                    <div v-for="item in cartItems" :key="item.id" class="cart-item">
+                        <img :src="item.image || 'https://via.placeholder.com/120x160?text=Book'" :alt="item.title" class="item-image" />
+
+                        <div class="item-details">
+                            <h3 class="item-title">{{ item.title }}</h3>
+                            <p class="item-price">{{ item.price }} €</p>
+                        </div>
+
+                        <div class="item-actions">
+                            <div class="quantity-controls">
+                                <button @click="decreaseQuantity(item)" class="qty-btn">-</button>
+                                <span class="quantity">{{ item.quantity }}</span>
+                                <button @click="increaseQuantity(item)" class="qty-btn">+</button>
+                            </div>
+                            <button @click="removeItem(item.id)" class="btn-remove">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h2>Order Summary</h2>
+
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>{{ subtotal.toFixed(2) }}€</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Estimated Shipping</span>
+                        <span>{{ shipping === 0 ? 'Free shipping' : shipping.toFixed(2) + '€' }}</span>
+                    </div>
+
+                    <hr class="summary-divider" />
+
+                    <div class="summary-row total">
+                        <span><strong>Order Total:</strong></span>
+                        <span><strong>{{ total.toFixed(2) }}€</strong></span>
+                    </div>
+
+                    <button @click="checkout" class="btn-checkout">CHECKOUT</button>
+
+                    <p class="international-note">
+                        For international orders, please email <a href="mailto:info@owls.com">info@owls.com</a>.
+                    </p>
+                </div>
             </div>
-          </div>
         </div>
-
-        <!-- Order Summary -->
-        <div class="order-summary">
-          <h2>Order Summary</h2>
-          
-          <div class="summary-row">
-            <span>Subtotal</span>
-            <span>{{ subtotal.toFixed(2) }}€</span>
-          </div>
-
-          <div class="summary-row">
-            <span>Estimated Shipping</span>
-            <span>{{ shipping === 0 ? 'Free shipping' : shipping.toFixed(2) + '€' }}</span>
-          </div>
-
-          <hr class="summary-divider" />
-
-          <div class="summary-row total">
-            <span><strong>Order Total:</strong></span>
-            <span><strong>{{ total.toFixed(2) }}€</strong></span>
-          </div>
-
-          <button @click="checkout" class="btn-checkout">CHECKOUT</button>
-
-          <p class="international-note">
-            For international orders, please email <a href="mailto:info@owls.com">info@owls.com</a>.
-          </p>
-        </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -339,4 +346,19 @@ export default {
     width: 100%;
   }
 }
+    .nav {
+        display: flex;
+        align-items: center;
+        padding: 8px 16px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--muted);
+        width: 100%;
+    }
+
+    .nav-1 {
+        margin-left: auto;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
 </style>
