@@ -108,25 +108,29 @@ npm run serve
 ### Backend
 
 ```Powershell
-└───WebStore
+    WebStore
     ├───WebStore.API
     │   ├───Endpoints
     │   │   └───v1
+    │   ├───MockData
     │   └───Properties
     ├───WebStore.Entities
     │   ├───DatabaseContext
     │   ├───Identity
+    │   ├───Migrations
     │   ├───Models
     │   └───RequestFeatures
     ├───WebStore.Repositories
-    │   └───Extensions
+    │   ├───Extensions
     ├───WebStore.RepositoryContracts
     ├───WebStore.ServiceContracts
-    │   └───DTO
-    │       ├───Auth
-    │       ├───BranchDTO
-    │       ├───OrderDTO
-    │       └───ProductDTO
+    │   ├───DTO
+    │   │   ├───AuthDTO
+    │   │   ├───BranchDTO
+    │   │   ├───OrderDTO
+    │   │   ├───OrderItemDTO
+    │   │   ├───ProductDTO
+    │   │   └───RatingDTO
     └───WebStore.Services
         └───Helpers
 ```
