@@ -1,10 +1,18 @@
 ﻿<template>
     <nav class="nav">
         <div class="nav-1">
-            <router-link class="item" to="/profile">👤 Profile</router-link>
-            <router-link class="item" to="/">❤︎ Wishlist</router-link>
+            <div class="tip-wrap">
+                <router-link class="item" to="/profile" aria-describedby="tt-profile">👤 Profile</router-link>
+                <span id="tt-profile" role="tooltip" class="tooltip">View and edit your profile</span>
+            </div>
+
+            <div class="tip-wrap">
+                <router-link class="item" to="/" aria-describedby="tt-wishlist">❤︎ Wishlist</router-link>
+                <span id="tt-wishlist" role="tooltip" class="tooltip">See your saved books</span>
+            </div>
         </div>
     </nav>
+
 
     <h2>My Profile</h2>
 
@@ -431,6 +439,55 @@
         display: flex;
         gap: 20px;
         align-items: center;
+    }
+    .tip-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .tooltip {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%) translateY(-4px);
+        padding: 6px 10px;
+        border-radius: 10px;
+        background: #111;
+        color: #fff;
+        font-size: 12px;
+        line-height: 1.2;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
+        z-index: 1000;
+    }
+
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent #111 transparent;
+        }
+
+    .tip-wrap:hover > .tooltip,
+    .tip-wrap:focus-within > .tooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .tooltip {
+            transition: none;
+        }
     }
 
 

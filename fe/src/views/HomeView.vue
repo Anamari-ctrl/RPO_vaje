@@ -1,21 +1,51 @@
 <template>
     <nav class="nav">
-        <div class="search-bar-1">
+        <div class="search-bar-1 tip-wrap">
             <input v-model="searchQuery"
                    type="text"
                    class="search-bar"
                    placeholder="🔍 Search books..."
-                   @input="handleSearch" />
+                   @input="handleSearch"
+                   aria-describedby="tt-search" />
+            <span id="tt-search" role="tooltip" class="tooltip">
+                Search by title, author or description
+            </span>
         </div>
+
         <div class="nav-1">
-            <router-link class="item" to="/profile">👤 Profile</router-link>
-            <router-link class="item" to="/">❤︎ Wishlist</router-link>
+            <div class="tip-wrap">
+                <router-link class="item" to="/profile" aria-describedby="tt-profile">
+                    👤 Profile
+                </router-link>
+                <span id="tt-profile" role="tooltip" class="tooltip">
+                    View and edit your profile
+                </span>
+            </div>
+
+            <div class="tip-wrap">
+                <router-link class="item" to="/" aria-describedby="tt-wishlist">
+                    ❤︎ Wishlist
+                </router-link>
+                <span id="tt-wishlist" role="tooltip" class="tooltip">
+                    View saved books
+                </span>
+            </div>
         </div>
     </nav>
+
     <div class="content">
         <aside class="sidebar">
             <div class="filters">
-                <h3>Sort By</h3>
+                <h3>
+                    Sort By
+                    <span class="tip-wrap">
+                        ⓘ
+                        <span class="tooltip" role="tooltip">
+                            Change the order of displayed books
+                        </span>
+                    </span>
+                </h3>
+
                 <select v-model="sortBy" @change="handleSortChange" class="sort-select">
                     <option value="title">Title (A-Z)</option>
                     <option value="price">Price (Low to High)</option>
@@ -23,17 +53,34 @@
                 </select>
 
                 <h3>Price Range</h3>
-                <div class="price-filter">
-                    <input v-model.number="filterValues.minPrice" type="number" placeholder="Min €" @input="handleFilterChange" class="price-input" />
+                <div class="price-filter tip-wrap">
+                    <input v-model.number="filterValues.minPrice"
+                           type="number"
+                           placeholder="Min €"
+                           @input="handleFilterChange"
+                           class="price-input"
+                           aria-describedby="tt-price" />
                     <span class="price-separator">-</span>
-                    <input v-model.number="filterValues.maxPrice" type="number" placeholder="Max €" @input="handleFilterChange" class="price-input" />
+                    <input v-model.number="filterValues.maxPrice"
+                           type="number"
+                           placeholder="Max €"
+                           @input="handleFilterChange"
+                           class="price-input" />
+                    <span id="tt-price" class="tooltip" role="tooltip">
+                        Filter books by price range
+                    </span>
                 </div>
 
+
                 <h3>Availability</h3>
-                <label class="filter-pill">
+                <label class="filter-pill tip-wrap">
                     <input type="checkbox" v-model="filterValues.inStock" @change="handleFilterChange" />
                     <span>In Stock</span>
+                    <span class="tooltip" role="tooltip">
+                        Show only books currently available
+                    </span>
                 </label>
+
 
                 <h3>Brand</h3>
                 <input v-model="filterValues.brand" type="text" placeholder="Brand" class="filter-input" @input="handleFilterChange" />
@@ -41,7 +88,15 @@
                 <h3>Supplier</h3>
                 <input v-model="filterValues.supplier" type="text" placeholder="Supplier" class="filter-input" @input="handleFilterChange" />
 
-                <button @click="resetFilters" class="reset-btn">Reset Filters</button>
+                <div class="tip-wrap">
+                    <button @click="resetFilters" class="reset-btn" aria-describedby="tt-reset">
+                        Reset Filters
+                    </button>
+                    <span id="tt-reset" class="tooltip" role="tooltip">
+                        Clear all filters and sorting
+                    </span>
+                </div>
+
             </div>
         </aside>
 
@@ -63,14 +118,13 @@
                 <div class="card clickable"
                      v-for="book in books"
                      :key="book.id"
-                      @click="openBook(book.id)">
+                     @click="openBook(book.id)">
 
-                    <img :src="book.image || 'https://via.placeholder.com/240x300?text=No+Image'" :alt="book.title" onerror="this.style.display='none'"/>
+                    <img :src="book.image || 'https://via.placeholder.com/240x300?text=No+Image'" :alt="book.title" onerror="this.style.display='none'" />
                     <div class="price">{{ book.price }} €</div>
-                    <button 
-                        class="buy" 
-                        @click.stop="addToCart(book)"
-                        :disabled="book.stock === 0">
+                    <button class="buy"
+                            @click.stop="addToCart(book)"
+                            :disabled="book.stock === 0">
                         {{ book.stock === 0 ? 'OUT OF STOCK' : 'ADD TO CART' }}
                     </button>
                     <div class="description">{{ book.title }}</div>
@@ -83,28 +137,25 @@
 
             <!-- Pagination -->
             <div v-if="totalPages > 1" class="pagination">
-                <button 
-                    @click="previousPage" 
-                    :disabled="currentPage === 1"
-                    class="btn-page">
+                <button @click="previousPage"
+                        :disabled="currentPage === 1"
+                        class="btn-page">
                     ← Previous
                 </button>
-                
+
                 <div class="page-numbers">
-                    <button
-                        v-for="page in paginationButtons"
-                        :key="page"
-                        @click="goToPage(page)"
-                        :class="{ active: currentPage === page }"
-                        class="btn-page-number">
+                    <button v-for="page in paginationButtons"
+                            :key="page"
+                            @click="goToPage(page)"
+                            :class="{ active: currentPage === page }"
+                            class="btn-page-number">
                         {{ page }}
                     </button>
                 </div>
 
-                <button 
-                    @click="nextPage" 
-                    :disabled="currentPage === totalPages"
-                    class="btn-page">
+                <button @click="nextPage"
+                        :disabled="currentPage === totalPages"
+                        class="btn-page">
                     Next →
                 </button>
             </div>
@@ -572,6 +623,42 @@ export default {
     }
     .card.clickable {
         cursor: pointer;
+    }
+    .tip-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .tooltip {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%) translateY(-4px);
+        padding: 6px 10px;
+        border-radius: 10px;
+        background: #111;
+        color: #fff;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 120ms ease, transform 120ms ease;
+        z-index: 1000;
+    }
+
+    .tip-wrap:hover .tooltip,
+    .tip-wrap:focus-within .tooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tooltip {
+            transition: none;
+        }
     }
 
 </style>
