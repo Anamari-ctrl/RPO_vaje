@@ -55,7 +55,11 @@
 
         </header>
 
-        <router-view />
+        <router-view v-slot="{ Component, route }">
+            <transition name="page" mode="out-in">
+                <component :is="Component" :key="route.fullPath" />
+            </transition>
+        </router-view>
     </div>
 </template>
 
@@ -203,7 +207,7 @@
         align-items: center;
     }
 
-    /* Tooltip box */
+    
     .tooltip {
         position: absolute;
         top: calc(100% + 8px);
@@ -223,7 +227,7 @@
         z-index: 999;
     }
 
-        /* Small arrow */
+        
         .tooltip::after {
             content: "";
             position: absolute;
@@ -235,7 +239,6 @@
             border-color: transparent transparent #111 transparent;
         }
 
-    /* Show tooltip on hover OR keyboard focus */
     .tip-wrap:hover .tooltip,
     .tip-wrap:focus-within .tooltip {
         opacity: 1;
@@ -243,11 +246,15 @@
         transform: translateX(-50%) translateY(0);
     }
 
-    /* If user prefers reduced motion */
     @media (prefers-reduced-motion: reduce) {
         .tooltip {
             transition: none;
         }
+
+        .page-enter-active, .page-leave-active {
+            transition: none;
+        }
     }
+
 
 </style>
