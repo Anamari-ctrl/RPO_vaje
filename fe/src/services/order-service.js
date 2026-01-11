@@ -40,8 +40,15 @@ class OrderService {
 
     // Ustvari novo naročilo
     async createOrder(orderData) {
-        const headers = accountService.getHeaderData();
+        let headers = {};
+        try {
+            headers = accountService.getHeaderData() || {};
+        } catch {
+            headers = {};
+        }
         headers['Content-Type'] = 'application/json';
+
+
 
         const response = await fetch(`${API_BASE_URL}/orders/create`, {
             method: "POST",

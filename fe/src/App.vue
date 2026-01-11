@@ -7,30 +7,59 @@
             </div>
 
             <nav class="nav" v-if="!isAuthPage">
-                <router-link class="item" to="/">🏠 Home</router-link>
-                <router-link class="item" to="/">📚 Books</router-link>
-                <router-link class="item" to="/stores">🏪 Stores</router-link>
-                <router-link class="item" to="/">🏷️ Discounts</router-link>
-                <div class="lang-select">
-                    <button @click="openLang = !openLang">
+                <div class="tip-wrap">
+                    <router-link class="item" to="/" aria-describedby="tt-home">🏠 Home</router-link>
+                    <span id="tt-home" role="tooltip" class="tooltip">Go to the homepage</span>
+                </div>
+
+                <div class="tip-wrap">
+                    <router-link class="item" to="/books" aria-describedby="tt-books">📚 Books</router-link>
+                    <span id="tt-books" role="tooltip" class="tooltip">Browse all books</span>
+                </div>
+
+                <div class="tip-wrap">
+                    <router-link class="item" to="/stores" aria-describedby="tt-stores">🏪 Stores</router-link>
+                    <span id="tt-stores" role="tooltip" class="tooltip">Find our store locations</span>
+                </div>
+
+                <div class="tip-wrap">
+                    <router-link class="item" to="/" aria-describedby="tt-discounts">🏷️ Discounts</router-link>
+                    <span id="tt-discounts" role="tooltip" class="tooltip">See current deals</span>
+                </div>
+
+                <div class="lang-select tip-wrap">
+                    <button @click="openLang = !openLang"
+                            aria-describedby="tt-lang"
+                            :aria-expanded="openLang ? 'true' : 'false'">
                         🌍 Language
                     </button>
+                    <span id="tt-lang" role="tooltip" class="tooltip">Change site language</span>
 
-                    <div v-if="openLang" class="lang-menu">
-                        <div @click="setLang('en')">🇬🇧 English</div>
-                        <div @click="setLang('sl')">🇸🇮 Slovenščina</div>
-                        <div @click="setLang('de')">🇩🇪 Deutsch</div>
+                    <div v-if="openLang" class="lang-menu" role="menu">
+                        <div @click="setLang('en')" role="menuitem" tabindex="0">🇬🇧 English</div>
+                        <div @click="setLang('sl')" role="menuitem" tabindex="0">🇸🇮 Slovenščina</div>
+                        <div @click="setLang('de')" role="menuitem" tabindex="0">🇩🇪 Deutsch</div>
                     </div>
 
                     <!-- hidden Google element -->
                     <div id="google_translate_element" style="display:none"></div>
                 </div>
 
-                <router-link to="/cart" class="cart">🛒 {{ cartTotal.toFixed(2) }} €</router-link>
+                <div class="tip-wrap cart-wrap">
+                    <router-link to="/cart" class="cart" aria-describedby="tt-cart">
+                        🛒 {{ cartTotal.toFixed(2) }} €
+                    </router-link>
+                    <span id="tt-cart" role="tooltip" class="tooltip">Open cart</span>
+                </div>
             </nav>
+
         </header>
 
-        <router-view />
+        <router-view v-slot="{ Component, route }">
+            <transition name="page" mode="out-in">
+                <component :is="Component" :key="route.fullPath" />
+            </transition>
+        </router-view>
     </div>
 </template>
 
@@ -162,4 +191,70 @@
             .lang-menu div:hover {
                 background: #f0f0f0;
             }
+
+    .page-enter-active, .page-leave-active {
+        transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .page-enter-from, .page-leave-to {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    .tip-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    
+    .tooltip {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%) translateY(-4px);
+        padding: 6px 10px;
+        border-radius: 10px;
+        background: #111;
+        color: #fff;
+        font-size: 12px;
+        line-height: 1.2;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
+        z-index: 999;
+    }
+
+        
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent #111 transparent;
+        }
+
+    .tip-wrap:hover .tooltip,
+    .tip-wrap:focus-within .tooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tooltip {
+            transition: none;
+        }
+
+        .page-enter-active, .page-leave-active {
+            transition: none;
+        }
+    }
+
+
 </style>

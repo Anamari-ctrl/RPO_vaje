@@ -1,79 +1,116 @@
 ﻿<template>
-        <nav class="nav">
-            <div class="nav-1">
-                <router-link class="item" to="/profile">👤 Profile</router-link>
-                <router-link class="item" to="/">❤︎ Wishlist</router-link>
+    <nav class="nav">
+        <div class="nav-1">
+            <div class="tip-wrap">
+                <router-link class="item" to="/profile" aria-describedby="tt-profile">👤 Profile</router-link>
+                <span id="tt-profile" role="tooltip" class="tooltip">View and edit your profile</span>
             </div>
-        </nav>
-        <div v-if="loading" class="loading">
-            Loading book details...
+
+            <div class="tip-wrap">
+                <router-link class="item" to="/" aria-describedby="tt-wishlist">❤︎ Wishlist</router-link>
+                <span id="tt-wishlist" role="tooltip" class="tooltip">See your saved books</span>
+            </div>
+        </div>
+    </nav>
+
+    <div v-if="loading" class="loading">
+        Loading book details...
+    </div>
+
+    <div class="product-page" v-else-if="book">
+        <div class="image">
+            <img :src="book.imageUrl || fallbackImage" />
         </div>
 
-        <div class="product-page" v-else-if="book">
-            <div class="image">
-                <img :src="book.imageUrl || fallbackImage" />
+        <div class="info">
+            <h1>{{ book.title }}</h1>
+
+            <p class="price">{{ book.price }} €</p>
+
+            <div class="stock" :class="{ out: !book.isAvailable }">
+                {{ book.isAvailable ? 'In stock' : 'Out of stock' }}
             </div>
 
-            <div class="info">
-                <h1>{{ book.title }}</h1>
-
-                <p class="price">{{ book.price }} €</p>
-
-                <div class="stock" :class="{ out: !book.isAvailable }">
-                    {{ book.isAvailable ? 'In stock' : 'Out of stock' }}
-                </div>
-
+            <div class="tip-wrap">
                 <button class="buy"
                         @click.stop="addToCart(book)"
-                        :disabled="book.stock === 0">
+                        :disabled="book.stock === 0"
+                        aria-describedby="tt-buy">
                     {{ book.stock === 0 ? 'OUT OF STOCK' : 'ADD TO CART' }}
                 </button>
 
-                <h3>Description</h3>
-                <p>{{ book.longDescription || 'No description available.' }}</p>
+                <span id="tt-buy" role="tooltip" class="tooltip">
+                    {{ book.stock === 0 ? 'This book is currently unavailable' : 'Add 1 copy to your cart' }}
+                </span>
+            </div>
 
-                <h3>Technical details</h3>
-                <pre>{{ book.technicalDetails || '—' }}</pre>
 
-                <!-- Ratings Section -->
-                <div class="ratings-section">
-                    <h2>Rate this product</h2>
-                    <div v-if="isLoggedIn" class="my-rating">
-                        <p v-if="myRating">You have already rated this product. Update your review:</p>
-                        <div class="rating-form">
-                            <div class="star-input">
-                                <span v-for="n in 5" :key="n"
-                                      class="star clickable"
-                                      :class="{ filled: n <= userRatingValue }"
-                                      @click="userRatingValue = n">★</span>
-                            </div>
-                            <textarea v-model="userComment"
-                                      placeholder="Share your thoughts about this product..."
-                                      rows="4"></textarea>
-                            <div class="form-actions">
-                                <button @click="submitRating" :disabled="userRatingValue === 0">
-                                    {{ myRating ? 'Update Review' : 'Submit Review' }}
-                                </button>
-                                <button v-if="myRating" @click="deleteRating" class="delete-btn">
-                                    Delete Review
-                                </button>
-                            </div>
-                            <p v-if="ratingMessage" class="message" :class="{ error: ratingError }">
-                                {{ ratingMessage }}
-                            </p>
+            <h3>Description</h3>
+            <p>{{ book.longDescription || 'No description available.' }}</p>
+
+            <h3>Technical details</h3>
+            <pre>{{ book.technicalDetails || '—' }}</pre>
+
+            <!-- Ratings Section -->
+            <div class="ratings-section">
+                <h2>Rate this product</h2>
+                <div v-if="isLoggedIn" class="my-rating">
+                    <p v-if="myRating">You have already rated this product. Update your review:</p>
+                    <div class="rating-form">
+                        <div class="star-input">
+                            <span v-for="n in 5"
+                                  :key="n"
+                                  class="star clickable tip-wrap"
+                                  :class="{ filled: n <= userRatingValue }"
+                                  role="button"
+                                  tabindex="0"
+                                  :aria-label="`Rate ${n} star${n === 1 ? '' : 's'}`"
+                                  :aria-describedby="`tt-star-${n}`"
+                                  @click="userRatingValue = n"
+                                  @keydown.enter.prevent="userRatingValue = n"
+                                  @keydown.space.prevent="userRatingValue = n">
+                                ★
+                                <span :id="`tt-star-${n}`" role="tooltip" class="tooltip">
+                                    {{ `Rate ${n} star${n === 1 ? '' : 's'}` }}
+                                </span>
+                            </span>
                         </div>
-                    </div>
-                    <div v-else class="login-prompt">
-                        <p>Please <router-link to="/login">log in</router-link> to rate this product.</p>
+
+                        <textarea v-model="userComment"
+                                  placeholder="Share your thoughts about this product..."
+                                  rows="4"></textarea>
+                        <div class="form-actions">
+                            <button @click="submitRating" :disabled="userRatingValue === 0">
+                                {{ myRating ? 'Update Review' : 'Submit Review' }}
+                            </button>
+                            <button v-if="myRating" @click="deleteRating" class="delete-btn">
+                                Delete Review
+                            </button>
+                        </div>
+                        <p v-if="ratingMessage" class="message" :class="{ error: ratingError }">
+                            {{ ratingMessage }}
+                        </p>
                     </div>
                 </div>
+                <p>
+                    Please
+                    <span class="tip-wrap">
+                        <router-link to="/login" aria-describedby="tt-login-link">log in</router-link>
+                        <span id="tt-login-link" role="tooltip" class="tooltip">
+                            Log in to submit a rating
+                        </span>
+                    </span>
+                    to rate this product.
+                </p>
+
             </div>
         </div>
+    </div>
 
-        <div v-else class="loading">
-            Book not found.
-        </div>
-    </template>
+    <div v-else class="loading">
+        Book not found.
+    </div>
+</template>
 
     <script>
         import { ref, onMounted, computed } from "vue";
@@ -443,5 +480,55 @@
             gap: 20px;
             align-items: center;
         }
+        .tip-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .tooltip {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-4px);
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: #111;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.2;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
+            z-index: 1000;
+        }
+
+            .tooltip::after {
+                content: "";
+                position: absolute;
+                top: -6px;
+                left: 50%;
+                transform: translateX(-50%);
+                border-width: 6px;
+                border-style: solid;
+                border-color: transparent transparent #111 transparent;
+            }
+
+        .tip-wrap:hover > .tooltip,
+        .tip-wrap:focus-within > .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .tooltip {
+                transition: none;
+            }
+        }
+
 
     </style>
