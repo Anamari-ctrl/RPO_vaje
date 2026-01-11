@@ -67,6 +67,23 @@
                         <span><strong>Order Total:</strong></span>
                         <span><strong>{{ total.toFixed(2) }}€</strong></span>
                     </div>
+                    <div v-if="!isLoggedIn" class="guest-shipping">
+                        <h3>Delivery details</h3>
+
+                        <input v-model="shippingForm.fullName" class="input" type="text" placeholder="Full name" />
+                        <input v-model="shippingForm.email" class="input" type="email" placeholder="Email" />
+                        <input v-model="shippingForm.phone" class="input" type="text" placeholder="Phone (optional)" />
+
+                        <input v-model="shippingForm.addressLine1" class="input" type="text" placeholder="Address line 1" />
+                        <input v-model="shippingForm.addressLine2" class="input" type="text" placeholder="Address line 2 (optional)" />
+
+                        <div class="row">
+                            <input v-model="shippingForm.city" class="input" type="text" placeholder="City" />
+                            <input v-model="shippingForm.postalCode" class="input" type="text" placeholder="Postal code" />
+                        </div>
+
+                        <input v-model="shippingForm.country" class="input" type="text" placeholder="Country" />
+                    </div>
 
                     <button @click="checkout" class="btn-checkout" :disabled="isProcessing">
                         {{ isProcessing ? 'Processing...' : 'CHECKOUT' }}
@@ -96,7 +113,22 @@ export default {
     const router = useRouter();
     const cartState = cartService.getState();
     const isProcessing = ref(false);
-    const errorMessage = ref('');
+      const errorMessage = ref('');
+
+      const accountState = accountService.getState();
+      const isLoggedIn = computed(() => accountState.isUserLoggedIn && !!accountState.currentUserId);
+
+      const shippingForm = ref({
+          fullName: '',
+          email: '',
+          phone: '',
+          addressLine1: '',
+          addressLine2: '',
+          city: '',
+          postalCode: '',
+          country: 'Slovenia'
+      });
+
 
     const cartItems = computed(() => cartState.items);
     const subtotal = computed(() => cartService.getSubtotal());
@@ -120,14 +152,21 @@ export default {
     const checkout = async () => {
       errorMessage.value = '';
       
-      const accountState = accountService.getState();
-      if (!accountState.isUserLoggedIn || !accountState.currentUserId) {
-        errorMessage.value = 'Please log in to proceed with checkout';
-        setTimeout(() => {
-          router.push('/login');
-        }, 1500);
-        return;
-      }
+        const accountState = accountService.getState();
+        const userIdToSend =
+            (accountState.isUserLoggedIn && accountState.currentUserId)
+                ? accountState.currentUserId
+                : ""; // guest -> prazen userId
+
+        // če je guest, mora izpolniti dostavo
+        if (!userIdToSend) {
+            const f = shippingForm.value;
+            if (!f.fullName || !f.email || !f.addressLine1 || !f.city || !f.postalCode || !f.country) {
+                errorMessage.value = 'Please fill in delivery details';
+                return;
+            }
+        }
+
 
       if (cartItems.value.length === 0) {
         errorMessage.value = 'Your cart is empty';
@@ -136,17 +175,32 @@ export default {
 
       isProcessing.value = true;
       try {
-        const orderData = {
-          userId: accountState.currentUserId,
-          orderDate: new Date().toISOString(),
-          totalAmount: total.value,
-          shippingCost: shipping.value,
-          orderItems: cartItems.value.map(item => ({
-            productId: item.id,
-            quantity: item.quantity,
-            unitPrice: item.price
-          }))
-        };
+          const orderData = {
+              userId: userIdToSend,
+              orderDate: new Date().toISOString(),
+              totalAmount: total.value,
+              shippingCost: shipping.value,
+
+              shippingAddress: userIdToSend
+                  ? null
+                  : {
+                      fullName: shippingForm.value.fullName,
+                      email: shippingForm.value.email,
+                      phone: shippingForm.value.phone,
+                      addressLine1: shippingForm.value.addressLine1,
+                      addressLine2: shippingForm.value.addressLine2,
+                      city: shippingForm.value.city,
+                      postalCode: shippingForm.value.postalCode,
+                      country: shippingForm.value.country
+                  },
+
+              orderItems: cartItems.value.map(item => ({
+                  productId: item.id,
+                  quantity: item.quantity,
+                  unitPrice: item.price
+              }))
+          };
+
 
         const response = await orderService.createOrder(orderData);
         
@@ -174,7 +228,10 @@ export default {
       removeItem,
       checkout,
       isProcessing,
-      errorMessage
+        errorMessage,
+        isLoggedIn,
+        shippingForm,
+
     };
   }
 };
@@ -505,5 +562,39 @@ export default {
             transition: none;
         }
     }
+
+    .guest-shipping {
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid #eee;
+    }
+
+        .guest-shipping h3 {
+            margin: 0 0 12px 0;
+            font-size: 1.05rem;
+            color: #333;
+        }
+
+    .input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+    }
+
+    .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+        .row {
+            grid-template-columns: 1fr;
+        }
+    }
+
 
 </style>
