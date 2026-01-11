@@ -1,42 +1,26 @@
 [
   {
-    "CategoryId": "c1000000-0000-0000-0000-000000000001",
+    "CategoryId": "10000000-0000-0000-0000-000000000001",
+    "CategoryName": "Technology & Engineering",
+    "ImageUrl": "https://example.com/images/cat_tech.jpg",
+    "IsActive": true,
+    "Created": "2023-01-01T00:00:00Z",
+    "CreatedBy": "System"
+  },
+  {
+    "CategoryId": "10000000-0000-0000-0000-000000000002",
     "CategoryName": "Fiction",
-    "ImageUrl": "/images/categories/fiction.png",
+    "ImageUrl": "https://example.com/images/cat_fiction.jpg",
     "IsActive": true,
-    "CreatedBy": "System",
-    "Created": "2023-01-15T10:00:00Z",
-    "UpdatedBy": null,
-    "Updated": null
+    "Created": "2023-01-01T00:00:00Z",
+    "CreatedBy": "System"
   },
   {
-    "CategoryId": "c2000000-0000-0000-0000-000000000002",
+    "CategoryId": "10000000-0000-0000-0000-000000000003",
     "CategoryName": "Non-Fiction",
-    "ImageUrl": "/images/categories/nonfiction.png",
+    "ImageUrl": "https://example.com/images/cat_nonfiction.jpg",
     "IsActive": true,
-    "CreatedBy": "System",
-    "Created": "2023-01-15T10:00:00Z",
-    "UpdatedBy": null,
-    "Updated": null
-  },
-  {
-    "CategoryId": "c3000000-0000-0000-0000-000000000003",
-    "CategoryName": "Technology",
-    "ImageUrl": "/images/categories/tech.png",
-    "IsActive": true,
-    "CreatedBy": "System",
-    "Created": "2023-01-15T10:00:00Z",
-    "UpdatedBy": null,
-    "Updated": null
-  },
-  {
-    "CategoryId": "c4000000-0000-0000-0000-000000000004",
-    "CategoryName": "Science",
-    "ImageUrl": "/images/categories/science.png",
-    "IsActive": true,
-    "CreatedBy": "System",
-    "Created": "2023-01-15T10:00:00Z",
-    "UpdatedBy": null,
-    "Updated": null
+    "Created": "2023-01-01T00:00:00Z",
+    "CreatedBy": "System"
   }
 ]

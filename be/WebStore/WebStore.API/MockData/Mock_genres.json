@@ -1,42 +1,50 @@
 [
   {
-    "GenreId": "a1000000-0000-0000-0000-000000000001",
-    "Name": "Fantasy",
-    "Description": "Magic, supernatural elements, and imaginary worlds.",
-    "IsActive": true,
-    "CreatedBy": "System",
-    "Created": "2023-01-15T10:00:00Z",
-    "UpdatedBy": null,
-    "Updated": null
-  },
-  {
-    "GenreId": "a2000000-0000-0000-0000-000000000002",
-    "Name": "Mystery",
-    "Description": "Suspenseful stories focusing on solving a crime or secret.",
-    "IsActive": true,
-    "CreatedBy": "System",
-    "Created": "2023-01-15T10:00:00Z",
-    "UpdatedBy": null,
-    "Updated": null
-  },
-  {
-    "GenreId": "a3000000-0000-0000-0000-000000000003",
+    "GenreId": "20000000-0000-0000-0000-000000000001",
     "Name": "Programming",
-    "Description": "Technical guides and references for software development.",
+    "Description": "Books about software development, coding languages, and architecture.",
     "IsActive": true,
-    "CreatedBy": "System",
-    "Created": "2023-01-15T10:00:00Z",
-    "UpdatedBy": null,
-    "Updated": null
+    "Created": "2023-01-01T00:00:00Z",
+    "CreatedBy": "System"
   },
   {
-    "GenreId": "a4000000-0000-0000-0000-000000000004",
-    "Name": "History",
-    "Description": "Accounts of past events and historical analysis.",
+    "GenreId": "20000000-0000-0000-0000-000000000002",
+    "Name": "Science Fiction",
+    "Description": "Speculative fiction dealing with imaginative concepts such as futuristic science and technology.",
     "IsActive": true,
-    "CreatedBy": "System",
-    "Created": "2023-01-15T10:00:00Z",
-    "UpdatedBy": null,
-    "Updated": null
+    "Created": "2023-01-01T00:00:00Z",
+    "CreatedBy": "System"
+  },
+  {
+    "GenreId": "20000000-0000-0000-0000-000000000003",
+    "Name": "Fantasy",
+    "Description": "Fiction set in a fictional universe, often inspired by real world myth and folklore.",
+    "IsActive": true,
+    "Created": "2023-01-01T00:00:00Z",
+    "CreatedBy": "System"
+  },
+  {
+    "GenreId": "20000000-0000-0000-0000-000000000004",
+    "Name": "History",
+    "Description": "Books describing past events and human affairs.",
+    "IsActive": true,
+    "Created": "2023-01-01T00:00:00Z",
+    "CreatedBy": "System"
+  },
+  {
+    "GenreId": "20000000-0000-0000-0000-000000000005",
+    "Name": "Biography",
+    "Description": "A detailed description of a person's life.",
+    "IsActive": true,
+    "Created": "2023-01-01T00:00:00Z",
+    "CreatedBy": "System"
+  },
+  {
+    "GenreId": "20000000-0000-0000-0000-000000000006",
+    "Name": "Self-Help",
+    "Description": "Books written with the intention to instruct its readers on solving personal problems.",
+    "IsActive": true,
+    "Created": "2023-01-01T00:00:00Z",
+    "CreatedBy": "System"
   }
 ]

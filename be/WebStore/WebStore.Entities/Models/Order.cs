@@ -22,6 +22,10 @@ namespace WebStore.Entities.Models
 
         public decimal TotalAmount { get; set; }
 
+        public decimal DeliveryCost { get; set; }
+
+        public string? PaymentType { get; set; }
+
         public string? Address { get; set; }
 
         public string? City { get; set; }
