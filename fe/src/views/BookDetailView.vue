@@ -52,9 +52,11 @@
 
             <!-- Ratings Section -->
             <div class="ratings-section">
-                <h2>Rate this product</h2>
+                <h2>Reviews and Ratings</h2>
+                
+                <!-- Rating Form - Only for logged-in users -->
                 <div v-if="isLoggedIn" class="my-rating">
-                    <p v-if="myRating">You have already rated this product. Update your review:</p>
+                    <h3>{{ myRating ? 'Your Review' : 'Rate this product' }}</h3>
                     <div class="rating-form">
                         <div class="star-input">
                             <span v-for="n in 5"
@@ -91,17 +93,35 @@
                         </p>
                     </div>
                 </div>
-                <p>
-                    Please
-                    <span class="tip-wrap">
-                        <router-link to="/login" aria-describedby="tt-login-link">log in</router-link>
-                        <span id="tt-login-link" role="tooltip" class="tooltip">
-                            Log in to submit a rating
-                        </span>
-                    </span>
-                    to rate this product.
-                </p>
+                
+                <!-- Login prompt for non-logged-in users -->
+                <div v-else class="login-prompt">
+                    <p>
+                        Please
+                        <router-link to="/login">log in</router-link>
+                        to rate and review this product.
+                    </p>
+                </div>
 
+                <!-- Display all ratings -->
+                <div class="all-ratings">
+                    <h3 v-if="allRatings.length > 0">Customer Reviews ({{ allRatings.length }})</h3>
+                    <div v-if="allRatings.length === 0" class="no-ratings">
+                        <p>No reviews yet. Be the first to review this product!</p>
+                    </div>
+                    <div v-else class="ratings-list">
+                        <div v-for="rating in allRatings" :key="rating.ratingId" class="rating-item">
+                            <div class="rating-header">
+                                <div class="rating-stars">
+                                    <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= rating.ratingValue }">★</span>
+                                </div>
+                                <span class="rating-date">{{ formatDate(rating.createdAt) }}</span>
+                            </div>
+                            <p class="rating-comment">{{ rating.comment || 'No comment provided.' }}</p>
+                            <div class="rating-user">— {{ rating.userName || 'Anonymous' }}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -127,6 +147,7 @@
                 const book = ref(null);
                 const loading = ref(true);
                 const myRating = ref(null);
+                const allRatings = ref([]);
                 const userRatingValue = ref(0);
                 const userComment = ref("");
                 const ratingMessage = ref("");
@@ -144,6 +165,11 @@
                     try {
                         const id = route.params.id;
                         book.value = await booksService.getBookById(id);
+                        
+                        // Load all ratings for everyone
+                        await loadAllRatings();
+                        
+                        // Load user's own rating if logged in
                         if (isLoggedIn.value && book.value) {
                             await loadMyRating();
                         }
@@ -165,6 +191,23 @@
                         userRatingValue.value = rating.ratingValue;
                         userComment.value = rating.comment;
                     }
+                };
+
+                const loadAllRatings = async () => {
+                    try {
+                        if (!book.value) return;
+                        const ratings = await ratingService.getProductRatings(book.value.id);
+                        allRatings.value = ratings || [];
+                    } catch (err) {
+                        console.error("Failed to load ratings:", err);
+                        allRatings.value = [];
+                    }
+                };
+
+                const formatDate = (dateString) => {
+                    if (!dateString) return '';
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
                 };
 
                 const submitRating = async () => {
@@ -213,6 +256,9 @@
                         }));
 
                         ratingError.value = false;
+                        
+                        // Reload all ratings to show updated list
+                        await loadAllRatings();
                     } catch (err) {
                         console.error("Failed to submit rating:", err);
                         ratingMessage.value = err.message || "Failed to submit review";
@@ -234,6 +280,9 @@
                         myRating.value = null;
                         ratingMessage.value = "Review deleted successfully!";
                         ratingError.value = false;
+                        
+                        // Reload all ratings to show updated list
+                        await loadAllRatings();
                     } catch (err) {
                         console.error("Failed to delete rating:", err);
                         ratingMessage.value = err.message || "Failed to delete review";
@@ -263,13 +312,15 @@
                     addToCart,
                     getAvailableStock,
                     myRating,
+                    allRatings,
                     userRatingValue,
                     userComment,
                     ratingMessage,
                     ratingError,
                     isLoggedIn,
                     submitRating,
-                    deleteRating
+                    deleteRating,
+                    formatDate
                 };
             }
         };
@@ -449,12 +500,82 @@
             background: #fff3cd;
             border-radius: 6px;
             color: #856404;
+            margin-bottom: 20px;
         }
 
             .login-prompt a {
                 color: #0066cc;
                 text-decoration: underline;
             }
+
+        /* All ratings section */
+        .all-ratings {
+            margin-top: 30px;
+        }
+
+            .all-ratings h3 {
+                margin-bottom: 20px;
+                font-size: 1.3rem;
+            }
+
+        .no-ratings {
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .ratings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .rating-item {
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #42b983;
+        }
+
+        .rating-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 2px;
+        }
+
+            .rating-stars .star {
+                font-size: 18px;
+                color: #ddd;
+            }
+
+                .rating-stars .star.filled {
+                    color: #ffc107;
+                }
+
+        .rating-date {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .rating-comment {
+            margin: 10px 0;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .rating-user {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
 
 
         .item {
