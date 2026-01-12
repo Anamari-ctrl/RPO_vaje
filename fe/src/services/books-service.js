@@ -106,16 +106,20 @@ export class BooksService {
     }
 
     const p = await response.json();
-    return {
-      id: p.productId,
-      title: p.productName,
-      price: p.price,
-      imageUrl: p.imageUrl,
-      isAvailable: p.isAvailable,
-      stock: p.stock || (p.isAvailable ? 1 : 0),
-      longDescription: p.longDescription,
-      technicalDetails: p.technicalDetails
-    };
+      return {
+          id: p.productId,
+          title: p.productName,
+          price: p.price,
+          imageUrl: p.imageUrl,
+          isAvailable: p.isAvailable,
+          stock: p.stock || (p.isAvailable ? 1 : 0),
+          warranty: p.warranty, // <-- DODAJ
+          officialUrl: p.manufacturerPageUrl, // <-- DODAJ (backend polje)
+          longDescription: p.longDescription,
+          technicalDetails: p.technicalDetails
+      };
+
+
   }
 
   /**
