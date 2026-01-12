@@ -26,6 +26,8 @@ namespace WebStore.API
             builder.Services.AddScoped<IBranchRepository, BranchRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+            builder.Services.AddScoped<IGenreRepository, GenreRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             //Services
             builder.Services.AddTransient<IJwtService, JwtService>();
@@ -33,6 +35,8 @@ namespace WebStore.API
             builder.Services.AddTransient<IProductService, ProductService>();
             builder.Services.AddTransient<IBranchService, BranchService>();
             builder.Services.AddTransient<IRatingService, RatingService>();
+            builder.Services.AddTransient<IGenreService, GenreService>();
+            builder.Services.AddTransient<ICategoryService, CategoryService>();
 
             // Add services to the container.
 
@@ -137,6 +141,7 @@ namespace WebStore.API
             app.MapProductEndpoints();
             app.MapRatingEndpoints();
             app.MapUserEndpoints();
+            app.MapGenreAndCategoryEndpoints();
 
             app.UseCors();
 
