@@ -74,7 +74,7 @@ export class BooksService {
           price: p.price,
           image: p.imageUrl,
           shortDescription: p.shortDescription,
-          stock: p.isAvailable ? 1 : 0
+          stock: p.stock || (p.isAvailable ? 1 : 0)
       }));
 
 
@@ -112,6 +112,7 @@ export class BooksService {
       price: p.price,
       imageUrl: p.imageUrl,
       isAvailable: p.isAvailable,
+      stock: p.stock || (p.isAvailable ? 1 : 0),
       longDescription: p.longDescription,
       technicalDetails: p.technicalDetails
     };
@@ -179,6 +180,28 @@ export class BooksService {
     }
 
     return true;
+  }
+
+  /**
+   * Decrease stock for a product
+   * @param {string} productId - The product ID
+   * @param {number} quantity - The quantity to decrease
+   */
+  async decreaseStock(productId, quantity) {
+    const headers = accountService.getHeaderData();
+
+    const response = await fetch(`${API_BASE_URL}/books/${encodeURIComponent(productId)}/decrease-stock`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ quantity })
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || `Failed to decrease stock (${response.status})`);
+    }
+
+    return await response.json();
   }
 }
 

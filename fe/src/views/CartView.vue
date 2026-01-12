@@ -153,6 +153,7 @@
     import { useRouter } from "vue-router";
     import cartService from "../services/cart-service";
     import orderService from "../services/order-service";
+    import booksService from "../services/books-service";
 
     export default {
         name: "CartView",
@@ -274,6 +275,16 @@
                     };
 
                     const response = await orderService.createOrder(orderData);
+
+                    // Zmanjšaj stock za vsak izdelek v naročilu
+                    for (const item of cartItems.value) {
+                        try {
+                            await booksService.decreaseStock(item.id, item.quantity);
+                        } catch (stockError) {
+                            console.warn(`Failed to decrease stock for ${item.title}:`, stockError);
+                            // Nadaljuj kljub napaki pri zmanjšanju stock-a
+                        }
+                    }
 
                     cartService.clearCart();
                     closeCheckout();
