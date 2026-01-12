@@ -111,7 +111,7 @@
                         Email: registerForm.value.email,
                         Password: registerForm.value.password,
                         ConfirmPassword: registerForm.value.confirmPassword,
-                        Role: "User" // ✅ vedno pošlje User
+                        Role: "User" // vedno pošlje User
                     });
 
                     if (response?.token) {
