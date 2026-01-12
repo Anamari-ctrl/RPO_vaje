@@ -55,11 +55,12 @@
 
         </header>
 
-        <router-view v-slot="{ Component, route }">
-            <transition name="page" mode="out-in">
-                <component :is="Component" :key="route.fullPath" />
-            </transition>
-        </router-view>
+        <!--<router-view v-slot="{ Component, route }">
+        <transition name="page" mode="out-in">
+            <component :is="Component" :key="route.fullPath" />
+        </transition>
+    </router-view>-->
+        <router-view/>
     </div>
 </template>
 
@@ -255,6 +256,22 @@
             transition: none;
         }
     }
+    .lang-select {
+        position: relative;
+        z-index: 2000; /* da je language dropdown vedno nad ostalimi elementi */
+    }
+
+    .lang-menu {
+        position: absolute;
+        top: 110%;
+        right: 0;
+        z-index: 3000; /* še višje kot nav elementi + tooltipi */
+    }
+    .lang-select[aria-expanded="true"] .tooltip {
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+
 
 
 </style>
