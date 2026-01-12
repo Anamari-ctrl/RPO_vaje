@@ -16,5 +16,15 @@
         public string? SearchTerm { get; set; }
         public string? SortColumn { get; set; }
         public string? SortOrder { get; set; }
+
+        public decimal? MinPrice { get; set; }
+
+        public decimal? MaxPrice { get; set; }
+
+        public bool? InStock { get; set; }
+
+        public Guid? CategoryId { get; set; }
+
+        public Guid? GenreId { get; set; }
     }
 }

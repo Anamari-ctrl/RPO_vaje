@@ -33,6 +33,8 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
 
         public string? ImageUrl { get; set; }
 
+        public int Stock { get; set; }
+
         public bool IsActive { get; set; }
 
         public List<RatingResponse> Ratings { get; set; } = [];
@@ -54,7 +56,8 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
                 ManufacturerPageUrl = ManufacturerPageUrl,
                 TechnicalDetails = TechnicalDetails,
                 ImageUrl = ImageUrl,
-                IsActive = IsActive                
+                Stock = Stock,
+                IsActive = IsActive
             };
         }
     }
@@ -78,6 +81,7 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
                 ManufacturerPageUrl = product.ManufacturerPageUrl,
                 TechnicalDetails = product.TechnicalDetails,
                 ImageUrl = product.ImageUrl,
+                Stock = product.Stock,
                 IsActive = product.IsActive,
                 Ratings = product.Ratings.Select(x => x.ToRatingResponse()).ToList()
             };

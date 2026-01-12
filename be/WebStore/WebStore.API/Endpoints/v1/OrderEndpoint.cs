@@ -13,7 +13,8 @@ namespace WebStore.API.Endpoints.v1
         }
 
         public static async Task<IResult> Create(OrderAddRequest? addRequest,
-                                                 IOrderService orderService)
+                                                 IOrderService orderService,
+                                                 IProductService productService)
         {
             if (addRequest == null)
             {
@@ -28,7 +29,21 @@ namespace WebStore.API.Endpoints.v1
 
             OrderResponse? orderResponse = await orderService.CreateItem(addRequest);
 
-            return Results.Ok(orderResponse);
+            if (orderResponse == null)
+            {
+                return Results.Problem("There was an error saving order! Check in backend logs.");
+            }
+
+            bool result = await productService.DecreaseProductStock(addRequest.OrderItems);
+
+            if (result)
+            {
+                return Results.Ok(orderResponse);
+            }
+
+            await orderService.DeleteItem(orderResponse.OrderId);
+
+            return Results.Problem("There was an error decreasing stock! Order was deleted!");
         }
     }
 }

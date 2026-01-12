@@ -42,6 +42,8 @@ namespace WebStore.Entities.Models
 
         public string? ImageUrl { get; set; }
 
+        public int Stock { get; set; }
+
         public List<Rating> Ratings { get; set; } = [];
     }
 }

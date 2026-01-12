@@ -37,6 +37,8 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
 
         public string? ImageUrl { get; set; }
 
+        public int Stock { get; set; }
+
         public bool IsActive { get; set; }
 
         public Product ToProduct()
@@ -56,6 +58,7 @@ namespace WebStore.ServiceContracts.DTO.ProductDTO
                 ManufacturerPageUrl = ManufacturerPageUrl,
                 TechnicalDetails = TechnicalDetails,
                 ImageUrl = ImageUrl,
+                Stock = Stock,
                 IsActive = IsActive
             };
         }

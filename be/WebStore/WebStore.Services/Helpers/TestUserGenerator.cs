@@ -25,6 +25,7 @@ namespace WebStore.Services.Helpers
             {
                 testUser = new ApplicationUser
                 {
+                    Id = Guid.Parse("60000000-0000-0000-0000-000000000001"),
                     UserName = testUserEmail,
                     Email = testUserEmail,
                     EmailConfirmed = true,

@@ -2,6 +2,7 @@
 using WebStore.Entities.RequestFeatures;
 using WebStore.RepositoryContracts;
 using WebStore.ServiceContracts;
+using WebStore.ServiceContracts.DTO.OrderItemDTO;
 using WebStore.ServiceContracts.DTO.ProductDTO;
 using WebStore.Services.Helpers;
 
@@ -95,6 +96,15 @@ namespace WebStore.Services
             await _repository.UpdateAsync(product);
 
             return product.ToProductResponse();
+        }
+
+        public async Task<bool> DecreaseProductStock(List<OrderItemAddRequest> orderItems)
+        {
+            ArgumentNullException.ThrowIfNull(orderItems);
+
+            List<OrderItem> items = orderItems.Select(x => x.ToOrderItem()).ToList();
+
+            return await _repository.DecreaseProductStock(items);
         }
     }
 }

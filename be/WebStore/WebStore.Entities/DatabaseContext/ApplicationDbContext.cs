@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using WebStore.Entities.Identity;
@@ -24,6 +25,44 @@ namespace WebStore.Entities.DatabaseContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            var adminUser = new ApplicationUser
+            {
+                Id = Guid.Parse("60000000-0000-0000-0000-000000000001"),
+                UserName = "admin@webstore.com",
+                NormalizedUserName = "ADMIN@WEBSTORE.COM",
+                Email = "admin@webstore.com",
+                NormalizedEmail = "ADMIN@WEBSTORE.COM",
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString("D"),
+                FirstName = "Admin",
+                LastName = "User"
+            };
+
+            var passwordHasher = new PasswordHasher<ApplicationUser>();
+            adminUser.PasswordHash = passwordHasher.HashPassword(adminUser, "SecurePassword123!");
+
+            modelBuilder.Entity<ApplicationUser>().HasData(adminUser);
+
+            var adminRoleId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+
+            modelBuilder.Entity<ApplicationRole>().HasData(
+                new ApplicationRole
+                {
+                    Id = adminRoleId,
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
+                }
+            );
+
+            modelBuilder.Entity<IdentityUserRole<Guid>>().HasData(
+                new IdentityUserRole<Guid>
+                {
+                    RoleId = adminRoleId,
+                    UserId = Guid.Parse("60000000-0000-0000-0000-000000000001")
+                }
+            );
 
             modelBuilder.Entity<Branch>().ToTable("Branches");
 
@@ -80,7 +119,7 @@ namespace WebStore.Entities.DatabaseContext
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            GetMockData<OrderItem>("orderitems", modelBuilder);
+            GetMockData<OrderItem>("orderItems", modelBuilder);
 
             modelBuilder.Entity<Rating>().ToTable("Rating");
 
