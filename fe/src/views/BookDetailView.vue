@@ -27,20 +27,19 @@
 
             <p class="price">{{ book.price }} €</p>
 
-            <div class="stock" :class="{ out: !book.isAvailable }">
-                {{ book.isAvailable ? 'In stock' : 'Out of stock' }}
+            <div class="stock" :class="{ out: getAvailableStock() === 0 }">
+                {{ getAvailableStock() === 0 ? 'Out of stock' : 'In stock' }}
             </div>
 
             <div class="tip-wrap">
                 <button class="buy"
                         @click.stop="addToCart(book)"
-                        :disabled="book.stock === 0"
+                        :disabled="getAvailableStock() === 0"
                         aria-describedby="tt-buy">
-                    {{ book.stock === 0 ? 'OUT OF STOCK' : 'ADD TO CART' }}
+                    {{ getAvailableStock() === 0 ? 'OUT OF STOCK' : 'ADD TO CART' }}
                 </button>
-
                 <span id="tt-buy" role="tooltip" class="tooltip">
-                    {{ book.stock === 0 ? 'This book is currently unavailable' : 'Add 1 copy to your cart' }}
+                    {{ getAvailableStock() === 0 ? 'This book is currently unavailable' : 'Add 1 copy to your cart' }}
                 </span>
             </div>
 
@@ -242,11 +241,17 @@
                     }
                 };
 
-                const addToCart = (book) => {
-                    if (book.stock > 0) {
-                        cartService.addItem(book, 1);
-                        // Optional: Show a success message or toast notification
-                        alert(`Added "${book.title}" to cart!`);
+                const getAvailableStock = () => {
+                    if (!book.value) return 0;
+                    const cartItem = cartService.getState().items.find(item => item.id === book.value.id);
+                    const quantityInCart = cartItem ? cartItem.quantity : 0;
+                    return Math.max(0, book.value.stock - quantityInCart);
+                };
+
+                const addToCart = (bookObj) => {
+                    if (getAvailableStock() > 0) {
+                        cartService.addItem(bookObj, 1);
+                        alert(`Added "${bookObj.title}" to cart!`);
                     }
                 };
                 onMounted(loadBook);
@@ -256,6 +261,7 @@
                     loading,
                     fallbackImage,
                     addToCart,
+                    getAvailableStock,
                     myRating,
                     userRatingValue,
                     userComment,

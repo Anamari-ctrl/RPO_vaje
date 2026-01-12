@@ -106,12 +106,12 @@
 
                 try {
                     const response = await accountService.postRegister({
-                        // ⬅️ POMEMBNO: PascalCase za backend
                         FirstName: registerForm.value.firstName,
                         LastName: registerForm.value.lastName,
                         Email: registerForm.value.email,
                         Password: registerForm.value.password,
-                        ConfirmPassword: registerForm.value.confirmPassword
+                        ConfirmPassword: registerForm.value.confirmPassword,
+                        Role: "User" // vedno pošlje User
                     });
 
                     if (response?.token) {
