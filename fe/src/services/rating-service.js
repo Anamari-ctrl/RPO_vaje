@@ -94,6 +94,23 @@ const ratingService = {
     } catch (error) {
       throw new Error(error.message || 'Failed to get rating');
     }
+  },
+
+  async getProductRatings(productId) {
+    try {
+      const response = await fetch(`${API_URL}/product/${productId}`);
+
+      if (!response.ok) {
+        console.warn('Failed to fetch product ratings');
+        return [];
+      }
+
+      const data = await response.json();
+      return Array.isArray(data) ? data : (data.items || data.ratings || []);
+    } catch (error) {
+      console.error('Error fetching product ratings:', error);
+      return [];
+    }
   }
 };
 

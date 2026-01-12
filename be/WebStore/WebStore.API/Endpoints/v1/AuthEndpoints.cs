@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using WebStore.Entities.Identity;
@@ -197,23 +198,15 @@ namespace WebStore.API.Endpoints.v1
 
             string token = await userManager.GeneratePasswordResetTokenAsync(user);
 
-            //Dictionary<string, string> param = new()
-            //{
-            //    {"token", token},
-            //    {"email", forgotPassword.Email!},
-            //};
+            Dictionary<string, string> param = new()
+            {
+                {"token", token},
+                {"email", forgotPassword.Email!},
+            };
 
-            //var callback = QueryHelpers.AddQueryString(forgotPassword.ClientUri!, param!);
+            var callback = QueryHelpers.AddQueryString(forgotPassword.ClientUri!, param!);
 
-            //var resp = await resend.EmailSendAsync(new EmailMessage()
-            //{
-            //    From = "onboarding@resend.dev",
-            //    To = forgotPassword.Email!,
-            //    Subject = "Three owls book store - forgotten password",
-            //    HtmlBody = "<p>Click <a>here</a> to reset your password: </p>",
-            //});
-
-            return Results.Ok(token);
+            return Results.Ok(callback);
         }
 
         public static async Task<IResult> ResetPassword(ResetPasswordDTO resetPasswordDTO,

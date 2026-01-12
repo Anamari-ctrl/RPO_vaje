@@ -124,13 +124,13 @@
                     <div class="price">{{ book.price }} €</div>
                     <button class="buy"
                             @click.stop="addToCart(book)"
-                            :disabled="book.stock === 0">
-                        {{ book.stock === 0 ? 'OUT OF STOCK' : 'ADD TO CART' }}
+                            :disabled="getAvailableStock(book.id) === 0">
+                        {{ getAvailableStock(book.id) === 0 ? 'OUT OF STOCK' : 'ADD TO CART' }}
                     </button>
                     <div class="description">{{ book.title }}</div>
                     <div class="description">{{ book.shortDescription }}</div>
-                    <div class="stock" :class="{ 'out-of-stock': book.stock === 0 }">
-                        Stock: {{ book.stock }}
+                    <div class="stock" :class="{ 'out-of-stock': getAvailableStock(book.id) === 0 }">
+                        Stock: {{ getAvailableStock(book.id) }}
                     </div>
                 </div>
             </div>
@@ -177,17 +177,8 @@ export default {
             router.push({ name: 'BookDetail', params: { id: bookId } });
         };
 
-        const addToCart = (book) => {
-            if (book.stock > 0) {
-                cartService.addItem(book, 1);
-                // Optional: Show a success message or toast notification
-                alert(`Added "${book.title}" to cart!`);
-            }
-        };
-
         return {
-            openBook,
-            addToCart
+            openBook
         };
     },
     data() {
@@ -229,6 +220,22 @@ export default {
         }
     },
     methods: {
+        addToCart(book) {
+            if (this.getAvailableStock(book.id) > 0) {
+                cartService.addItem(book, 1);
+                alert(`Added "${book.title}" to cart!`);
+            }
+        },
+        getAvailableStock(bookId) {
+            // Calculate available stock by subtracting cart quantity from total stock
+            const book = this.books.find(b => b.id === bookId);
+            if (!book) return 0;
+            
+            const cartItem = cartService.getState().items.find(item => item.id === bookId);
+            const quantityInCart = cartItem ? cartItem.quantity : 0;
+            
+            return Math.max(0, book.stock - quantityInCart);
+        },
         async fetchBooks() {
             this.loading = true;
             try {
