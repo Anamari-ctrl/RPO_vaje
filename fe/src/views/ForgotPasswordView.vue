@@ -57,8 +57,15 @@ export default {
       isLoading.value = true;
 
       try {
-        await accountService.postForgotPassword(email.value);
+        const response = await accountService.postForgotPassword(email.value);
 
+        // If backend returns a redirect URL, use it
+        if (response && response.redirectUrl) {
+          window.location.href = response.redirectUrl;
+          return;
+        }
+
+        // Fallback: redirect to login after a delay
         successMessage.value = 'Check your email for the reset link. Redirecting to login...';
         
         setTimeout(() => {
