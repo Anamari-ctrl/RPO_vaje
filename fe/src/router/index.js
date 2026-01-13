@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+﻿import { createRouter, createWebHistory } from 'vue-router'
 
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
@@ -21,7 +21,7 @@ const routes = [
     { path: '/reset-password', name: 'ResetPassword', component: ResetPasswordView },
 
 
-    { path: '/profile', name: 'Profile', component: ProfileView },
+    { path: '/profile', name: 'Profile', component: ProfileView, meta: { requiresAuth: true } },
     { path: '/cart', name: 'Cart', component: CartView },
     { path: '/stores', name: 'Stores', component: StoresView },
 
@@ -34,13 +34,24 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    const isLoggedIn = accountService.hasToken()
+    const isLoggedIn = accountService.hasToken();
+
+    //  Protected routes
+    if (to.meta.requiresAuth && !isLoggedIn) {
+        next({
+            name: 'Login',
+            query: { redirect: to.fullPath } 
+        });
+        return;
+    }
 
     if (isLoggedIn && (to.name === 'Login' || to.name === 'Register')) {
-        next({ name: 'Home' })
-    } else {
-        next()
+        next({ name: 'Home' });
+        return;
     }
-})
+
+    next();
+});
+
 
 export default router
