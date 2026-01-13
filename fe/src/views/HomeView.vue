@@ -71,6 +71,22 @@
                     </span>
                 </div>
 
+                <h3>Category</h3>
+                <select v-model="filterValues.categoryId" @change="handleFilterChange" class="filter-input">
+                    <option value="">All Categories</option>
+                    <option v-for="cat in categories" :key="cat.categoryId" :value="cat.categoryId">
+                        {{ cat.categoryName }}
+                    </option>
+                </select>
+
+                <h3>Genre</h3>
+                <select v-model="filterValues.genreId" @change="handleFilterChange" class="filter-input">
+                    <option value="">All Genres</option>
+                    <option v-for="genre in genres" :key="genre.genreId" :value="genre.genreId">
+                        {{ genre.name }}
+                    </option>
+                </select>
+
 
                 <h3>Availability</h3>
                 <label class="filter-pill tip-wrap">
@@ -81,12 +97,6 @@
                     </span>
                 </label>
 
-
-                <h3>Brand</h3>
-                <input v-model="filterValues.brand" type="text" placeholder="Brand" class="filter-input" @input="handleFilterChange" />
-
-                <h3>Supplier</h3>
-                <input v-model="filterValues.supplier" type="text" placeholder="Supplier" class="filter-input" @input="handleFilterChange" />
 
                 <div class="tip-wrap">
                     <button @click="resetFilters" class="reset-btn" aria-describedby="tt-reset">
@@ -120,7 +130,10 @@
                      :key="book.id"
                      @click="openBook(book.id)">
 
-                    <img :src="book.image || 'https://via.placeholder.com/240x300?text=No+Image'" :alt="book.title" onerror="this.style.display='none'" />
+                    <img :src="book.imageUrl || 'https://via.placeholder.com/240x300?text=No+Image'"
+                         :alt="book.title"
+                         @error="(e) => (e.target.src = 'https://via.placeholder.com/240x300?text=No+Image')" />
+
                     <div class="price">{{ book.price }} €</div>
                     <button class="buy"
                             @click.stop="addToCart(book)"
@@ -191,12 +204,14 @@ export default {
             totalPages: 0,
             loading: false,
             sortBy: 'title',
+            categories: [],
+            genres: [],
             filterValues: {
                 minPrice: null,
                 maxPrice: null,
                 inStock: false,
-                brand: '',
-                supplier: ''
+                categoryId: '',
+                genreId: ''
             }
         };
     },
@@ -249,8 +264,8 @@ export default {
                         minPrice: this.filterValues.minPrice,
                         maxPrice: this.filterValues.maxPrice,
                         inStock: this.filterValues.inStock ? 'true' : null,
-                        brand: this.filterValues.brand,
-                        supplier: this.filterValues.supplier
+                        categoryId: this.filterValues.categoryId || null,
+                        genreId: this.filterValues.genreId || null
                     }
                 });
                 
@@ -263,6 +278,20 @@ export default {
                 this.books = [];
             } finally {
                 this.loading = false;
+            }
+        },
+        async fetchCategories() {
+            try {
+                this.categories = await booksService.getCategories();
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        },
+        async fetchGenres() {
+            try {
+                this.genres = await booksService.getGenres();
+            } catch (error) {
+                console.error('Error fetching genres:', error);
             }
         },
         handleSearch() {
@@ -283,8 +312,8 @@ export default {
                 minPrice: null,
                 maxPrice: null,
                 inStock: false,
-                brand: '',
-                supplier: ''
+                categoryId: '',
+                genreId: ''
             };
             this.sortBy = 'title';
             this.currentPage = 1;
@@ -312,7 +341,9 @@ export default {
     },
     mounted() {
         this.fetchBooks();
-        }
+        this.fetchCategories();
+        this.fetchGenres();
+    }
 
 };
 </script>

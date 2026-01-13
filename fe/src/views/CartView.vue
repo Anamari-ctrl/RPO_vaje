@@ -270,9 +270,13 @@
                         OrderItems: cartItems.value.map((item) => ({
                             ProductId: item.id,
                             Quantity: item.quantity,
-                            PriceAtPurchase: item.price,
+                            PriceAtPurchase: item.price,           
+                            ProductName: item.title || "",     
+                            ShortDescription: item.shortDescription || "" 
                         })),
                     };
+
+
 
                     const response = await orderService.createOrder(orderData);
 

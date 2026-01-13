@@ -13,11 +13,9 @@
         </div>
     </nav>
 
-
     <h2>My Profile</h2>
 
     <div class="profile-container">
-
         <div class="button-table">
             <button class="table-btn" @click="activeScreen = 'dashboard'">Dashboard</button>
             <button class="table-btn" @click="activeScreen = 'settings'">Account Settings</button>
@@ -26,7 +24,6 @@
         </div>
 
         <div class="content-box">
-
             <!-- dashboard -->
             <div v-if="activeScreen === 'dashboard'">
                 <h3>Dashboard</h3>
@@ -47,7 +44,6 @@
             <div v-if="activeScreen === 'settings'">
                 <h3>Account Settings</h3>
                 <form @submit.prevent="saveProfile">
-
                     <div class="form-row">
                         <div class="form-group">
                             <label>First Name</label>
@@ -91,17 +87,14 @@
                     </div>
 
                     <h3>Change Password</h3>
-
                     <div class="form-group">
                         <label>Current Password</label>
                         <input type="password" v-model="user.password" />
                     </div>
-
                     <div class="form-group">
                         <label>New Password</label>
                         <input type="password" v-model="user.newPassword" />
                     </div>
-
                     <div class="form-group">
                         <label>Confirm Password</label>
                         <input type="password" v-model="user.confirmPassword" />
@@ -111,43 +104,53 @@
                 </form>
             </div>
 
-            <!-- Orders -->
-            <!-- Orders -->
+            <!-- orders -->
             <div v-if="activeScreen === 'orders'">
                 <h3>Order History</h3>
                 <p v-if="orders.length === 0">You have no orders yet.</p>
 
                 <div v-if="orders.length > 0" class="orders-list">
                     <div v-for="o in orders" :key="o.id" class="order-card">
-                        <!-- Order summary -->
                         <div class="order-summary" @click="toggleOrder(o)">
                             <strong>Order #{{ o.number }}</strong>
-                            <span>{{ new Date(o.createdAt).toLocaleDateString() }}</span>
+                            <span>{{ formatDate(o.createdAt) }}</span>
                             <span>{{ o.status }}</span>
-                            <span>{{ orderTotal(o) }} €</span>
+                            <span>{{ money(o.total) }} €</span>
                         </div>
 
-                        <!-- Order details (expand on click) -->
                         <div v-if="selectedOrder && selectedOrder.id === o.id" class="order-details">
                             <h4>Items in this order:</h4>
-                            <div v-for="item in selectedOrder.items" :key="item.productId" class="order-item">
-                                {{ item.productName }} |
-                                <strong>Quantity:</strong> {{ item.quantity }} |
-                                <strong>Price:</strong> {{ item.price }} €
+
+                            <div v-if="!selectedOrder.items || selectedOrder.items.length === 0" class="order-item">
+                                No items found for this order.
                             </div>
 
+                            <div v-for="item in selectedOrder.items"
+                                 :key="item.orderItemId || item.productId"
+                                 class="order-item">
+                                <div class="oi-name">{{ item.productName || 'Unknown Product' }}</div>
+                                <div class="oi-desc" v-if="item.shortDescription">{{ item.shortDescription }}</div>
 
+                                <div class="oi-meta">
+                                    <span>Qty: {{ item.quantity }}</span>
+                                    <span>Price: {{ money(item.priceAtPurchase) }} €</span>
+                                </div>
+                            </div>
+                            <br />
                             <div class="order-totals">
-                                <p>Subtotal: {{ orderSubtotal(selectedOrder) }} €</p>
-                                <p>Tax (22%): {{ orderTax(selectedOrder) }} €</p>
-                                <p><strong>Total: {{ orderTotal(selectedOrder) }} €</strong></p>
+                                <p>Items total (incl. VAT): {{ money(itemsTotalInclVat(selectedOrder)) }} €</p>
+                                <p>Tax (22%): {{ money(itemsTax(selectedOrder)) }} €</p>
+                                <p>Items subtotal (excl. VAT): {{ money(itemsSubtotalExclVat(selectedOrder)) }} €</p>
+
+                                <p>Shipping: {{ money(orderShipping(selectedOrder)) }} €</p>
+                                <p><strong>Total: {{ money(orderTotal(selectedOrder)) }} €</strong></p>
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
+            <!-- /orders -->
         </div>
     </div>
 </template>
@@ -167,6 +170,8 @@
             const user = ref({});
             const orders = ref([]);
             const selectedOrder = ref(null);
+
+            const TAX_RATE = 0.22;
 
             // Logout
             const logout = () => {
@@ -193,6 +198,7 @@
                     orders.value = await orderService.getMyOrders();
                 } catch (err) {
                     console.error(err);
+                    orders.value = [];
                 }
             };
 
@@ -200,22 +206,35 @@
                 selectedOrder.value = selectedOrder.value && selectedOrder.value.id === order.id ? null : order;
             };
 
-            const TAX_RATE = 0.22;
-            const orderTax = (order) => {
-                if (!order || order.total == null) return "0.00";
-                return ((order.total * TAX_RATE) / (1 + TAX_RATE)).toFixed(2);
+            // Shipping should NOT be taxed.
+            const orderShipping = (order) => Number(order?.shipping ?? 0);
+
+            // total from backend
+            const orderTotal = (order) => Number(order?.total ?? 0);
+
+            // items total incl VAT = total - shipping (never negative)
+            const itemsTotalInclVat = (order) => {
+                const items = Math.max(0, orderTotal(order) - orderShipping(order));
+                return items;
             };
 
-            const orderSubtotal = (order) => {
-                if (!order || order.total == null) return "0.00";
-                return (order.total - parseFloat(orderTax(order))).toFixed(2);
+            const itemsTax = (order) => {
+                const itemsIncl = itemsTotalInclVat(order);
+                return (itemsIncl * TAX_RATE) / (1 + TAX_RATE);
             };
 
-            const orderTotal = (order) => {
-                if (!order || order.total == null) return "0.00";
-                return order.total.toFixed(2);
+            const itemsSubtotalExclVat = (order) => {
+                const itemsIncl = itemsTotalInclVat(order);
+                return itemsIncl - itemsTax(order);
             };
 
+            const money = (n) => Number(n ?? 0).toFixed(2);
+
+            const formatDate = (dateString) => {
+                if (!dateString) return "";
+                const d = new Date(dateString);
+                return d.toLocaleDateString();
+            };
 
             // Save profile (posodobi vse podatke)
             const saveProfile = async () => {
@@ -229,7 +248,7 @@
                         City: user.value.city || "",
                         PostalCode: user.value.postalCode || "",
                         Country: user.value.country || "",
-                        PhoneNumber: user.value.phoneNumber || ""
+                        PhoneNumber: user.value.phoneNumber || "",
                     };
 
 
@@ -268,12 +287,18 @@
                 orders,
                 selectedOrder,
                 toggleOrder,
-                orderSubtotal,
-                orderTax,
+
+                orderShipping,
                 orderTotal,
-                saveProfile
+                itemsTotalInclVat,
+                itemsTax,
+                itemsSubtotalExclVat,
+
+                money,
+                formatDate,
+                saveProfile,
             };
-        }
+        },
     };
 </script>
 
@@ -314,7 +339,6 @@
         border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
-
     /* Form styling */
     .form-group {
         margin-bottom: 15px;
@@ -375,7 +399,7 @@
 
         .order-card:hover {
             background: #f0f0f0;
-        }
+    }
 
     .order-summary {
         display: flex;
@@ -398,31 +422,24 @@
         margin: 4px 0;
     }
 
-    .btn-small {
-        padding: 4px 8px;
-        background: #0077ff;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
+    .oi-name {
+        font-weight: 700;
     }
 
-        .btn-small:hover {
-            background: #005fcc;
-        }
-
-    .item {
-        text-decoration: none;
-        color: var(--text);
-        font-weight: 500;
-        padding: 6px 10px;
-        border-radius: 6px;
-        transition: background 0.2s;
+    .oi-desc {
+        color: #666;
+        margin: 4px 0;
     }
 
-        .item:hover {
-            background: rgba(0,0,0,0.05);
-        }
+    .oi-meta {
+        display: flex;
+        gap: 14px;
+        color: #333;
+    }
+
+    .shipping-note {
+        margin-top: 8px;
+    }
 
     .nav {
         display: flex;
@@ -433,17 +450,25 @@
         width: 100%;
     }
 
-    /* push this container to the RIGHT */
     .nav-1 {
         margin-left: auto;
         display: flex;
         gap: 20px;
         align-items: center;
     }
+
     .tip-wrap {
         position: relative;
         display: inline-flex;
         align-items: center;
+    }
+
+    .item {
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 500;
+        padding: 6px 10px;
+        border-radius: 6px;
     }
 
     .tooltip {
@@ -483,12 +508,9 @@
         transform: translateX(-50%) translateY(0);
     }
 
-    /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
         .tooltip {
             transition: none;
         }
     }
-
-
 </style>

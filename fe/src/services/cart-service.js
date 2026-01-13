@@ -19,24 +19,26 @@ class CartService {
   /**
    * Add item to cart
    */
-  addItem(book, quantity = 1) {
-    const existingItem = this.state.items.find(item => item.id === book.id);
-    
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
-      this.state.items.push({
-        id: book.id,
-        title: book.title,
-        price: book.price,
-        image: book.image,
-        stock: book.stock,
-        quantity: quantity
-      });
+    addItem(book, quantity = 1) {
+        const existingItem = this.state.items.find(item => item.id === book.id);
+
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            this.state.items.push({
+                id: book.id,
+                title: book.title,
+                shortDescription: book.shortDescription || "",
+                price: book.price,
+                image: book.image || book.imageUrl,    
+                stock: book.stock,
+                quantity: quantity
+            });
+        }
+
+        this.saveCart();
     }
-    
-    this.saveCart();
-  }
+
 
   /**
    * Remove item from cart

@@ -1,16 +1,105 @@
 ﻿import accountService from "./account-service";
+import booksService from "./books-service";
 
 const API_BASE_URL = "http://localhost:7020/api/v1";
 
 class OrderService {
+    // helper: safe number
+    _num(v) {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : 0;
+    }
 
-    // Pridobi zgodovino naročil trenutnega uporabnika
+    // helper: map raw order from backend
+    _mapOrder(o) {
+        const rawItems = o.orderItems ?? o.OrderItems ?? o.items ?? o.Items ?? [];
+
+        return {
+            id: o.orderId ?? o.OrderId,
+            number: o.orderNumber ?? o.OrderNumber ?? (o.orderId ?? o.OrderId),
+            createdAt: o.orderDate ?? o.OrderDate ?? null,
+            status: o.orderStatus ?? o.OrderStatus ?? "Unknown",
+
+            total: this._num(o.totalAmount ?? o.TotalAmount),
+
+            // backend ti v response-u trenutno sploh ne pošilja deliveryCost,
+            // zato tukaj pustimo 0 in bomo kasneje izračunali, če je možno.
+            shipping: this._num(o.deliveryCost ?? o.DeliveryCost ?? 0),
+
+            items: Array.isArray(rawItems)
+                ? rawItems.map((i) => ({
+                    orderItemId: i.orderItemId ?? i.OrderItemId,
+                    productId: i.productId ?? i.ProductId,
+                    quantity: this._num(i.quantity ?? i.Quantity),
+                    priceAtPurchase: this._num(i.priceAtPurchase ?? i.PriceAtPurchase ?? i.price ?? i.Price),
+
+                    productName: i.productName ?? i.ProductName ?? null,
+                    shortDescription: i.shortDescription ?? i.ShortDescription ?? null,
+                }))
+                : [],
+        };
+    }
+
+    // ENRICH: fill missing productName/shortDescription/priceAtPurchase using booksService
+    async _enrichOrdersWithProducts(orders) {
+        // collect productIds that need enrichment
+        const ids = new Set();
+        for (const o of orders) {
+            for (const it of o.items) {
+                if (it.productId) ids.add(it.productId);
+            }
+        }
+
+        const productMap = new Map();
+
+        await Promise.all(
+            Array.from(ids).map(async (id) => {
+                try {
+                    const b = await booksService.getBookById(id);
+                    if (b) productMap.set(id, b);
+                } catch {
+                    // ignore if fails
+                }
+            })
+        );
+
+        for (const o of orders) {
+            for (const it of o.items) {
+                const b = productMap.get(it.productId);
+                if (!b) continue;
+
+                // fill missing
+                if (!it.productName) it.productName = b.title ?? b.name ?? "Unknown Product";
+                if (!it.shortDescription) it.shortDescription = b.shortDescription ?? b.description ?? "";
+
+                // if backend returned 0 priceAtPurchase, fallback to current product price for display
+                if (!it.priceAtPurchase || it.priceAtPurchase === 0) {
+                    it.priceAtPurchase = this._num(b.price);
+                }
+            }
+
+            // if shipping not present in response, infer from total - itemsSum (non-negative)
+            if (!o.shipping || o.shipping === 0) {
+                const itemsSum = o.items.reduce(
+                    (acc, it) => acc + this._num(it.priceAtPurchase) * this._num(it.quantity),
+                    0
+                );
+                const inferred = Math.max(0, this._num(o.total) - itemsSum);
+                // samo če je smiselno (da ni 0 zaradi napačnih cen)
+                if (inferred > 0) o.shipping = inferred;
+            }
+        }
+
+        return orders;
+    }
+
+    // ORDER HISTORY for current user
     async getMyOrders() {
         const headers = accountService.getHeaderData();
 
         const response = await fetch(`${API_BASE_URL}/users/orderHistory`, {
             method: "GET",
-            headers
+            headers,
         });
 
         if (!response.ok) {
@@ -19,26 +108,16 @@ class OrderService {
         }
 
         const data = await response.json();
+        const rawList = Array.isArray(data) ? data : [];
 
-        // Transformiramo polja iz backend formata v frontend
-        return data.map(order => ({
-            id: order.orderId,               // za Vue v-for key
-            number: order.orderNumber || order.orderId, // order number za prikaz
-            createdAt: order.orderDate || new Date().toISOString(),
-            status: order.orderStatus || "Unknown",
-            total: order.totalAmount != null ? order.totalAmount : 0,
-            items: Array.isArray(order.items)
-                ? order.items.map(item => ({
-                    productId: item.productId || "",
-                    productName: item.productName || "Unknown Product",
-                    quantity: item.quantity || 0,
-                    price: item.price || 0
-                }))
-                : []
-        }));
+        // map correctly (uses orderItems!)
+        const orders = rawList.map((o) => this._mapOrder(o));
+
+        // enrich items for display (because API currently returns null/0)
+        return await this._enrichOrdersWithProducts(orders);
     }
 
-    // Ustvari novo naročilo
+    // Create new order
     async createOrder(orderData) {
         let headers = {};
         try {
@@ -46,14 +125,12 @@ class OrderService {
         } catch {
             headers = {};
         }
-        headers['Content-Type'] = 'application/json';
-
-
+        headers["Content-Type"] = "application/json";
 
         const response = await fetch(`${API_BASE_URL}/orders/create`, {
             method: "POST",
             headers,
-            body: JSON.stringify(orderData)
+            body: JSON.stringify(orderData),
         });
 
         if (!response.ok) {
@@ -62,39 +139,6 @@ class OrderService {
         }
 
         return await response.json();
-    }
-
-    // Pridobi naročilo po ID-ju
-    async getOrderById(id) {
-        const headers = accountService.getHeaderData();
-
-        const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
-            method: "GET",
-            headers
-        });
-
-        if (!response.ok) {
-            const error = await response.json().catch(() => ({}));
-            throw new Error(error.message || "Failed to fetch order details");
-        }
-
-        const order = await response.json();
-
-        return {
-            id: order.orderId,
-            number: order.orderNumber,
-            createdAt: order.orderDate || new Date().toISOString(),
-            status: order.orderStatus || "Unknown",
-            total: order.totalAmount != null ? order.totalAmount : 0,
-            items: Array.isArray(order.items)
-                ? order.items.map(item => ({
-                    productId: item.productId || item.id || "",
-                    productName: item.productName || item.name || "Unknown Product",
-                    quantity: item.quantity != null ? item.quantity : 0,
-                    price: item.price != null ? item.price : 0
-                }))
-                : []
-        };
     }
 }
 
