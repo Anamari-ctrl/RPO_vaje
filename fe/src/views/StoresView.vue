@@ -28,6 +28,10 @@
                 </div>
 
                 <div class="store-content">
+                <img 
+                  :src="`/storeImages/bookstore${store.id}.jpg`" 
+                  :alt="`Store Image ${store.id}`"
+                >
                     <!-- Working Hours -->
                     <div class="section">
                         <h3>🕒 Working Hours</h3>
