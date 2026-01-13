@@ -40,6 +40,11 @@ export class BooksService {
       PageNumber: page,
       PageSize: pageSize,
       SearchTerm: filters.search || null,
+      CategoryId: filters.categoryId || null,
+      GenreId: filters.genreId || null,
+      MinPrice: filters.minPrice || null,
+      MaxPrice: filters.maxPrice || null,
+      InStock: filters.inStock === 'true' || filters.inStock === true ? true : null,
       // Map common UI sort keys to backend columns if needed
       SortColumn: backendSortColumn,
       SortOrder: sortOrder
@@ -120,6 +125,34 @@ export class BooksService {
       };
 
 
+  }
+
+  /**
+   * Fetch all genres
+   * @returns {Promise<Array>}
+   */
+  async getGenres() {
+    const headers = accountService.getHeaderData();
+    const response = await fetch(`${API_BASE_URL}/genres`, {
+      method: 'GET',
+      headers
+    });
+    if (!response.ok) throw new Error('Failed to fetch genres');
+    return await response.json();
+  }
+
+  /**
+   * Fetch all categories
+   * @returns {Promise<Array>}
+   */
+  async getCategories() {
+    const headers = accountService.getHeaderData();
+    const response = await fetch(`${API_BASE_URL}/categories/`, {
+      method: 'GET',
+      headers
+    });
+    if (!response.ok) throw new Error('Failed to fetch categories');
+    return await response.json();
   }
 
   /**
