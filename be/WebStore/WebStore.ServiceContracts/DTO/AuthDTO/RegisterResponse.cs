@@ -4,7 +4,7 @@ namespace WebStore.ServiceContracts.DTO.AuthDTO
 {
     public class RegisterResponse
     {
-        [Required(ErrorMessage = "Username can't be black!")]
+        [Required(ErrorMessage = "Username can't be blank!")]
         [EmailAddress(ErrorMessage = "Email must be in correct format!")]
         public string? Email { get; set; }
 
@@ -15,10 +15,10 @@ namespace WebStore.ServiceContracts.DTO.AuthDTO
         [Compare(nameof(Password), ErrorMessage = "Password and confirm password do not match!")]
         public string? ConfirmPassword { get; set; }
 
-        [Required(ErrorMessage = "FirstName can't be black!")]
+        [Required(ErrorMessage = "FirstName can't be blank!")]
         public string? FirstName { get; set; }
 
-        [Required(ErrorMessage = "LastName can't be black!")]
+        [Required(ErrorMessage = "LastName can't be blank!")]
         public string? LastName { get; set; }
     }
 }
