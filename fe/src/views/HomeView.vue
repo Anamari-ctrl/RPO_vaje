@@ -131,8 +131,7 @@
                      @click="openBook(book.id)">
 
                     <img :src="book.imageUrl || 'https://via.placeholder.com/240x300?text=No+Image'"
-                         :alt="book.title"
-                         @error="(e) => (e.target.src = 'https://via.placeholder.com/240x300?text=No+Image')" />
+                         :alt="book.title" />
 
                     <div class="price">{{ book.price }} €</div>
                     <button class="buy"

@@ -30,6 +30,12 @@
                 It demonstrates client-server architecture, REST API usage,
                 filtering, pagination, and accessible UI design.
             </p>
+            <div class="books-btn">
+                <router-link class="item-btn" to="/books" aria-describedby="tt-books" @click="closeMobileNav">
+                    📚 Browse All Our Books
+                </router-link>
+                <span id="tt-books" role="tooltip" class="tooltip">Browse all books</span>
+            </div>
 
             <div class="authors">
                 <h3>Project authors</h3>
@@ -62,6 +68,25 @@ export default {
 </script>
 
 <style scoped>
+    .books-btn {
+        margin-bottom: 30px;
+        padding: 10px;
+
+    }
+    .item-btn {
+        padding: 12px 22px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+        background: var(--accent);
+        color: white;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+        .item-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
     .home {
         display: flex;
         justify-content: center;
