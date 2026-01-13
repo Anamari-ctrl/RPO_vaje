@@ -29,7 +29,9 @@ namespace WebStore.ServiceContracts.DTO.OrderItemDTO
                 OrderId = OrderId,
                 ProductId = ProductId,
                 Quantity = Quantity,
-                PriceAtPurchase = PriceAtPurchase
+                PriceAtPurchase = PriceAtPurchase,
+                ProductName = ProductName,
+                ShortDescription = ShortDescription
             };
         }
     }
