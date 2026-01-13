@@ -64,9 +64,21 @@
                     <span id="tt-lang" role="tooltip" class="tooltip">Change site language</span>
 
                     <div v-if="openLang" class="lang-menu" role="menu">
-                        <div @click="setLang('en')" role="menuitem" tabindex="0">🇬🇧 English</div>
-                        <div @click="setLang('sl')" role="menuitem" tabindex="0">🇸🇮 Slovenščina</div>
-                        <div @click="setLang('de')" role="menuitem" tabindex="0">🇩🇪 Deutsch</div>
+                        <div @click="setLang('en')" role="menuitem" tabindex="0">
+                            <img class="flag" src="@/assets/gb.png" alt="UK flag" />
+                            English
+                        </div>
+
+                        <div @click="setLang('sl')" role="menuitem" tabindex="0">
+                            <img class="flag" src="@/assets/si.png" alt="Slovenia flag" />
+                            Slovenščina
+                        </div>
+
+                        <div @click="setLang('de')" role="menuitem" tabindex="0">
+                            <img class="flag" src="@/assets/de.jpg" alt="Germany flag" />
+                            Deutsch
+                        </div>
+
                     </div>
 
                     <!-- hidden Google element -->
@@ -242,6 +254,24 @@
             .lang-menu div:hover {
                 background: #f0f0f0;
             }
+
+        .lang-menu div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .lang-menu .flag {
+            width: 14px;
+            height: 10px;
+            object-fit: cover;
+            border-radius: 2px;
+            display: inline-block;
+            flex: 0 0 auto;
+        }
+
 
     /* Tooltip */
     .tip-wrap {
