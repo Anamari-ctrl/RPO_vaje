@@ -51,32 +51,40 @@ export default {
     const successMessage = ref('');
     const isLoading = ref(false);
 
-    const handleForgotPassword = async () => {
-      errorMessage.value = '';
-      successMessage.value = '';
-      isLoading.value = true;
+      const handleForgotPassword = async () => {
+          errorMessage.value = '';
+          successMessage.value = '';
+          isLoading.value = true;
 
-      try {
-        const response = await accountService.postForgotPassword(email.value);
+          try {
+              const callbackUrl = await accountService.postForgotPassword(email.value);
 
-        // If backend returns a redirect URL, use it
-        if (response && response.redirectUrl) {
-          window.location.href = response.redirectUrl;
-          return;
-        }
+              // Backend returns a string URL: .../reset-password?token=...&email=...
+              if (typeof callbackUrl === 'string') {
+                  const url = new URL(callbackUrl);
 
-        // Fallback: redirect to login after a delay
-        successMessage.value = 'Check your email for the reset link. Redirecting to login...';
-        
-        setTimeout(() => {
-          router.push('/login');
-        }, 3000);
-      } catch (error) {
-        errorMessage.value = error.message || 'Failed to send reset link. Please try again.';
-      } finally {
-        isLoading.value = false;
-      }
-    };
+                  const token = url.searchParams.get('token');
+                  const emailParam = url.searchParams.get('email');
+
+                  if (token) {
+                      router.push({
+                          path: '/reset-password',
+                          query: { token, email: emailParam }
+                      });
+                      return;
+                  }
+              }
+
+              // fallback
+              successMessage.value = 'Reset link generated. Redirecting...';
+              setTimeout(() => router.push('/login'), 2000);
+          } catch (error) {
+              errorMessage.value = error.message || 'Failed to send reset link. Please try again.';
+          } finally {
+              isLoading.value = false;
+          }
+      };
+
 
     return {
       email,

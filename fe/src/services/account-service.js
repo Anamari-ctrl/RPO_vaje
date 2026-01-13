@@ -81,19 +81,17 @@ class AccountService {
             body: JSON.stringify(payload)
         });
 
+        const data = await response.json().catch(() => null);
+
         if (!response.ok) {
-            const error = await response.json().catch(() => ({}));
-            throw new Error(error.message || "Failed to send reset link");
+            const msg = data?.detail || data?.message || data?.title || "Failed to send reset link";
+            throw new Error(msg);
         }
 
-        // Backend returns token string; return it if needed
-        try {
-            const data = await response.json();
-            return data;
-        } catch {
-            return true;
-        }
+        // data is usually a string callback url
+        return data;
     }
+
 
     async postResetPassword({ token, newPassword, confirmPassword, email = null }) {
         const payload = {

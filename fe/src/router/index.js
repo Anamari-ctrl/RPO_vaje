@@ -18,7 +18,8 @@ const routes = [
     { path: '/login', name: 'Login', component: LoginView },
     { path: '/register', name: 'Register', component: RegisterView },
     { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPasswordView },
-    { path: '/reset-password/:token', name: 'ResetPassword', component: ResetPasswordView },
+    { path: '/reset-password', name: 'ResetPassword', component: ResetPasswordView },
+
 
     { path: '/profile', name: 'Profile', component: ProfileView },
     { path: '/cart', name: 'Cart', component: CartView },
