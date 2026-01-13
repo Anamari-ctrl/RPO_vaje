@@ -28,6 +28,7 @@ namespace WebStore.API
             builder.Services.AddScoped<IRatingRepository, RatingRepository>();
             builder.Services.AddScoped<IGenreRepository, GenreRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             //Services
             builder.Services.AddTransient<IJwtService, JwtService>();
@@ -65,8 +66,9 @@ namespace WebStore.API
                     {
                         policyBuilder.WithOrigins(allowedOrigins);
                         policyBuilder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
+                               .AllowAnyMethod()
+                               .AllowAnyHeader()
+                               .WithExposedHeaders("X-Pagination");
                         //.WithHeaders("Authorization", "origin", "accept", "content-type");
                     }
                 });

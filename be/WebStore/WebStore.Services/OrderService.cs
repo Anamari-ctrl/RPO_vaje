@@ -1,4 +1,5 @@
-﻿using WebStore.Entities.Models;
+﻿using WebStore.Entities.Identity;
+using WebStore.Entities.Models;
 using WebStore.RepositoryContracts;
 using WebStore.ServiceContracts;
 using WebStore.ServiceContracts.DTO.OrderDTO;
@@ -9,10 +10,13 @@ namespace WebStore.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IUserRepository _userRepository;
 
-        public OrderService(IOrderRepository repository)
+        public OrderService(IOrderRepository repository,
+                            IUserRepository userRepository)
         {
             _orderRepository = repository;
+            _userRepository = userRepository;
         }
 
         public async Task<OrderResponse> CreateItem(OrderAddRequest? addRequest)
@@ -22,7 +26,22 @@ namespace WebStore.Services
             ValidationHelper.ModelValidation(addRequest);
 
             Order order = addRequest.ToOrder();
+            order.OrderId = Guid.NewGuid();
             order.Created = DateTime.Now;
+
+            if (order.UserId.HasValue)
+            {
+                ApplicationUser? user = await _userRepository.GetUserData(order.UserId.Value);
+
+                if (user != null)
+                {
+                    order.CreatedBy = user.FirstName + " " + user.LastName;
+                    order.Address = user.Address;
+                    order.City = user.City;
+                    order.Country = user.Country;
+                    order.PostalCode = user.PostalCode;
+                }
+            }
 
             await _orderRepository.AddAsync(order);
 

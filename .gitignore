@@ -26,3 +26,5 @@
 /be/WebStore/WebStore.ServiceContracts/bin/Release/net8.0
 /be/WebStore/WebStore.Services/bin/Release/net8.0
 /be/WebStore/WebStore.Entities/Migrations
+/be/WebStore/WebStore.Tests/bin/Debug/net8.0
+/be/WebStore/WebStore.Tests/obj
