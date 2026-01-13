@@ -297,7 +297,7 @@
                     router.push("/profile");
 
                     const orderId = response?.orderId || response?.id || "created";
-                    alert(`Order ${orderId}! Your order has been placed.`);
+                    console(`Order ${orderId}! Your order has been placed.`);
                 } catch (err) {
                     console.error(err);
                     errorMessage.value = err?.message || "Failed to create order.";

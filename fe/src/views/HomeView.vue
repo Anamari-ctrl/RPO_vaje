@@ -251,7 +251,7 @@ export default {
         addToCart(book) {
             if (this.getAvailableStock(book.id) > 0) {
                 cartService.addItem(book, 1);
-                alert(`Added "${book.title}" to cart!`);
+                console.log(`Added "${book.title}" to cart!`);
             }
         },
         getAvailableStock(bookId) {
