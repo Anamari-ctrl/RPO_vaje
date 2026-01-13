@@ -18,7 +18,7 @@ class OrderService {
             id: o.orderId ?? o.OrderId,
             number: o.orderNumber ?? o.OrderNumber ?? (o.orderId ?? o.OrderId),
             createdAt: o.orderDate ?? o.OrderDate ?? null,
-            status: o.orderStatus ?? o.OrderStatus ?? "Unknown",
+            status: o.orderStatus ?? o.OrderStatus ?? "In progress",
 
             total: this._num(o.totalAmount ?? o.TotalAmount),
 
