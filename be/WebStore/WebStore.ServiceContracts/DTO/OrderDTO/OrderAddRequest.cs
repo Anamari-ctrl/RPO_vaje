@@ -9,14 +9,15 @@ namespace WebStore.ServiceContracts.DTO.OrderDTO
 
         public string? OrderStatus { get; set; }
 
+        public DateTime? OrderDate { get; set; }         
         public decimal TotalAmount { get; set; }
 
+        public decimal DeliveryCost { get; set; }         
+        public string? PaymentType { get; set; }  
+
         public string? Address { get; set; }
-
         public string? City { get; set; }
-
         public string? Country { get; set; }
-
         public string? PostalCode { get; set; }
 
         public List<OrderItemAddRequest> OrderItems { get; set; } = [];
@@ -27,7 +28,10 @@ namespace WebStore.ServiceContracts.DTO.OrderDTO
             {
                 UserId = UserId,
                 OrderStatus = OrderStatus,
+                OrderDate = OrderDate ?? DateTime.UtcNow,
                 TotalAmount = TotalAmount,
+                DeliveryCost = DeliveryCost,
+                PaymentType = PaymentType,
                 Address = Address,
                 City = City,
                 Country = Country,
