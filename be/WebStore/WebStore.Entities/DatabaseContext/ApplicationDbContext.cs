@@ -26,43 +26,7 @@ namespace WebStore.Entities.DatabaseContext
         {
             base.OnModelCreating(modelBuilder);
 
-            var adminUser = new ApplicationUser
-            {
-                Id = Guid.Parse("60000000-0000-0000-0000-000000000001"),
-                UserName = "admin@webstore.com",
-                NormalizedUserName = "ADMIN@WEBSTORE.COM",
-                Email = "admin@webstore.com",
-                NormalizedEmail = "ADMIN@WEBSTORE.COM",
-                EmailConfirmed = true,
-                PhoneNumberConfirmed = true,
-                SecurityStamp = Guid.NewGuid().ToString("D"),
-                FirstName = "Admin",
-                LastName = "User"
-            };
-
-            var passwordHasher = new PasswordHasher<ApplicationUser>();
-            adminUser.PasswordHash = passwordHasher.HashPassword(adminUser, "SecurePassword123!");
-
-            modelBuilder.Entity<ApplicationUser>().HasData(adminUser);
-
-            var adminRoleId = Guid.Parse("99999999-9999-9999-9999-999999999999");
-
-            modelBuilder.Entity<ApplicationRole>().HasData(
-                new ApplicationRole
-                {
-                    Id = adminRoleId,
-                    Name = "Admin",
-                    NormalizedName = "ADMIN"
-                }
-            );
-
-            modelBuilder.Entity<IdentityUserRole<Guid>>().HasData(
-                new IdentityUserRole<Guid>
-                {
-                    RoleId = adminRoleId,
-                    UserId = Guid.Parse("60000000-0000-0000-0000-000000000001")
-                }
-            );
+            CreateUsers(modelBuilder);
 
             modelBuilder.Entity<Branch>().ToTable("Branches");
 
@@ -145,6 +109,125 @@ namespace WebStore.Entities.DatabaseContext
                     modelBuilder.Entity<T>().HasData(item);
                 }
             }
+        }
+
+        private static void CreateUsers(ModelBuilder modelBuilder)
+        {
+            List<ApplicationUser> users = [];
+
+            var user = new ApplicationUser
+            {
+                Id = Guid.Parse("60000000-0000-0000-0000-000000000001"),
+                UserName = "admin@webstore.com",
+                NormalizedUserName = "ADMIN@WEBSTORE.COM",
+                Email = "admin@webstore.com",
+                NormalizedEmail = "ADMIN@WEBSTORE.COM",
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString("D"),
+                FirstName = "Admin",
+                LastName = "User"
+            };
+
+            var passwordHasher = new PasswordHasher<ApplicationUser>();
+            user.PasswordHash = passwordHasher.HashPassword(user, "SecurePassword123!");
+
+            users.Add(user);
+
+            user = new ApplicationUser()
+            {
+                Id = Guid.Parse("61000000-0000-0000-0000-000000000001"),
+                UserName = "miha@webstore.com",
+                NormalizedUserName = "MIHA@WEBSTORE.COM",
+                Email = "miha@webstore.com",
+                NormalizedEmail = "MIHA@WEBSTORE.COM",
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString("D"),
+                FirstName = "Miha",
+                LastName = "Potočnik"
+            };
+
+            passwordHasher = new PasswordHasher<ApplicationUser>();
+            user.PasswordHash = passwordHasher.HashPassword(user, "SecurePassword123!");
+
+            users.Add(user);
+
+            user = new ApplicationUser()
+            {
+                Id = Guid.Parse("62000000-0000-0000-0000-000000000001"),
+                UserName = "anamari@webstore.com",
+                NormalizedUserName = "ANAMARI@WEBSTORE.COM",
+                Email = "anamari@webstore.com",
+                NormalizedEmail = "ANAMARI@WEBSTORE.COM",
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString("D"),
+                FirstName = "Anamari",
+                LastName = "Orehar"
+            };
+
+            passwordHasher = new PasswordHasher<ApplicationUser>();
+            user.PasswordHash = passwordHasher.HashPassword(user, "SecurePassword123!");
+
+            users.Add(user);
+
+            user = new ApplicationUser()
+            {
+                Id = Guid.Parse("63000000-0000-0000-0000-000000000001"),
+                UserName = "misha@webstore.com",
+                NormalizedUserName = "MISHA@WEBSTORE.COM",
+                Email = "misha@webstore.com",
+                NormalizedEmail = "MISHA@WEBSTORE.COM",
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString("D"),
+                FirstName = "Misha",
+                LastName = "Rozman Atelšek"
+            };
+
+            passwordHasher = new PasswordHasher<ApplicationUser>();
+            user.PasswordHash = passwordHasher.HashPassword(user, "SecurePassword123!");
+
+            users.Add(user);
+
+            modelBuilder.Entity<ApplicationUser>().HasData(users);
+
+            var adminRoleId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+
+            modelBuilder.Entity<ApplicationRole>().HasData(
+                new ApplicationRole
+                {
+                    Id = adminRoleId,
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
+                }
+            );
+
+            List<IdentityUserRole<Guid>> userRoles = [
+                  new IdentityUserRole<Guid>
+                {
+                    RoleId = adminRoleId,
+                    UserId = Guid.Parse("60000000-0000-0000-0000-000000000001")
+                },
+                  new IdentityUserRole<Guid>
+                {
+                    RoleId = adminRoleId,
+                    UserId = Guid.Parse("61000000-0000-0000-0000-000000000001")
+                },
+                    new IdentityUserRole<Guid>
+                {
+                    RoleId = adminRoleId,
+                    UserId = Guid.Parse("62000000-0000-0000-0000-000000000001")
+                },
+                  new IdentityUserRole<Guid>
+                {
+                    RoleId = adminRoleId,
+                    UserId = Guid.Parse("63000000-0000-0000-0000-000000000001")
+                }
+                ];
+
+            modelBuilder.Entity<IdentityUserRole<Guid>>().HasData(userRoles);
         }
     }
 }
