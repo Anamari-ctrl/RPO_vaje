@@ -199,6 +199,23 @@ class AccountService {
         this.saveUserData(user.email, user.userId, user.firstName, user.lastName);
     }
 
+    async getUserById(userId) {
+        if (!userId) return null;
+        try {
+            const response = await fetch(`${USER_API_URL}?userId=${userId}`, {
+                method: "GET",
+                headers: this.getHeaderData()
+            });
+
+            if (!response.ok) return null;
+
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching user data", error);
+            return null;
+        }
+    }
+
     saveUserData(email, userId, firstName, lastName) {
         localStorage.setItem('email', email);
         localStorage.setItem('userId', userId);

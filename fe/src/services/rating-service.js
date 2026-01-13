@@ -16,7 +16,8 @@ const ratingService = {
           productId: ratingData.productId,
           userId: ratingData.userId,
           ratingValue: ratingData.ratingValue,
-          comment: ratingData.comment
+          comment: ratingData.comment,
+          createdBy: ratingData.createdBy
         })
       });
 
@@ -45,7 +46,8 @@ const ratingService = {
           productId: ratingData.productId,
           userId: ratingData.userId,
           ratingValue: ratingData.ratingValue,
-          comment: ratingData.comment
+          comment: ratingData.comment,
+          createdBy: ratingData.createdBy
         })
       });
 

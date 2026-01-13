@@ -132,7 +132,8 @@ export class BooksService {
           warranty: p.warranty, // <-- DODAJ
           officialUrl: p.manufacturerPageUrl, // <-- DODAJ (backend polje)
           longDescription: p.longDescription,
-          technicalDetails: p.technicalDetails
+          technicalDetails: p.technicalDetails,
+          ratings: p.ratings || []
       };
 
 

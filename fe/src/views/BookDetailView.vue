@@ -156,11 +156,11 @@
                                           class="star"
                                           :class="{ filled: n <= rating.ratingValue }">★</span>
                                 </div>
-                                <span class="rating-date">{{ formatDate(rating.createdAt) }}</span>
+                                <span class="rating-date">{{ formatDate(rating.created) }}</span>
                             </div>
 
                             <p class="rating-comment">{{ rating.comment || "No comment provided." }}</p>
-                            <div class="rating-user">— {{ rating.userName || "Anonymous" }}</div>
+                            <div class="rating-user" v-if="rating.createdBy">— {{ rating.createdBy }}</div>
                         </div>
                     </div>
                 </div>
@@ -198,6 +198,12 @@
             const accountState = accountService.getState();
             const isLoggedIn = computed(() => accountState.isUserLoggedIn);
             const currentUserId = computed(() => accountState.currentUserId);
+            const currentUserName = computed(() => {
+                if (accountState.firstName && accountState.lastName) {
+                    return `${accountState.firstName} ${accountState.lastName}`;
+                }
+                return accountState.currentEmail || "Unknown";
+            });
 
             const fallbackImage = "https://via.placeholder.com/400x500?text=No+Image";
 
@@ -212,46 +218,39 @@
                 };
             };
 
-            const loadMyRating = async () => {
-                const storageKey = `rating_${book.value.id}_${currentUserId.value}`;
-                const storedRating = localStorage.getItem(storageKey);
-
-                if (storedRating) {
-                    const rating = JSON.parse(storedRating);
-                    myRating.value = rating;
-                    userRatingValue.value = rating.ratingValue;
-                    userComment.value = rating.comment;
+            const loadMyRating = () => {
+                if (!currentUserId.value) return;
+                
+                const found = allRatings.value.find(r => r.userId === currentUserId.value);
+                
+                if (found) {
+                    myRating.value = found;
+                    userRatingValue.value = found.ratingValue;
+                    userComment.value = found.comment;
+                } else {
+                   myRating.value = null;
+                   userRatingValue.value = 0;
+                   userComment.value = "";
                 }
             };
 
-            const loadAllRatings = async () => {
-                try {
-                    if (!book.value) return;
-                    const ratings = await ratingService.getProductRatings(book.value.id);
-                    allRatings.value = ratings || [];
-                } catch (err) {
-                    console.error("Failed to load ratings:", err);
-                    allRatings.value = [];
-                }
-            };
-
-            const loadBook = async () => {
-                loading.value = true;
+            const loadBook = async (silent = false) => {
+                if (!silent) loading.value = true;
                 try {
                     const id = route.params.id;
                     const data = await booksService.getBookById(id);
                     book.value = normalizeBook(data);
 
-                    await loadAllRatings();
+                    allRatings.value = book.value.ratings || [];
 
                     if (isLoggedIn.value && book.value) {
-                        await loadMyRating();
+                        loadMyRating();
                     }
                 } catch (err) {
                     console.error("Failed to load book:", err);
                     book.value = null;
                 } finally {
-                    loading.value = false;
+                    if (!silent) loading.value = false;
                 }
             };
 
@@ -277,8 +276,6 @@
                 ratingError.value = false;
 
                 try {
-                    const storageKey = `rating_${book.value.id}_${currentUserId.value}`;
-
                     if (myRating.value) {
                         await ratingService.updateRating({
                             ratingId: myRating.value.ratingId,
@@ -286,6 +283,7 @@
                             userId: currentUserId.value,
                             ratingValue: userRatingValue.value,
                             comment: userComment.value,
+                            createdBy: currentUserName.value
                         });
                         ratingMessage.value = "Review updated successfully!";
                     } else {
@@ -294,23 +292,13 @@
                             userId: currentUserId.value,
                             ratingValue: userRatingValue.value,
                             comment: userComment.value,
+                            createdBy: currentUserName.value
                         });
                         myRating.value = newRating;
                         ratingMessage.value = "Review submitted successfully!";
                     }
 
-                    localStorage.setItem(
-                        storageKey,
-                        JSON.stringify({
-                            ratingId: myRating.value.ratingId,
-                            productId: book.value.id,
-                            userId: currentUserId.value,
-                            ratingValue: userRatingValue.value,
-                            comment: userComment.value,
-                        })
-                    );
-
-                    await loadAllRatings();
+                    await loadBook(true);
                 } catch (err) {
                     console.error("Failed to submit rating:", err);
                     ratingMessage.value = err?.message || "Failed to submit review";
@@ -324,9 +312,6 @@
                 try {
                     await ratingService.deleteRating(myRating.value.ratingId);
 
-                    const storageKey = `rating_${book.value.id}_${currentUserId.value}`;
-                    localStorage.removeItem(storageKey);
-
                     userRatingValue.value = 0;
                     userComment.value = "";
                     myRating.value = null;
@@ -334,7 +319,7 @@
                     ratingMessage.value = "Review deleted successfully!";
                     ratingError.value = false;
 
-                    await loadAllRatings();
+                    await loadBook(true);
                 } catch (err) {
                     console.error("Failed to delete rating:", err);
                     ratingMessage.value = err?.message || "Failed to delete review";
