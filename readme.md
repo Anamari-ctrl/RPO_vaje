@@ -27,30 +27,22 @@ This project represents the foundation of an online bookstore platform built wit
 <img width="1898" height="615" alt="slika" src="https://github.com/user-attachments/assets/e25d4349-0e58-4464-81ec-29403209f4ec" />
 
 #### 🏬 List of branches
-<img width="1902" height="801" alt="slika" src="https://github.com/user-attachments/assets/9076c7e8-6277-4b09-8b72-8cab53392d19" />
+<img width="2540" height="1259" alt="slika" src="https://github.com/user-attachments/assets/a424a7a5-7d09-40f9-a9de-350c525acb92" />
 
 ---
 
 ## 🔧 Features
 
-Implemented:
-
-- User management: registration, login, edit user data, change user password, order history,
+- User management: registration, login, edit user data, change user password, order history.
 - Product catalog:
-    - filter products based on price, availability, brand, supplier ...
+    - filter products based on price, availability, genre, categoriy.
     - search products by title
     - sort products by title, price, create date ...
-    - Change language option
-    - Shopping carts
+- Change language option
+- Shopping carts
 - Branches
 - Orders
 - User reviews for products
-
-To be implemented:
-
-- User management: settings, ..
-- Product catalog:
-    - filter products based on price, availability, category, genre ...
 
 ---
 
