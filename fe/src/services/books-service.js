@@ -21,7 +21,7 @@ export class BooksService {
   async getBooks(params = {}) {
     const {
       page = 1,
-      pageSize = 9,
+      pageSize = 10,
       sortBy = 'title',
       sortOrder = 'asc',
       filters = {}
@@ -63,31 +63,42 @@ export class BooksService {
 
     // Body is a list of ProductResponse items; metadata is in X-Pagination header
     const metaRaw = response.headers.get('X-Pagination');
-    let meta = { TotalCount: 0, CurrentPage: page, TotalPages: 1 };
-    try { if (metaRaw) meta = JSON.parse(metaRaw); } catch (e) {
-      meta = { TotalCount: meta.TotalCount ?? 0, CurrentPage: page, TotalPages: 1 };
+    let meta = { totalCount: 0, currentPage: page, totalPages: 1 };
+    
+    try { 
+      if (metaRaw) {
+        const parsed = JSON.parse(metaRaw);
+        // Normalize keys to camelCase as they might come as PascalCase from .NET
+        meta = {
+          totalCount: parsed.TotalCount ?? parsed.totalCount ?? 0,
+          currentPage: parsed.CurrentPage ?? parsed.currentPage ?? page,
+          totalPages: parsed.TotalPages ?? parsed.totalPages ?? 1
+        };
+      }
+    } catch (e) {
+      console.error('Failed to parse X-Pagination header:', e);
     }
 
-      const data = await response.json();
-      console.log(data); // preveri, kaj dejansko pride
+    const data = await response.json();
+    console.log(data); // preveri, kaj dejansko pride
 
-      const itemsArray = Array.isArray(data.items) ? data.items : data;
+    const itemsArray = Array.isArray(data.items) ? data.items : data;
 
-      const items = itemsArray.map(p => ({
-          id: p.productId,
-          title: p.productName,
-          price: p.price,
-          image: p.imageUrl,
-          shortDescription: p.shortDescription,
-          stock: p.stock || (p.isAvailable ? 1 : 0)
-      }));
+    const items = itemsArray.map(p => ({
+        id: p.productId,
+        title: p.productName,
+        price: p.price,
+        imageUrl: p.imageUrl,
+        shortDescription: p.shortDescription,
+        stock: p.stock || (p.isAvailable ? 1 : 0)
+    }));
 
 
     return {
       items,
-      totalCount: meta.TotalCount ?? 0,
-      currentPage: meta.CurrentPage ?? page,
-      totalPages: meta.TotalPages ?? 1
+      totalCount: meta.totalCount,
+      currentPage: meta.currentPage,
+      totalPages: meta.totalPages
     };
   }
 

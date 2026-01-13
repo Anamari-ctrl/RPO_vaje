@@ -157,11 +157,12 @@
                 </button>
 
                 <div class="page-numbers">
-                    <button v-for="page in paginationButtons"
-                            :key="page"
-                            @click="goToPage(page)"
-                            :class="{ active: currentPage === page }"
-                            class="btn-page-number">
+                    <button v-for="(page, index) in paginationButtons"
+                            :key="index"
+                            @click="page !== '...' ? goToPage(page) : null"
+                            :class="{ active: currentPage === page, 'dots': page === '...' }"
+                            class="btn-page-number"
+                            :disabled="page === '...'">
                         {{ page }}
                     </button>
                 </div>
@@ -199,7 +200,7 @@ export default {
             books: [],
             searchQuery: '',
             currentPage: 1,
-            pageSize: 12,
+            pageSize: 10,
             totalCount: 0,
             totalPages: 0,
             loading: false,
@@ -217,21 +218,34 @@ export default {
     },
     computed: {
         paginationButtons() {
-            const buttons = [];
-            const maxButtons = 5;
-            
-            let start = Math.max(1, this.currentPage - Math.floor(maxButtons / 2));
-            let end = Math.min(this.totalPages, start + maxButtons - 1);
-            
-            if (end - start < maxButtons - 1) {
-                start = Math.max(1, end - maxButtons + 1);
+            const current = this.currentPage;
+            const total = this.totalPages;
+            const delta = 2;
+            const left = current - delta;
+            const right = current + delta + 1;
+            const range = [];
+            const rangeWithDots = [];
+            let l;
+
+            for (let i = 1; i <= total; i++) {
+                if (i === 1 || i === total || (i >= left && i < right)) {
+                    range.push(i);
+                }
             }
-            
-            for (let i = start; i <= end; i++) {
-                buttons.push(i);
+
+            for (const i of range) {
+                if (l) {
+                    if (i - l === 2) {
+                        rangeWithDots.push(l + 1);
+                    } else if (i - l !== 1) {
+                        rangeWithDots.push('...');
+                    }
+                }
+                rangeWithDots.push(i);
+                l = i;
             }
-            
-            return buttons;
+
+            return rangeWithDots;
         }
     },
     methods: {
@@ -599,6 +613,12 @@ export default {
         background: var(--accent);
         color: white;
         border-color: var(--accent);
+    }
+
+    .btn-page-number.dots {
+        cursor: default;
+        background: transparent;
+        border: none;
     }
 
     .nav {
