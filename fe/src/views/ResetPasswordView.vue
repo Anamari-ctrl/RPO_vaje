@@ -118,14 +118,14 @@ export default {
 </script>
 
 <style scoped>
-.password-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 80vh;
-  padding: 20px;
-  background: #f5f5f5;
-}
+    .password-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 20px;
+        background: transparent;
+    }
 
 .password-card {
   background: white;
