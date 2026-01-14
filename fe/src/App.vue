@@ -375,6 +375,12 @@
         min-width: auto;
     }
 
+    :focus-visible {
+        outline: 3px solid #42b983;
+        outline-offset: 3px;
+    }
+
+
     /* Responsive behavior */
     @media (max-width: 900px) {
         .mobile-actions {
