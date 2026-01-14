@@ -46,12 +46,6 @@
                     <span id="tt-stores" role="tooltip" class="tooltip">Find our store locations</span>
                 </div>
 
-                <div class="tip-wrap">
-                    <router-link class="item" to="/" aria-describedby="tt-discounts" @click="closeMobileNav">
-                        🏷️ Discounts
-                    </router-link>
-                    <span id="tt-discounts" role="tooltip" class="tooltip">See current deals</span>
-                </div>
 
                 <div class="lang-select tip-wrap">
                     <button type="button"

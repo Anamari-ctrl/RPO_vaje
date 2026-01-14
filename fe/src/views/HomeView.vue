@@ -21,15 +21,6 @@
                     View and edit your profile
                 </span>
             </div>
-
-            <div class="tip-wrap">
-                <router-link class="item" to="/" aria-describedby="tt-wishlist">
-                    ❤︎ Wishlist
-                </router-link>
-                <span id="tt-wishlist" role="tooltip" class="tooltip">
-                    View saved books
-                </span>
-            </div>
         </div>
     </nav>
 
