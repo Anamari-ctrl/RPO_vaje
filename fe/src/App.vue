@@ -159,6 +159,24 @@
 </script>
 
 <style scoped>
+
+    .item {
+        text-decoration: none;
+        color: #083533; /* temna osnovna barva */
+        padding: 6px 10px;
+        border-radius: 10px;
+        transition: background-color 0.2s ease, outline 0.2s ease;
+    }
+
+
+        .item:hover,
+        .item:focus-visible {
+            background-color: #9fe6df; 
+            outline: 2px solid #359268; 
+            outline-offset: 2px;
+        }
+
+
     .brand {
         display: flex;
         align-items: center;
@@ -205,7 +223,7 @@
         margin-left: 18px;
     }
 
-    /* CART (shared style) */
+
     .cart {
         min-width: 80px;
         padding: 10px 18px;

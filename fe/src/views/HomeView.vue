@@ -122,7 +122,10 @@
                      @click="openBook(book.id)">
 
                     <img :src="book.imageUrl || 'https://via.placeholder.com/240x300?text=No+Image'"
-                         :alt="book.title" />
+                         :alt="book.imageUrl 
+                         ? `Book cover: ${book.title}. ${book.shortDescription}`
+                         : `No cover available for ${book.title}. ${book.shortDescription}`" />
+
 
                     <div class="price">{{ book.price }} €</div>
                     <button class="buy"

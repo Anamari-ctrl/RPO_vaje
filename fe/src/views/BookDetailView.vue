@@ -14,7 +14,9 @@
 
     <div v-else-if="book" class="product-page">
         <div class="image">
-            <img :src="book.imageUrl || fallbackImage" :alt="book.title" />
+            <img :src="book.imageUrl || fallbackImage"  :alt="book.imageUrl
+                    ? `Book cover: ${book.title}. ${book.shortDescription}`
+                    : `No cover available for ${book.title}. ${book.shortDescription}`" />
         </div>
 
         <div class="info">
