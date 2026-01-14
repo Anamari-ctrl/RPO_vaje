@@ -1,10 +1,11 @@
 <template>
     <div class="container">
         <header class="header">
-            <div class="brand">
+            <router-link to="/" class="brand" @click="closeMobileNav">
                 <img src="@/assets/owl_logo.png" alt="three owls logo" />
                 <h1>THE THREE OWLS BOOKSTORE .</h1>
-            </div>
+            </router-link>
+
 
             <!-- MOBILE: hamburger + cart -->
             <div v-if="!isAuthPage" class="mobile-actions">
@@ -162,7 +163,15 @@
         display: flex;
         align-items: center;
         gap: 12px;
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
     }
+
+        .brand:hover {
+            opacity: 0.85;
+        }
+
 
         .brand img {
             width: 56px;
