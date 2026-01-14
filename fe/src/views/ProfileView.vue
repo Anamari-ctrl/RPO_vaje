@@ -28,9 +28,9 @@
             <div v-if="activeScreen === 'dashboard'">
                 <h3>Dashboard</h3>
                 <p>
-                    Hello {{ user.firstName || "User" }}
-                    (not you? <span class="link" @click="logout">Logout</span>)
-                </p>
+                    Hello <strong> {{ user.firstName || "User" }} </strong>
+    (not you? <span class="link" @click="logout">Logout</span>)
+</p>
 
                 <p>
                     In your account dashboard you can
