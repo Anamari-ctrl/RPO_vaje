@@ -338,7 +338,7 @@
         }
 
     .tip-wrap:hover .tooltip,
-    .tip-wrap:focus-within .tooltip {
+    .tip-wrap:focus-within:has(:focus-visible) .tooltip {
         opacity: 1;
         visibility: visible;
         transform: translateX(-50%) translateY(0);
